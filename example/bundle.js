@@ -208,7 +208,7 @@ var AvatarEditor = React.createClass({displayName: 'AvatarEditor',
     onUploadReady: function(e) {
         var image = new Image();
         image.src = e.target.result;
-        var state = this.getInitialSizeAndPosition(imageObj.width, imageObj.height);
+        var state = this.getInitialSizeAndPosition(image.width, image.height);
         state.image = image;
         this.setState(state);
     },
