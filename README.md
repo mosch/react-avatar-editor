@@ -23,4 +23,4 @@ var MyEditor = React.createClass({
 module.exports = SomeAwesomeComponent;
 ```
 
-![demo](http://media.giphy.com/media/yoJC2BbQgfX99p7Fe0/giphy.gif)
+![demo](https://cdn.rawgit.com/mosch/react-avatar-editor/master/example/example.gif)
