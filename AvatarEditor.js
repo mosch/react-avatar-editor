@@ -57,7 +57,6 @@ var AvatarEditor = React.createClass({
     },
 
     componentDidMount: function() {
-
         var context = this.getDOMNode().getContext('2d');
         if (this.props.image) {
             var imageObj = new Image();
@@ -66,6 +65,13 @@ var AvatarEditor = React.createClass({
             this.setState({image: imageObj});
         }
         this.paint(context);
+        document.addEventListener('mousemove', this.handleMouseMove);
+        document.addEventListener('mouseup', this.handleMouseUp);
+    },
+
+    componentWillUnmount: function() {
+        document.removeEventListener('mousemove', this.handleMouseMove);
+        document.removeEventListener('mouseup', this.handleMouseUp);
     },
 
     componentDidUpdate: function() {
@@ -73,8 +79,6 @@ var AvatarEditor = React.createClass({
         context.clearRect(0, 0, this.props.width, this.props.height);
         this.paint(context);
         this.drawImage(context);
-        document.addEventListener('mousemove', this.handleMouseMove);
-        document.addEventListener('mouseup', this.handleMouseUp);
     },
 
     handleImageReady: function() {
@@ -83,9 +87,8 @@ var AvatarEditor = React.createClass({
 
     getInitialSizeAndPosition: function(width, height) {
         var newHeight, newWidth;
-        var horizontal = width > height;
 
-        if (horizontal) {
+        if (width > height) {
             newHeight = (this.props.height-(this.props.border*2));
             newWidth = (width*(newHeight / height));
         } else {
@@ -214,9 +217,9 @@ var AvatarEditor = React.createClass({
 
     render: function() {
         return <canvas width={250} height={250}
-            onMouseDown={this.handleMouseDown}
-            onDragOver={this.handleDragOver}
-            onDrop={this.handleDrop} />;
+        onMouseDown={this.handleMouseDown}
+        onDragOver={this.handleDragOver}
+        onDrop={this.handleDrop} />;
     }
 
 });
