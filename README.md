@@ -24,12 +24,11 @@ module.exports = SomeAwesomeComponent;
 ```
 
 ## Props
-### width
-The total width of the editor
-## height
-The total width of the editor
-## border
-The cropping border. Image will be visible through the border, but cut off in the resulting image. 
+| Prop   | Description
+| ------ | --------------
+| width  | The total width of the editor
+| height | The total width of the editor
+| border | The cropping border. Image will be visible through the border, but cut off in the resulting image. 
 
 ## Accessing the resulting image
 
