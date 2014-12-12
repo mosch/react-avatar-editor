@@ -1,5 +1,5 @@
 var React = require('react');
-var Editor = require('../AvatarEditor.js');
+var Editor = require('../index.js');
 
 var App = React.createClass({
 
@@ -26,8 +26,11 @@ var App = React.createClass({
     render: function() {
         return <div>
             <Editor ref="avatar" rotation={this.state.rotation} scale={this.state.scale} onSave={this.handleSave} image="example.jpg" />
-            <input type="range" ref="scale" onChange={this.handleScale} min="1" max="2" step="0.01" defaultValue="1" />
+            <br />
+            <input name="scale" type="range" ref="scale" onChange={this.handleScale} min="1" max="2" step="0.01" defaultValue="1" />    <br />
+            <br />
             <input type="button" onClick={this.handleSave} value="Preview" />
+            <br />
             <img src={this.state.preview} />
         </div>
     }

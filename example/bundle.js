@@ -1,4 +1,45 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"/Users/mschwoerer/Develop/react-avatar-editor/AvatarEditor.js":[function(require,module,exports){
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"/Users/mschwoerer/Develop/react-avatar-editor/example/app.js":[function(require,module,exports){
+var React = require('react');
+var Editor = require('../index.js');
+
+var App = React.createClass({displayName: 'App',
+
+    getInitialState: function() {
+        return {
+            scale: 1,
+            preview: null
+        };
+    },
+
+    componentDidMount: function() {
+    },
+
+    handleSave: function(data) {
+        var img = this.refs.avatar.getImage();
+        this.setState({preview: img});
+    },
+
+    handleScale: function() {
+        var scale = this.refs.scale.getDOMNode().value;
+        this.setState({scale: scale})
+    },
+
+    render: function() {
+        return React.createElement("div", null, 
+            React.createElement(Editor, {ref: "avatar", rotation: this.state.rotation, scale: this.state.scale, onSave: this.handleSave, image: "example.jpg"}), 
+            React.createElement("br", null), 
+            React.createElement("input", {name: "scale", type: "range", ref: "scale", onChange: this.handleScale, min: "1", max: "2", step: "0.01", defaultValue: "1"}), "    ", React.createElement("br", null), 
+            React.createElement("br", null), 
+            React.createElement("input", {type: "button", onClick: this.handleSave, value: "Preview"}), 
+            React.createElement("br", null), 
+            React.createElement("img", {src: this.state.preview})
+        )
+    }
+
+});
+
+React.render(React.createElement(App), document.getElementById('app'));
+},{"../index.js":"/Users/mschwoerer/Develop/react-avatar-editor/index.js","react":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/react.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/index.js":[function(require,module,exports){
 /** @jsx React.DOM */
 var React = require('react');
 
@@ -58,7 +99,6 @@ var AvatarEditor = React.createClass({displayName: 'AvatarEditor',
     },
 
     componentDidMount: function() {
-
         var context = this.getDOMNode().getContext('2d');
         if (this.props.image) {
             var imageObj = new Image();
@@ -67,6 +107,13 @@ var AvatarEditor = React.createClass({displayName: 'AvatarEditor',
             this.setState({image: imageObj});
         }
         this.paint(context);
+        document.addEventListener('mousemove', this.handleMouseMove);
+        document.addEventListener('mouseup', this.handleMouseUp);
+    },
+
+    componentWillUnmount: function() {
+        document.removeEventListener('mousemove', this.handleMouseMove);
+        document.removeEventListener('mouseup', this.handleMouseUp);
     },
 
     componentDidUpdate: function() {
@@ -74,8 +121,6 @@ var AvatarEditor = React.createClass({displayName: 'AvatarEditor',
         context.clearRect(0, 0, this.props.width, this.props.height);
         this.paint(context);
         this.drawImage(context);
-        document.addEventListener('mousemove', this.handleMouseMove);
-        document.addEventListener('mouseup', this.handleMouseUp);
     },
 
     handleImageReady: function() {
@@ -84,9 +129,8 @@ var AvatarEditor = React.createClass({displayName: 'AvatarEditor',
 
     getInitialSizeAndPosition: function(width, height) {
         var newHeight, newWidth;
-        var horizontal = width > height;
 
-        if (horizontal) {
+        if (width > height) {
             newHeight = (this.props.height-(this.props.border*2));
             newWidth = (width*(newHeight / height));
         } else {
@@ -215,55 +259,16 @@ var AvatarEditor = React.createClass({displayName: 'AvatarEditor',
 
     render: function() {
         return React.createElement("canvas", {width: 250, height: 250, 
-            onMouseDown: this.handleMouseDown, 
-            onDragOver: this.handleDragOver, 
-            onDrop: this.handleDrop});
+        onMouseDown: this.handleMouseDown, 
+        onDragOver: this.handleDragOver, 
+        onDrop: this.handleDrop});
     }
 
 });
 
 
 module.exports = AvatarEditor;
-
-},{"react":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/react.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/example/app.js":[function(require,module,exports){
-var React = require('react');
-var Editor = require('../AvatarEditor.js');
-
-var App = React.createClass({displayName: 'App',
-
-    getInitialState: function() {
-        return {
-            scale: 1,
-            preview: null
-        };
-    },
-
-    componentDidMount: function() {
-    },
-
-    handleSave: function(data) {
-        var img = this.refs.avatar.getImage();
-        this.setState({preview: img});
-    },
-
-    handleScale: function() {
-        var scale = this.refs.scale.getDOMNode().value;
-        this.setState({scale: scale})
-    },
-
-    render: function() {
-        return React.createElement("div", null, 
-            React.createElement(Editor, {ref: "avatar", rotation: this.state.rotation, scale: this.state.scale, onSave: this.handleSave, image: "example.jpg"}), 
-            React.createElement("input", {type: "range", ref: "scale", onChange: this.handleScale, min: "1", max: "2", step: "0.01", defaultValue: "1"}), 
-            React.createElement("input", {type: "button", onClick: this.handleSave, value: "Preview"}), 
-            React.createElement("img", {src: this.state.preview})
-        )
-    }
-
-});
-
-React.render(React.createElement(App), document.getElementById('app'));
-},{"../AvatarEditor.js":"/Users/mschwoerer/Develop/react-avatar-editor/AvatarEditor.js","react":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/react.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/AutoFocusMixin.js":[function(require,module,exports){
+},{"react":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/react.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/AutoFocusMixin.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
