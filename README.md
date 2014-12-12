@@ -20,7 +20,7 @@ var MyEditor = React.createClass({
 
 });
 
-module.exports = SomeAwesomeComponent;
+module.exports = MyEditor;
 ```
 
 ## Props
@@ -52,6 +52,6 @@ var MyEditor = React.createClass({
 
 });
 
-module.exports = SomeAwesomeComponent;
+module.exports = MyEditor;
 ```
 
