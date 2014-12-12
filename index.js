@@ -216,10 +216,13 @@ var AvatarEditor = React.createClass({
     },
 
     render: function() {
-        return <canvas width={250} height={250}
-        onMouseDown={this.handleMouseDown}
-        onDragOver={this.handleDragOver}
-        onDrop={this.handleDrop} />;
+        return React.createElement('canvas', {
+            width: 250,
+            height: 250,
+            onMouseDown: this.handleMouseDown,
+            onDragOver: this.handleDragOver,
+            onDrop: this.handleDrop
+        }, null);
     }
 
 });
