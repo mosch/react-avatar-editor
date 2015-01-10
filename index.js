@@ -118,6 +118,12 @@ var AvatarEditor = React.createClass({
     },
 
     componentWillReceiveProps: function(props) {
+        if (this.props.image != props.image) {
+            var imageObj = new Image();
+            imageObj.onload = this.handleImageReady;
+            imageObj.src = props.image;
+            this.setState({image: imageObj});
+        }
         var image = this.state.image;
         var width = (this.state.width/this.props.scale)*props.scale;
         var height = (this.state.width/this.props.scale)*props.scale;
