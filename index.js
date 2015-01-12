@@ -59,10 +59,7 @@ var AvatarEditor = React.createClass({
     componentDidMount: function() {
         var context = this.getDOMNode().getContext('2d');
         if (this.props.image) {
-            var imageObj = new Image();
-            imageObj.onload = this.handleImageReady;
-            imageObj.src = this.props.image;
-            this.setState({image: imageObj});
+            this.setImageToState(this.props.image);
         }
         this.paint(context);
         document.addEventListener('mousemove', this.handleMouseMove);
@@ -83,6 +80,13 @@ var AvatarEditor = React.createClass({
 
     handleImageReady: function() {
         this.setState(this.getInitialSizeAndPosition(this.state.image.width, this.state.image.height));
+    },
+
+    setImageToState: function(image) {
+        var imageObj = new Image();
+        imageObj.onload = this.handleImageReady;
+        imageObj.src = image;
+        this.setState({image: imageObj});
     },
 
     getInitialSizeAndPosition: function(width, height) {
@@ -119,10 +123,7 @@ var AvatarEditor = React.createClass({
 
     componentWillReceiveProps: function(props) {
         if (this.props.image != props.image) {
-            var imageObj = new Image();
-            imageObj.onload = this.handleImageReady;
-            imageObj.src = props.image;
-            this.setState({image: imageObj});
+            this.setImageToState(props.image);
         }
         var image = this.state.image;
         var width = (this.state.width/this.props.scale)*props.scale;
