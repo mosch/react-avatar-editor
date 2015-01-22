@@ -1,8 +1,8 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"/Users/mschwoerer/Develop/react-avatar-editor/example/app.js":[function(require,module,exports){
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"/Users/chengyin/dev/react-avatar-editor/example/app.js":[function(require,module,exports){
 var React = require('react');
 var Editor = require('../index.js');
 
-var App = React.createClass({displayName: 'App',
+var App = React.createClass({displayName: "App",
 
     getInitialState: function() {
         return {
@@ -39,239 +39,278 @@ var App = React.createClass({displayName: 'App',
 });
 
 React.render(React.createElement(App), document.getElementById('app'));
-},{"../index.js":"/Users/mschwoerer/Develop/react-avatar-editor/index.js","react":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/react.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/index.js":[function(require,module,exports){
+},{"../index.js":"/Users/chengyin/dev/react-avatar-editor/index.js","react":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/react.js"}],"/Users/chengyin/dev/react-avatar-editor/index.js":[function(require,module,exports){
 /** @jsx React.DOM */
-var React = require('react');
+(function(root) {
+    var factory = function(React) {
+        return React.createClass({
+            propTypes: {
+                scale: React.PropTypes.number,
+                image: React.PropTypes.string,
+                border: React.PropTypes.number,
+                width: React.PropTypes.number,
+                height: React.PropTypes.number
+            },
+            getDefaultProps: function() {
+                return {
+                    scale: 1,
+                    border: 25,
+                    width: 250,
+                    height: 250
+                }
+            },
+            getInitialState: function() {
+                return {
+                    drag: false,
+                    my: null,
+                    mx: null,
+                    image: {
+                        x: 0,
+                        y: 0
+                    }
+                };
+            },
 
-var AvatarEditor = React.createClass({displayName: 'AvatarEditor',
-    propTypes: {
-        scale: React.PropTypes.number,
-        image: React.PropTypes.string,
-        border: React.PropTypes.number,
-        width: React.PropTypes.number,
-        height: React.PropTypes.number
-    },
-    getDefaultProps: function() {
-        return {
-            scale: 1,
-            border: 25,
-            width: 250,
-            height: 250
-        }
-    },
-    getInitialState: function() {
-        return {
-            drag: false,
-            my: null,
-            mx: null,
-            y: 0,
-            x: 0,
-            image: null,
-            initialWidth: null,
-            initialHeight: null,
-            height: null,
-            width: null
-        };
-    },
+            getDimensions: function() {
+                return {
+                    width:  this.props.width,
+                    height: this.props.height,
+                    border: this.props.border,
+                    canvas: {
+                        width:  this.props.width  + (this.props.border * 2),
+                        height: this.props.height + (this.props.border * 2)
+                    }
+                }
+            },
 
-    getDimensions: function() {
-        return {
-            width: this.props.width,
-            height: this.props.height,
-            border: this.props.border,
-            canvas: {
-                height: this.props.height+(this.props.border*2),
-                width: this.props.width+(this.props.width*2)
+            getImage: function() {
+                var dom = document.createElement('canvas');
+                var context = dom.getContext('2d');
+                var border = this.getDimensions().border;
+                var image = this.state.image;
+
+                dom.width  = this.props.width;
+                dom.height = this.props.height;
+
+                context.globalCompositeOperation = 'destination-over';
+                context.drawImage(image.resource, image.x - border, image.y - border, image.width, image.height);
+
+                return dom.toDataURL();
+            },
+
+            loadImage: function(imageURL) {
+                var imageObj = new Image();
+                imageObj.onload = this.handleImageReady.bind(this, imageObj);
+                imageObj.crossOrigin = 'anonymous';
+                imageObj.src = imageURL;
+            },
+
+            componentDidMount: function() {
+                var context = this.getDOMNode().getContext('2d');
+                if (this.props.image) {
+                    this.loadImage(this.props.image);
+                }
+                this.paint(context);
+                document.addEventListener('mousemove', this.handleMouseMove, false);
+                document.addEventListener('mouseup', this.handleMouseUp, false);
+            },
+
+            componentWillUnmount: function() {
+                document.removeEventListener('mousemove', this.handleMouseMove, false);
+                document.removeEventListener('mouseup', this.handleMouseUp, false);
+            },
+
+            componentDidUpdate: function() {
+                var context = this.getDOMNode().getContext('2d');
+                context.clearRect(0, 0, this.getDimensions().canvas.width, this.getDimensions().canvas.height);
+                this.paint(context);
+                this.drawImage(context);
+            },
+
+            handleImageReady: function(image) {
+                var imageState = this.getInitialSizeAndPosition(image.width, image.height);
+                imageState.resource = image;
+                this.setState({ drag: false, image: imageState });
+            },
+
+            getInitialSizeAndPosition: function(width, height) {
+                var newHeight, newWidth;
+
+                if (width > height) {
+                    newHeight = (this.getDimensions().height);
+                    newWidth  = (width * (newHeight / height));
+                } else {
+                    newWidth  = (this.getDimensions().width);
+                    newHeight = (height * (newWidth / width));
+                }
+
+                var position = this.calculatePosition(newWidth, newHeight);
+
+                return {
+                    height: newHeight,
+                    width: newWidth,
+                    x: position.x,
+                    y: position.y
+                };
+            },
+
+            calculatePosition: function(width, height) {
+                var dimensions = this.getDimensions();
+                var borderX = dimensions.height + dimensions.border;
+                var borderY = dimensions.width  + dimensions.border;
+
+                var lastX = this.state.image.x;
+                var lastY = this.state.image.y;
+
+                var x = Math.round((width  + lastX <= borderX) ? lastX + (borderX - (width  + lastX)) : lastX);
+                var y = Math.round((height + lastY <= borderY) ? lastY + (borderY - (height + lastY)) : lastY);
+
+                return {
+                    x: x,
+                    y: y
+                };
+            },
+
+            componentWillReceiveProps: function(newProps) {
+                var image = this.state.image;
+
+                if (this.props.image != newProps.image) {
+                    this.loadImage(newProps.image);
+                } else  if (image.resource) {
+                    var width =  (image.width / this.props.scale) * newProps.scale;
+                    var height = (image.width / this.props.scale) * newProps.scale;
+
+                    var minHeight = this.props.height;
+                    var minWidth  = this.props.width;
+
+                    if (width > height) {
+                        // this is an horizontal image
+                        height = height <= minHeight ? minHeight : height;
+                        width  = (image.width*(height / image.height));
+                    } else {
+                        // this is an vertical image
+                        width  = width <= minWidth ? minWidth : width;
+                        height = (image.height*(width / image.width));
+                    }
+
+                    var position = this.calculatePosition(width, height);
+
+                    this.setState({ image: { height: height, width: width, x: position.x, y: position.y, resource: image.resource }});
+                }
+            },
+
+            drawImage: function(context) {
+                var image = this.state.image;
+                if (image.resource) {
+                    context.save();
+                    context.globalCompositeOperation = 'destination-over';
+                    context.drawImage(image.resource, image.x, image.y, image.width, image.height);
+                    context.restore();
+                }
+            },
+
+            paint: function(context) {
+                context.save();
+                context.translate(0, 0);
+                context.fillStyle = "rgba(255, 255, 255, 0.5)";
+
+                var dimensions = this.getDimensions();
+
+                var borderSize = dimensions.border;
+                var height = dimensions.canvas.height;
+                var width = dimensions.canvas.width;
+
+                context.fillRect(0, 0, width, borderSize); // top
+                context.fillRect(0, height-borderSize, width, borderSize); // bottom
+                context.fillRect(0, borderSize, borderSize, height-(borderSize*2)); // left
+                context.fillRect(width-borderSize, borderSize, borderSize, height-(borderSize*2)); // right
+
+                context.restore();
+            },
+
+            handleMouseDown: function() {
+                this.setState({
+                    drag: true,
+                    mx: null,
+                    my: null
+                });
+            },
+            handleMouseUp: function() {
+                if (this.state.drag) {
+                    this.setState({ drag: false });
+                }
+            },
+
+            handleMouseMove: function(e) {
+                if (this.state.drag) {
+                    var dimensions = this.getDimensions();
+
+                    var imageState = this.state.image;
+                    var lastX = imageState.x;
+                    var lastY = imageState.y;
+
+                    if (this.state.mx && this.state.my) {
+                        var xDiff = this.state.mx - e.clientX;
+                        var yDiff = this.state.my - e.clientY;
+                        var x = Math.min(lastX - xDiff, dimensions.border);
+                        var y = Math.min(lastY - yDiff, dimensions.border);
+                    } else {
+                        var x = lastX;
+                        var y = lastY;
+                    }
+                    var width  = imageState.width;
+                    var height = imageState.height;
+
+                    var left = (width  <= dimensions.width)  ? dimensions.border : (width  + x <= dimensions.width  + dimensions.border ? lastX : x);
+                    var top =  (height <= dimensions.height) ? dimensions.border : (height + y <= dimensions.height + dimensions.border ? lastY : y);
+
+                    imageState.x = left;
+                    imageState.y = top;
+                    this.setState({ mx: e.clientX, my: e.clientY, image: imageState });
+                }
+            },
+
+            handleDragOver: function(e) {
+                e.preventDefault();
+            },
+            handleDrop: function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+
+                var reader = new FileReader();
+                reader.onload = this.handleUploadReady;
+                reader.readAsDataURL(e.dataTransfer.files[0]);
+            },
+            handleUploadReady: function(e) {
+                this.loadImage(e.target.result);
+            },
+
+            render: function() {
+                return React.createElement('canvas', {
+                    width: this.getDimensions().canvas.width,
+                    height: this.getDimensions().canvas.height,
+                    onMouseDown: this.handleMouseDown,
+                    onDragOver: this.handleDragOver,
+                    onDrop: this.handleDrop
+                }, null);
             }
-        }
-    },
 
-    getImage: function() {
-        var dom = document.createElement('canvas');
-        dom.width  = this.props.width-(this.props.border*2);
-        dom.height = this.props.height-(this.props.border*2);
 
-        var context = dom.getContext('2d');
-        context.globalCompositeOperation='destination-over';
-        context.drawImage(this.state.image, this.state.x-this.props.border, this.state.y-this.props.border, this.state.width, this.state.height);
-
-        return dom.toDataURL();
-    },
-
-    componentDidMount: function() {
-        var context = this.getDOMNode().getContext('2d');
-        if (this.props.image) {
-            var imageObj = new Image();
-            imageObj.onload = this.handleImageReady;
-            imageObj.src = this.props.image;
-            this.setState({image: imageObj});
-        }
-        this.paint(context);
-        document.addEventListener('mousemove', this.handleMouseMove);
-        document.addEventListener('mouseup', this.handleMouseUp);
-    },
-
-    componentWillUnmount: function() {
-        document.removeEventListener('mousemove', this.handleMouseMove);
-        document.removeEventListener('mouseup', this.handleMouseUp);
-    },
-
-    componentDidUpdate: function() {
-        var context = this.getDOMNode().getContext('2d');
-        context.clearRect(0, 0, this.props.width, this.props.height);
-        this.paint(context);
-        this.drawImage(context);
-    },
-
-    handleImageReady: function() {
-        this.setState(this.getInitialSizeAndPosition(this.state.image.width, this.state.image.height));
-    },
-
-    getInitialSizeAndPosition: function(width, height) {
-        var newHeight, newWidth;
-
-        if (width > height) {
-            newHeight = (this.props.height-(this.props.border*2));
-            newWidth = (width*(newHeight / height));
-        } else {
-            newWidth = (this.props.width-(this.props.border*2));
-            newHeight = (height*(newWidth / width));
-        }
-
-        var position = this.calculatePosition(newWidth, newHeight);
-
-        return {
-            height: newHeight,
-            width: newWidth,
-            x: position.x,
-            y: position.y
-        };
-    },
-
-    calculatePosition: function(width, height) {
-
-        var borderX = (this.props.height-this.props.border);
-        var borderY = (this.props.width-this.props.border);
-
-        var x = Math.round((width+this.state.x <= borderX) ? this.state.x+(borderX-(width+this.state.x)) : this.state.x);
-        var y = Math.round((height+this.state.y <= borderY) ? this.state.y+(borderY-(height+this.state.y)) : this.state.y);
-
-        return { x: x, y: y }
-    },
-
-    componentWillReceiveProps: function(props) {
-        var image = this.state.image;
-        var width = (this.state.width/this.props.scale)*props.scale;
-        var height = (this.state.width/this.props.scale)*props.scale;
-
-        var minHeight = (this.props.height-(this.props.border*2));
-        var minWidth = (this.props.width-(this.props.border*2));
-
-        var horizontal = width > height;
-        // size
-        if (horizontal) {
-            height = height <= minHeight ? minHeight : height;
-            width = (image.width*(height / image.height));
-        } else {
-            width  = width <= minWidth ? minWidth : width;
-            height = (image.height*(width / image.width));
-        }
-
-        var position = this.calculatePosition(width, height);
-
-        this.setState({height: height, width: width, x: position.x, y: position.y});
-    },
-
-    drawImage: function(context) {
-        context.save();
-        context.globalCompositeOperation='destination-over';
-        context.drawImage(this.state.image, this.state.x, this.state.y, this.state.width, this.state.height);
-        context.restore();
-    },
-
-    paint: function(context) {
-        context.save();
-        context.translate(0, 0);
-        context.fillStyle = "rgba(255, 255, 255, 0.5)";
-
-        var borderSize = this.props.border;
-        var height = this.props.height;
-        var width = this.props.width;
-
-        context.fillRect(0, 0, width, borderSize); // top
-        context.fillRect(0, height-borderSize, width, borderSize); // bottom
-        context.fillRect(0, borderSize, borderSize, height-(borderSize*2)); // left
-        context.fillRect(width-borderSize, borderSize, borderSize, height-(borderSize*2)); // right
-
-        context.restore();
-    },
-
-    handleMouseDown: function() {
-        this.setState({
-            drag: true,
-            mx: null,
-            my: null
         });
-    },
-    handleMouseUp: function() {
-        this.setState({drag: false});
-    },
+    };
 
-    handleMouseMove: function(e) {
-        if (this.state.drag) {
-            if (this.state.mx && this.state.my) {
-                var xDiff = this.state.mx - e.clientX;
-                var yDiff = this.state.my - e.clientY;
-                var x = Math.min(this.state.x-xDiff, this.props.border);
-                var y = Math.min(this.state.y-yDiff, this.props.border);
-            } else {
-                var x = this.state.x;
-                var y = this.state.y;
-            }
-            var width = this.state.width;
-            var height = this.state.height;
-
-            var left = (width <= 200) ? 25 : (width+x <= 225 ? this.state.x : x);
-            var top = (height <= 200) ? 25 : (height+y <= 225 ? this.state.y : y);
-
-            this.setState({mx: e.clientX, my: e.clientY, x: left, y: top});
-        }
-    },
-
-    handleDragOver: function(e) {
-        e.preventDefault();
-    },
-    handleDrop: function(e) {
-        e.stopPropagation();
-        e.preventDefault();
-
-        var reader = new FileReader();
-        reader.onload = this.onUploadReady;
-        reader.readAsDataURL(e.dataTransfer.files[0]);
-    },
-    onUploadReady: function(e) {
-        var image = new Image();
-        image.src = e.target.result;
-        var state = this.getInitialSizeAndPosition(image.width, image.height);
-        state.image = image;
-        this.setState(state);
-    },
-
-    render: function() {
-        return React.createElement('canvas', {
-            width: 250,
-            height: 250,
-            onMouseDown: this.handleMouseDown,
-            onDragOver: this.handleDragOver,
-            onDrop: this.handleDrop
-        }, null);
+    if (typeof exports === 'object' && typeof module === 'object') {
+        module.exports = factory(require("react"));
+    } else if (typeof define === 'function' && define.amd) {
+        define(["react"], factory);
+    } else if (typeof exports === 'object') {
+        exports.AvatarEditor = factory(require("react"));
+    } else {
+        root.AvatarEditor = factory(root.react);
     }
+}(this));
 
-});
-
-
-module.exports = AvatarEditor;
-},{"react":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/react.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/AutoFocusMixin.js":[function(require,module,exports){
+},{"react":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/react.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/AutoFocusMixin.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -298,7 +337,7 @@ var AutoFocusMixin = {
 
 module.exports = AutoFocusMixin;
 
-},{"./focusNode":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/focusNode.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/BeforeInputEventPlugin.js":[function(require,module,exports){
+},{"./focusNode":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/focusNode.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/BeforeInputEventPlugin.js":[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  * All rights reserved.
@@ -520,7 +559,7 @@ var BeforeInputEventPlugin = {
 
 module.exports = BeforeInputEventPlugin;
 
-},{"./EventConstants":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/EventConstants.js","./EventPropagators":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/EventPropagators.js","./ExecutionEnvironment":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ExecutionEnvironment.js","./SyntheticInputEvent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/SyntheticInputEvent.js","./keyOf":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/keyOf.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/CSSProperty.js":[function(require,module,exports){
+},{"./EventConstants":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/EventConstants.js","./EventPropagators":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/EventPropagators.js","./ExecutionEnvironment":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ExecutionEnvironment.js","./SyntheticInputEvent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/SyntheticInputEvent.js","./keyOf":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/keyOf.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/CSSProperty.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -539,7 +578,6 @@ module.exports = BeforeInputEventPlugin;
  */
 var isUnitlessNumber = {
   columnCount: true,
-  fillOpacity: true,
   flex: true,
   flexGrow: true,
   flexShrink: true,
@@ -551,7 +589,11 @@ var isUnitlessNumber = {
   orphans: true,
   widows: true,
   zIndex: true,
-  zoom: true
+  zoom: true,
+
+  // SVG-related properties
+  fillOpacity: true,
+  strokeOpacity: true
 };
 
 /**
@@ -636,7 +678,7 @@ var CSSProperty = {
 
 module.exports = CSSProperty;
 
-},{}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/CSSPropertyOperations.js":[function(require,module,exports){
+},{}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/CSSPropertyOperations.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -771,7 +813,7 @@ var CSSPropertyOperations = {
 module.exports = CSSPropertyOperations;
 
 }).call(this,require('_process'))
-},{"./CSSProperty":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/CSSProperty.js","./ExecutionEnvironment":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ExecutionEnvironment.js","./camelizeStyleName":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/camelizeStyleName.js","./dangerousStyleValue":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/dangerousStyleValue.js","./hyphenateStyleName":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/hyphenateStyleName.js","./memoizeStringOnly":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/memoizeStringOnly.js","./warning":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/warning.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/CallbackQueue.js":[function(require,module,exports){
+},{"./CSSProperty":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/CSSProperty.js","./ExecutionEnvironment":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ExecutionEnvironment.js","./camelizeStyleName":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/camelizeStyleName.js","./dangerousStyleValue":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/dangerousStyleValue.js","./hyphenateStyleName":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/hyphenateStyleName.js","./memoizeStringOnly":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/memoizeStringOnly.js","./warning":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/warning.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/CallbackQueue.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -871,7 +913,7 @@ PooledClass.addPoolingTo(CallbackQueue);
 module.exports = CallbackQueue;
 
 }).call(this,require('_process'))
-},{"./Object.assign":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/Object.assign.js","./PooledClass":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/PooledClass.js","./invariant":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ChangeEventPlugin.js":[function(require,module,exports){
+},{"./Object.assign":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/Object.assign.js","./PooledClass":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/PooledClass.js","./invariant":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ChangeEventPlugin.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -1253,7 +1295,7 @@ var ChangeEventPlugin = {
 
 module.exports = ChangeEventPlugin;
 
-},{"./EventConstants":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/EventConstants.js","./EventPluginHub":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/EventPluginHub.js","./EventPropagators":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/EventPropagators.js","./ExecutionEnvironment":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ExecutionEnvironment.js","./ReactUpdates":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactUpdates.js","./SyntheticEvent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/SyntheticEvent.js","./isEventSupported":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/isEventSupported.js","./isTextInputElement":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/isTextInputElement.js","./keyOf":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/keyOf.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ClientReactRootIndex.js":[function(require,module,exports){
+},{"./EventConstants":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/EventConstants.js","./EventPluginHub":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/EventPluginHub.js","./EventPropagators":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/EventPropagators.js","./ExecutionEnvironment":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ExecutionEnvironment.js","./ReactUpdates":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactUpdates.js","./SyntheticEvent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/SyntheticEvent.js","./isEventSupported":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/isEventSupported.js","./isTextInputElement":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/isTextInputElement.js","./keyOf":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/keyOf.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ClientReactRootIndex.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -1278,7 +1320,7 @@ var ClientReactRootIndex = {
 
 module.exports = ClientReactRootIndex;
 
-},{}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/CompositionEventPlugin.js":[function(require,module,exports){
+},{}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/CompositionEventPlugin.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -1537,7 +1579,7 @@ var CompositionEventPlugin = {
 
 module.exports = CompositionEventPlugin;
 
-},{"./EventConstants":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/EventConstants.js","./EventPropagators":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/EventPropagators.js","./ExecutionEnvironment":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ExecutionEnvironment.js","./ReactInputSelection":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactInputSelection.js","./SyntheticCompositionEvent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/SyntheticCompositionEvent.js","./getTextContentAccessor":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/getTextContentAccessor.js","./keyOf":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/keyOf.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/DOMChildrenOperations.js":[function(require,module,exports){
+},{"./EventConstants":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/EventConstants.js","./EventPropagators":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/EventPropagators.js","./ExecutionEnvironment":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ExecutionEnvironment.js","./ReactInputSelection":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactInputSelection.js","./SyntheticCompositionEvent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/SyntheticCompositionEvent.js","./getTextContentAccessor":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/getTextContentAccessor.js","./keyOf":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/keyOf.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/DOMChildrenOperations.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -1712,7 +1754,7 @@ var DOMChildrenOperations = {
 module.exports = DOMChildrenOperations;
 
 }).call(this,require('_process'))
-},{"./Danger":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/Danger.js","./ReactMultiChildUpdateTypes":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactMultiChildUpdateTypes.js","./getTextContentAccessor":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/getTextContentAccessor.js","./invariant":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/DOMProperty.js":[function(require,module,exports){
+},{"./Danger":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/Danger.js","./ReactMultiChildUpdateTypes":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactMultiChildUpdateTypes.js","./getTextContentAccessor":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/getTextContentAccessor.js","./invariant":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/DOMProperty.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -2011,7 +2053,7 @@ var DOMProperty = {
 module.exports = DOMProperty;
 
 }).call(this,require('_process'))
-},{"./invariant":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/DOMPropertyOperations.js":[function(require,module,exports){
+},{"./invariant":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/DOMPropertyOperations.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -2208,7 +2250,7 @@ var DOMPropertyOperations = {
 module.exports = DOMPropertyOperations;
 
 }).call(this,require('_process'))
-},{"./DOMProperty":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/DOMProperty.js","./escapeTextForBrowser":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/escapeTextForBrowser.js","./memoizeStringOnly":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/memoizeStringOnly.js","./warning":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/warning.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/Danger.js":[function(require,module,exports){
+},{"./DOMProperty":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/DOMProperty.js","./escapeTextForBrowser":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/escapeTextForBrowser.js","./memoizeStringOnly":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/memoizeStringOnly.js","./warning":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/warning.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/Danger.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -2394,7 +2436,7 @@ var Danger = {
 module.exports = Danger;
 
 }).call(this,require('_process'))
-},{"./ExecutionEnvironment":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ExecutionEnvironment.js","./createNodesFromMarkup":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/createNodesFromMarkup.js","./emptyFunction":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/emptyFunction.js","./getMarkupWrap":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/getMarkupWrap.js","./invariant":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/DefaultEventPluginOrder.js":[function(require,module,exports){
+},{"./ExecutionEnvironment":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ExecutionEnvironment.js","./createNodesFromMarkup":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/createNodesFromMarkup.js","./emptyFunction":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/emptyFunction.js","./getMarkupWrap":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/getMarkupWrap.js","./invariant":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/DefaultEventPluginOrder.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -2434,7 +2476,7 @@ var DefaultEventPluginOrder = [
 
 module.exports = DefaultEventPluginOrder;
 
-},{"./keyOf":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/keyOf.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/EnterLeaveEventPlugin.js":[function(require,module,exports){
+},{"./keyOf":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/keyOf.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/EnterLeaveEventPlugin.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -2574,7 +2616,7 @@ var EnterLeaveEventPlugin = {
 
 module.exports = EnterLeaveEventPlugin;
 
-},{"./EventConstants":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/EventConstants.js","./EventPropagators":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/EventPropagators.js","./ReactMount":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactMount.js","./SyntheticMouseEvent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/SyntheticMouseEvent.js","./keyOf":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/keyOf.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/EventConstants.js":[function(require,module,exports){
+},{"./EventConstants":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/EventConstants.js","./EventPropagators":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/EventPropagators.js","./ReactMount":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactMount.js","./SyntheticMouseEvent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/SyntheticMouseEvent.js","./keyOf":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/keyOf.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/EventConstants.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -2646,7 +2688,7 @@ var EventConstants = {
 
 module.exports = EventConstants;
 
-},{"./keyMirror":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/keyMirror.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/EventListener.js":[function(require,module,exports){
+},{"./keyMirror":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/keyMirror.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/EventListener.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014 Facebook, Inc.
@@ -2736,7 +2778,7 @@ var EventListener = {
 module.exports = EventListener;
 
 }).call(this,require('_process'))
-},{"./emptyFunction":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/emptyFunction.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/EventPluginHub.js":[function(require,module,exports){
+},{"./emptyFunction":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/emptyFunction.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/EventPluginHub.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -3012,7 +3054,7 @@ var EventPluginHub = {
 module.exports = EventPluginHub;
 
 }).call(this,require('_process'))
-},{"./EventPluginRegistry":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/EventPluginRegistry.js","./EventPluginUtils":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/EventPluginUtils.js","./accumulateInto":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/accumulateInto.js","./forEachAccumulated":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/forEachAccumulated.js","./invariant":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/EventPluginRegistry.js":[function(require,module,exports){
+},{"./EventPluginRegistry":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/EventPluginRegistry.js","./EventPluginUtils":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/EventPluginUtils.js","./accumulateInto":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/accumulateInto.js","./forEachAccumulated":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/forEachAccumulated.js","./invariant":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/EventPluginRegistry.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -3292,7 +3334,7 @@ var EventPluginRegistry = {
 module.exports = EventPluginRegistry;
 
 }).call(this,require('_process'))
-},{"./invariant":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/EventPluginUtils.js":[function(require,module,exports){
+},{"./invariant":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/EventPluginUtils.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -3513,7 +3555,7 @@ var EventPluginUtils = {
 module.exports = EventPluginUtils;
 
 }).call(this,require('_process'))
-},{"./EventConstants":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/EventConstants.js","./invariant":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/EventPropagators.js":[function(require,module,exports){
+},{"./EventConstants":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/EventConstants.js","./invariant":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/EventPropagators.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -3655,7 +3697,7 @@ var EventPropagators = {
 module.exports = EventPropagators;
 
 }).call(this,require('_process'))
-},{"./EventConstants":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/EventConstants.js","./EventPluginHub":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/EventPluginHub.js","./accumulateInto":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/accumulateInto.js","./forEachAccumulated":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/forEachAccumulated.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ExecutionEnvironment.js":[function(require,module,exports){
+},{"./EventConstants":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/EventConstants.js","./EventPluginHub":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/EventPluginHub.js","./accumulateInto":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/accumulateInto.js","./forEachAccumulated":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/forEachAccumulated.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ExecutionEnvironment.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -3700,7 +3742,7 @@ var ExecutionEnvironment = {
 
 module.exports = ExecutionEnvironment;
 
-},{}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/HTMLDOMPropertyConfig.js":[function(require,module,exports){
+},{}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/HTMLDOMPropertyConfig.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -3791,7 +3833,11 @@ var HTMLDOMPropertyConfig = {
     draggable: null,
     encType: null,
     form: MUST_USE_ATTRIBUTE,
+    formAction: MUST_USE_ATTRIBUTE,
+    formEncType: MUST_USE_ATTRIBUTE,
+    formMethod: MUST_USE_ATTRIBUTE,
     formNoValidate: HAS_BOOLEAN_VALUE,
+    formTarget: MUST_USE_ATTRIBUTE,
     frameBorder: MUST_USE_ATTRIBUTE,
     height: MUST_USE_ATTRIBUTE,
     hidden: MUST_USE_ATTRIBUTE | HAS_BOOLEAN_VALUE,
@@ -3806,6 +3852,8 @@ var HTMLDOMPropertyConfig = {
     list: MUST_USE_ATTRIBUTE,
     loop: MUST_USE_PROPERTY | HAS_BOOLEAN_VALUE,
     manifest: MUST_USE_ATTRIBUTE,
+    marginHeight: null,
+    marginWidth: null,
     max: null,
     maxLength: MUST_USE_ATTRIBUTE,
     media: MUST_USE_ATTRIBUTE,
@@ -3886,7 +3934,7 @@ var HTMLDOMPropertyConfig = {
 
 module.exports = HTMLDOMPropertyConfig;
 
-},{"./DOMProperty":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/DOMProperty.js","./ExecutionEnvironment":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ExecutionEnvironment.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/LinkedValueUtils.js":[function(require,module,exports){
+},{"./DOMProperty":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/DOMProperty.js","./ExecutionEnvironment":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ExecutionEnvironment.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/LinkedValueUtils.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -4042,7 +4090,7 @@ var LinkedValueUtils = {
 module.exports = LinkedValueUtils;
 
 }).call(this,require('_process'))
-},{"./ReactPropTypes":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactPropTypes.js","./invariant":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/LocalEventTrapMixin.js":[function(require,module,exports){
+},{"./ReactPropTypes":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactPropTypes.js","./invariant":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/LocalEventTrapMixin.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -4092,7 +4140,7 @@ var LocalEventTrapMixin = {
 module.exports = LocalEventTrapMixin;
 
 }).call(this,require('_process'))
-},{"./ReactBrowserEventEmitter":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactBrowserEventEmitter.js","./accumulateInto":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/accumulateInto.js","./forEachAccumulated":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/forEachAccumulated.js","./invariant":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/MobileSafariClickEventPlugin.js":[function(require,module,exports){
+},{"./ReactBrowserEventEmitter":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactBrowserEventEmitter.js","./accumulateInto":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/accumulateInto.js","./forEachAccumulated":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/forEachAccumulated.js","./invariant":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/MobileSafariClickEventPlugin.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -4150,7 +4198,7 @@ var MobileSafariClickEventPlugin = {
 
 module.exports = MobileSafariClickEventPlugin;
 
-},{"./EventConstants":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/EventConstants.js","./emptyFunction":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/emptyFunction.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/Object.assign.js":[function(require,module,exports){
+},{"./EventConstants":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/EventConstants.js","./emptyFunction":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/emptyFunction.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/Object.assign.js":[function(require,module,exports){
 /**
  * Copyright 2014, Facebook, Inc.
  * All rights reserved.
@@ -4197,7 +4245,7 @@ function assign(target, sources) {
 
 module.exports = assign;
 
-},{}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/PooledClass.js":[function(require,module,exports){
+},{}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/PooledClass.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -4313,7 +4361,7 @@ var PooledClass = {
 module.exports = PooledClass;
 
 }).call(this,require('_process'))
-},{"./invariant":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/React.js":[function(require,module,exports){
+},{"./invariant":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/React.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -4496,12 +4544,12 @@ if ("production" !== process.env.NODE_ENV) {
 
 // Version exists only in the open-source version of React, not in Facebook's
 // internal version.
-React.version = '0.12.1';
+React.version = '0.12.2';
 
 module.exports = React;
 
 }).call(this,require('_process'))
-},{"./DOMPropertyOperations":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/DOMPropertyOperations.js","./EventPluginUtils":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/EventPluginUtils.js","./ExecutionEnvironment":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ExecutionEnvironment.js","./Object.assign":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/Object.assign.js","./ReactChildren":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactChildren.js","./ReactComponent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactComponent.js","./ReactCompositeComponent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactCompositeComponent.js","./ReactContext":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactContext.js","./ReactCurrentOwner":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactCurrentOwner.js","./ReactDOM":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactDOM.js","./ReactDOMComponent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactDOMComponent.js","./ReactDefaultInjection":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactDefaultInjection.js","./ReactElement":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactElement.js","./ReactElementValidator":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactElementValidator.js","./ReactInstanceHandles":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactInstanceHandles.js","./ReactLegacyElement":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactLegacyElement.js","./ReactMount":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactMount.js","./ReactMultiChild":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactMultiChild.js","./ReactPerf":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactPerf.js","./ReactPropTypes":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactPropTypes.js","./ReactServerRendering":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactServerRendering.js","./ReactTextComponent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactTextComponent.js","./deprecated":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/deprecated.js","./onlyChild":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/onlyChild.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactBrowserComponentMixin.js":[function(require,module,exports){
+},{"./DOMPropertyOperations":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/DOMPropertyOperations.js","./EventPluginUtils":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/EventPluginUtils.js","./ExecutionEnvironment":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ExecutionEnvironment.js","./Object.assign":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/Object.assign.js","./ReactChildren":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactChildren.js","./ReactComponent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactComponent.js","./ReactCompositeComponent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactCompositeComponent.js","./ReactContext":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactContext.js","./ReactCurrentOwner":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactCurrentOwner.js","./ReactDOM":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactDOM.js","./ReactDOMComponent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactDOMComponent.js","./ReactDefaultInjection":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactDefaultInjection.js","./ReactElement":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactElement.js","./ReactElementValidator":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactElementValidator.js","./ReactInstanceHandles":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactInstanceHandles.js","./ReactLegacyElement":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactLegacyElement.js","./ReactMount":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactMount.js","./ReactMultiChild":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactMultiChild.js","./ReactPerf":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactPerf.js","./ReactPropTypes":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactPropTypes.js","./ReactServerRendering":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactServerRendering.js","./ReactTextComponent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactTextComponent.js","./deprecated":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/deprecated.js","./onlyChild":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/onlyChild.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactBrowserComponentMixin.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -4544,7 +4592,7 @@ var ReactBrowserComponentMixin = {
 module.exports = ReactBrowserComponentMixin;
 
 }).call(this,require('_process'))
-},{"./ReactEmptyComponent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactEmptyComponent.js","./ReactMount":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactMount.js","./invariant":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactBrowserEventEmitter.js":[function(require,module,exports){
+},{"./ReactEmptyComponent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactEmptyComponent.js","./ReactMount":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactMount.js","./invariant":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactBrowserEventEmitter.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -4899,7 +4947,7 @@ var ReactBrowserEventEmitter = assign({}, ReactEventEmitterMixin, {
 
 module.exports = ReactBrowserEventEmitter;
 
-},{"./EventConstants":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/EventConstants.js","./EventPluginHub":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/EventPluginHub.js","./EventPluginRegistry":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/EventPluginRegistry.js","./Object.assign":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/Object.assign.js","./ReactEventEmitterMixin":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactEventEmitterMixin.js","./ViewportMetrics":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ViewportMetrics.js","./isEventSupported":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/isEventSupported.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactChildren.js":[function(require,module,exports){
+},{"./EventConstants":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/EventConstants.js","./EventPluginHub":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/EventPluginHub.js","./EventPluginRegistry":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/EventPluginRegistry.js","./Object.assign":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/Object.assign.js","./ReactEventEmitterMixin":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactEventEmitterMixin.js","./ViewportMetrics":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ViewportMetrics.js","./isEventSupported":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/isEventSupported.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactChildren.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -5049,7 +5097,7 @@ var ReactChildren = {
 module.exports = ReactChildren;
 
 }).call(this,require('_process'))
-},{"./PooledClass":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/PooledClass.js","./traverseAllChildren":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/traverseAllChildren.js","./warning":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/warning.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactComponent.js":[function(require,module,exports){
+},{"./PooledClass":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/PooledClass.js","./traverseAllChildren":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/traverseAllChildren.js","./warning":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/warning.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactComponent.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -5492,7 +5540,7 @@ var ReactComponent = {
 module.exports = ReactComponent;
 
 }).call(this,require('_process'))
-},{"./Object.assign":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/Object.assign.js","./ReactElement":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactElement.js","./ReactOwner":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactOwner.js","./ReactUpdates":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactUpdates.js","./invariant":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/invariant.js","./keyMirror":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/keyMirror.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactComponentBrowserEnvironment.js":[function(require,module,exports){
+},{"./Object.assign":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/Object.assign.js","./ReactElement":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactElement.js","./ReactOwner":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactOwner.js","./ReactUpdates":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactUpdates.js","./invariant":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/invariant.js","./keyMirror":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/keyMirror.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactComponentBrowserEnvironment.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -5614,7 +5662,7 @@ var ReactComponentBrowserEnvironment = {
 module.exports = ReactComponentBrowserEnvironment;
 
 }).call(this,require('_process'))
-},{"./ReactDOMIDOperations":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactDOMIDOperations.js","./ReactMarkupChecksum":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactMarkupChecksum.js","./ReactMount":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactMount.js","./ReactPerf":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactPerf.js","./ReactReconcileTransaction":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactReconcileTransaction.js","./getReactRootElementInContainer":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/getReactRootElementInContainer.js","./invariant":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/invariant.js","./setInnerHTML":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/setInnerHTML.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactCompositeComponent.js":[function(require,module,exports){
+},{"./ReactDOMIDOperations":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactDOMIDOperations.js","./ReactMarkupChecksum":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactMarkupChecksum.js","./ReactMount":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactMount.js","./ReactPerf":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactPerf.js","./ReactReconcileTransaction":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactReconcileTransaction.js","./getReactRootElementInContainer":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/getReactRootElementInContainer.js","./invariant":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/invariant.js","./setInnerHTML":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/setInnerHTML.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactCompositeComponent.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -7054,7 +7102,7 @@ var ReactCompositeComponent = {
 module.exports = ReactCompositeComponent;
 
 }).call(this,require('_process'))
-},{"./Object.assign":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/Object.assign.js","./ReactComponent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactComponent.js","./ReactContext":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactContext.js","./ReactCurrentOwner":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactCurrentOwner.js","./ReactElement":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactElement.js","./ReactElementValidator":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactElementValidator.js","./ReactEmptyComponent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactEmptyComponent.js","./ReactErrorUtils":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactErrorUtils.js","./ReactLegacyElement":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactLegacyElement.js","./ReactOwner":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactOwner.js","./ReactPerf":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactPerf.js","./ReactPropTransferer":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactPropTransferer.js","./ReactPropTypeLocationNames":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactPropTypeLocationNames.js","./ReactPropTypeLocations":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactPropTypeLocations.js","./ReactUpdates":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactUpdates.js","./instantiateReactComponent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/instantiateReactComponent.js","./invariant":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/invariant.js","./keyMirror":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/keyMirror.js","./keyOf":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/keyOf.js","./mapObject":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/mapObject.js","./monitorCodeUse":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/monitorCodeUse.js","./shouldUpdateReactComponent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/shouldUpdateReactComponent.js","./warning":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/warning.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactContext.js":[function(require,module,exports){
+},{"./Object.assign":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/Object.assign.js","./ReactComponent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactComponent.js","./ReactContext":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactContext.js","./ReactCurrentOwner":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactCurrentOwner.js","./ReactElement":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactElement.js","./ReactElementValidator":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactElementValidator.js","./ReactEmptyComponent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactEmptyComponent.js","./ReactErrorUtils":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactErrorUtils.js","./ReactLegacyElement":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactLegacyElement.js","./ReactOwner":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactOwner.js","./ReactPerf":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactPerf.js","./ReactPropTransferer":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactPropTransferer.js","./ReactPropTypeLocationNames":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactPropTypeLocationNames.js","./ReactPropTypeLocations":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactPropTypeLocations.js","./ReactUpdates":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactUpdates.js","./instantiateReactComponent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/instantiateReactComponent.js","./invariant":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/invariant.js","./keyMirror":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/keyMirror.js","./keyOf":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/keyOf.js","./mapObject":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/mapObject.js","./monitorCodeUse":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/monitorCodeUse.js","./shouldUpdateReactComponent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/shouldUpdateReactComponent.js","./warning":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/warning.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactContext.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -7116,7 +7164,7 @@ var ReactContext = {
 
 module.exports = ReactContext;
 
-},{"./Object.assign":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/Object.assign.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactCurrentOwner.js":[function(require,module,exports){
+},{"./Object.assign":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/Object.assign.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactCurrentOwner.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -7150,7 +7198,7 @@ var ReactCurrentOwner = {
 
 module.exports = ReactCurrentOwner;
 
-},{}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactDOM.js":[function(require,module,exports){
+},{}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactDOM.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -7333,7 +7381,7 @@ var ReactDOM = mapObject({
 module.exports = ReactDOM;
 
 }).call(this,require('_process'))
-},{"./ReactElement":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactElement.js","./ReactElementValidator":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactElementValidator.js","./ReactLegacyElement":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactLegacyElement.js","./mapObject":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/mapObject.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactDOMButton.js":[function(require,module,exports){
+},{"./ReactElement":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactElement.js","./ReactElementValidator":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactElementValidator.js","./ReactLegacyElement":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactLegacyElement.js","./mapObject":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/mapObject.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactDOMButton.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -7398,7 +7446,7 @@ var ReactDOMButton = ReactCompositeComponent.createClass({
 
 module.exports = ReactDOMButton;
 
-},{"./AutoFocusMixin":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/AutoFocusMixin.js","./ReactBrowserComponentMixin":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactCompositeComponent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactCompositeComponent.js","./ReactDOM":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactDOM.js","./ReactElement":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactElement.js","./keyMirror":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/keyMirror.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactDOMComponent.js":[function(require,module,exports){
+},{"./AutoFocusMixin":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/AutoFocusMixin.js","./ReactBrowserComponentMixin":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactCompositeComponent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactCompositeComponent.js","./ReactDOM":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactDOM.js","./ReactElement":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactElement.js","./keyMirror":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/keyMirror.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactDOMComponent.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -7885,7 +7933,7 @@ assign(
 module.exports = ReactDOMComponent;
 
 }).call(this,require('_process'))
-},{"./CSSPropertyOperations":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/CSSPropertyOperations.js","./DOMProperty":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/DOMProperty.js","./DOMPropertyOperations":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/DOMPropertyOperations.js","./Object.assign":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/Object.assign.js","./ReactBrowserComponentMixin":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactBrowserEventEmitter":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactBrowserEventEmitter.js","./ReactComponent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactComponent.js","./ReactMount":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactMount.js","./ReactMultiChild":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactMultiChild.js","./ReactPerf":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactPerf.js","./escapeTextForBrowser":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/escapeTextForBrowser.js","./invariant":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/invariant.js","./isEventSupported":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/isEventSupported.js","./keyOf":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/keyOf.js","./monitorCodeUse":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/monitorCodeUse.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactDOMForm.js":[function(require,module,exports){
+},{"./CSSPropertyOperations":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/CSSPropertyOperations.js","./DOMProperty":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/DOMProperty.js","./DOMPropertyOperations":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/DOMPropertyOperations.js","./Object.assign":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/Object.assign.js","./ReactBrowserComponentMixin":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactBrowserEventEmitter":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactBrowserEventEmitter.js","./ReactComponent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactComponent.js","./ReactMount":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactMount.js","./ReactMultiChild":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactMultiChild.js","./ReactPerf":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactPerf.js","./escapeTextForBrowser":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/escapeTextForBrowser.js","./invariant":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/invariant.js","./isEventSupported":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/isEventSupported.js","./keyOf":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/keyOf.js","./monitorCodeUse":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/monitorCodeUse.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactDOMForm.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -7935,7 +7983,7 @@ var ReactDOMForm = ReactCompositeComponent.createClass({
 
 module.exports = ReactDOMForm;
 
-},{"./EventConstants":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/EventConstants.js","./LocalEventTrapMixin":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/LocalEventTrapMixin.js","./ReactBrowserComponentMixin":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactCompositeComponent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactCompositeComponent.js","./ReactDOM":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactDOM.js","./ReactElement":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactElement.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactDOMIDOperations.js":[function(require,module,exports){
+},{"./EventConstants":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/EventConstants.js","./LocalEventTrapMixin":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/LocalEventTrapMixin.js","./ReactBrowserComponentMixin":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactCompositeComponent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactCompositeComponent.js","./ReactDOM":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactDOM.js","./ReactElement":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactElement.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactDOMIDOperations.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -8121,7 +8169,7 @@ var ReactDOMIDOperations = {
 module.exports = ReactDOMIDOperations;
 
 }).call(this,require('_process'))
-},{"./CSSPropertyOperations":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/CSSPropertyOperations.js","./DOMChildrenOperations":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/DOMChildrenOperations.js","./DOMPropertyOperations":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/DOMPropertyOperations.js","./ReactMount":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactMount.js","./ReactPerf":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactPerf.js","./invariant":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/invariant.js","./setInnerHTML":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/setInnerHTML.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactDOMImg.js":[function(require,module,exports){
+},{"./CSSPropertyOperations":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/CSSPropertyOperations.js","./DOMChildrenOperations":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/DOMChildrenOperations.js","./DOMPropertyOperations":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/DOMPropertyOperations.js","./ReactMount":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactMount.js","./ReactPerf":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactPerf.js","./invariant":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/invariant.js","./setInnerHTML":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/setInnerHTML.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactDOMImg.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -8169,7 +8217,7 @@ var ReactDOMImg = ReactCompositeComponent.createClass({
 
 module.exports = ReactDOMImg;
 
-},{"./EventConstants":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/EventConstants.js","./LocalEventTrapMixin":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/LocalEventTrapMixin.js","./ReactBrowserComponentMixin":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactCompositeComponent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactCompositeComponent.js","./ReactDOM":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactDOM.js","./ReactElement":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactElement.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactDOMInput.js":[function(require,module,exports){
+},{"./EventConstants":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/EventConstants.js","./LocalEventTrapMixin":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/LocalEventTrapMixin.js","./ReactBrowserComponentMixin":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactCompositeComponent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactCompositeComponent.js","./ReactDOM":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactDOM.js","./ReactElement":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactElement.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactDOMInput.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -8347,7 +8395,7 @@ var ReactDOMInput = ReactCompositeComponent.createClass({
 module.exports = ReactDOMInput;
 
 }).call(this,require('_process'))
-},{"./AutoFocusMixin":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/AutoFocusMixin.js","./DOMPropertyOperations":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/DOMPropertyOperations.js","./LinkedValueUtils":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/LinkedValueUtils.js","./Object.assign":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/Object.assign.js","./ReactBrowserComponentMixin":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactCompositeComponent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactCompositeComponent.js","./ReactDOM":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactDOM.js","./ReactElement":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactElement.js","./ReactMount":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactMount.js","./ReactUpdates":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactUpdates.js","./invariant":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactDOMOption.js":[function(require,module,exports){
+},{"./AutoFocusMixin":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/AutoFocusMixin.js","./DOMPropertyOperations":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/DOMPropertyOperations.js","./LinkedValueUtils":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/LinkedValueUtils.js","./Object.assign":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/Object.assign.js","./ReactBrowserComponentMixin":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactCompositeComponent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactCompositeComponent.js","./ReactDOM":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactDOM.js","./ReactElement":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactElement.js","./ReactMount":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactMount.js","./ReactUpdates":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactUpdates.js","./invariant":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactDOMOption.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -8400,7 +8448,7 @@ var ReactDOMOption = ReactCompositeComponent.createClass({
 module.exports = ReactDOMOption;
 
 }).call(this,require('_process'))
-},{"./ReactBrowserComponentMixin":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactCompositeComponent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactCompositeComponent.js","./ReactDOM":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactDOM.js","./ReactElement":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactElement.js","./warning":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/warning.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactDOMSelect.js":[function(require,module,exports){
+},{"./ReactBrowserComponentMixin":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactCompositeComponent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactCompositeComponent.js","./ReactDOM":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactDOM.js","./ReactElement":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactElement.js","./warning":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/warning.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactDOMSelect.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -8584,7 +8632,7 @@ var ReactDOMSelect = ReactCompositeComponent.createClass({
 
 module.exports = ReactDOMSelect;
 
-},{"./AutoFocusMixin":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/AutoFocusMixin.js","./LinkedValueUtils":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/LinkedValueUtils.js","./Object.assign":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/Object.assign.js","./ReactBrowserComponentMixin":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactCompositeComponent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactCompositeComponent.js","./ReactDOM":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactDOM.js","./ReactElement":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactElement.js","./ReactUpdates":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactUpdates.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactDOMSelection.js":[function(require,module,exports){
+},{"./AutoFocusMixin":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/AutoFocusMixin.js","./LinkedValueUtils":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/LinkedValueUtils.js","./Object.assign":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/Object.assign.js","./ReactBrowserComponentMixin":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactCompositeComponent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactCompositeComponent.js","./ReactDOM":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactDOM.js","./ReactElement":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactElement.js","./ReactUpdates":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactUpdates.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactDOMSelection.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -8793,7 +8841,7 @@ var ReactDOMSelection = {
 
 module.exports = ReactDOMSelection;
 
-},{"./ExecutionEnvironment":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ExecutionEnvironment.js","./getNodeForCharacterOffset":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/getNodeForCharacterOffset.js","./getTextContentAccessor":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/getTextContentAccessor.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactDOMTextarea.js":[function(require,module,exports){
+},{"./ExecutionEnvironment":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ExecutionEnvironment.js","./getNodeForCharacterOffset":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/getNodeForCharacterOffset.js","./getTextContentAccessor":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/getTextContentAccessor.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactDOMTextarea.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -8934,7 +8982,7 @@ var ReactDOMTextarea = ReactCompositeComponent.createClass({
 module.exports = ReactDOMTextarea;
 
 }).call(this,require('_process'))
-},{"./AutoFocusMixin":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/AutoFocusMixin.js","./DOMPropertyOperations":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/DOMPropertyOperations.js","./LinkedValueUtils":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/LinkedValueUtils.js","./Object.assign":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/Object.assign.js","./ReactBrowserComponentMixin":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactCompositeComponent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactCompositeComponent.js","./ReactDOM":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactDOM.js","./ReactElement":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactElement.js","./ReactUpdates":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactUpdates.js","./invariant":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/invariant.js","./warning":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/warning.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactDefaultBatchingStrategy.js":[function(require,module,exports){
+},{"./AutoFocusMixin":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/AutoFocusMixin.js","./DOMPropertyOperations":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/DOMPropertyOperations.js","./LinkedValueUtils":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/LinkedValueUtils.js","./Object.assign":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/Object.assign.js","./ReactBrowserComponentMixin":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactCompositeComponent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactCompositeComponent.js","./ReactDOM":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactDOM.js","./ReactElement":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactElement.js","./ReactUpdates":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactUpdates.js","./invariant":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/invariant.js","./warning":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/warning.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactDefaultBatchingStrategy.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -9007,7 +9055,7 @@ var ReactDefaultBatchingStrategy = {
 
 module.exports = ReactDefaultBatchingStrategy;
 
-},{"./Object.assign":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/Object.assign.js","./ReactUpdates":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactUpdates.js","./Transaction":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/Transaction.js","./emptyFunction":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/emptyFunction.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactDefaultInjection.js":[function(require,module,exports){
+},{"./Object.assign":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/Object.assign.js","./ReactUpdates":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactUpdates.js","./Transaction":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/Transaction.js","./emptyFunction":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/emptyFunction.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactDefaultInjection.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -9136,7 +9184,7 @@ module.exports = {
 };
 
 }).call(this,require('_process'))
-},{"./BeforeInputEventPlugin":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/BeforeInputEventPlugin.js","./ChangeEventPlugin":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ChangeEventPlugin.js","./ClientReactRootIndex":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ClientReactRootIndex.js","./CompositionEventPlugin":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/CompositionEventPlugin.js","./DefaultEventPluginOrder":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/DefaultEventPluginOrder.js","./EnterLeaveEventPlugin":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/EnterLeaveEventPlugin.js","./ExecutionEnvironment":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ExecutionEnvironment.js","./HTMLDOMPropertyConfig":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/HTMLDOMPropertyConfig.js","./MobileSafariClickEventPlugin":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/MobileSafariClickEventPlugin.js","./ReactBrowserComponentMixin":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactComponentBrowserEnvironment":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactComponentBrowserEnvironment.js","./ReactDOMButton":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactDOMButton.js","./ReactDOMComponent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactDOMComponent.js","./ReactDOMForm":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactDOMForm.js","./ReactDOMImg":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactDOMImg.js","./ReactDOMInput":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactDOMInput.js","./ReactDOMOption":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactDOMOption.js","./ReactDOMSelect":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactDOMSelect.js","./ReactDOMTextarea":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactDOMTextarea.js","./ReactDefaultBatchingStrategy":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactDefaultBatchingStrategy.js","./ReactDefaultPerf":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactDefaultPerf.js","./ReactEventListener":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactEventListener.js","./ReactInjection":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactInjection.js","./ReactInstanceHandles":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactInstanceHandles.js","./ReactMount":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactMount.js","./SVGDOMPropertyConfig":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/SVGDOMPropertyConfig.js","./SelectEventPlugin":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/SelectEventPlugin.js","./ServerReactRootIndex":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ServerReactRootIndex.js","./SimpleEventPlugin":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/SimpleEventPlugin.js","./createFullPageComponent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/createFullPageComponent.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactDefaultPerf.js":[function(require,module,exports){
+},{"./BeforeInputEventPlugin":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/BeforeInputEventPlugin.js","./ChangeEventPlugin":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ChangeEventPlugin.js","./ClientReactRootIndex":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ClientReactRootIndex.js","./CompositionEventPlugin":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/CompositionEventPlugin.js","./DefaultEventPluginOrder":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/DefaultEventPluginOrder.js","./EnterLeaveEventPlugin":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/EnterLeaveEventPlugin.js","./ExecutionEnvironment":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ExecutionEnvironment.js","./HTMLDOMPropertyConfig":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/HTMLDOMPropertyConfig.js","./MobileSafariClickEventPlugin":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/MobileSafariClickEventPlugin.js","./ReactBrowserComponentMixin":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactBrowserComponentMixin.js","./ReactComponentBrowserEnvironment":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactComponentBrowserEnvironment.js","./ReactDOMButton":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactDOMButton.js","./ReactDOMComponent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactDOMComponent.js","./ReactDOMForm":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactDOMForm.js","./ReactDOMImg":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactDOMImg.js","./ReactDOMInput":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactDOMInput.js","./ReactDOMOption":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactDOMOption.js","./ReactDOMSelect":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactDOMSelect.js","./ReactDOMTextarea":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactDOMTextarea.js","./ReactDefaultBatchingStrategy":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactDefaultBatchingStrategy.js","./ReactDefaultPerf":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactDefaultPerf.js","./ReactEventListener":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactEventListener.js","./ReactInjection":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactInjection.js","./ReactInstanceHandles":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactInstanceHandles.js","./ReactMount":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactMount.js","./SVGDOMPropertyConfig":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/SVGDOMPropertyConfig.js","./SelectEventPlugin":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/SelectEventPlugin.js","./ServerReactRootIndex":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ServerReactRootIndex.js","./SimpleEventPlugin":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/SimpleEventPlugin.js","./createFullPageComponent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/createFullPageComponent.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactDefaultPerf.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -9396,7 +9444,7 @@ var ReactDefaultPerf = {
 
 module.exports = ReactDefaultPerf;
 
-},{"./DOMProperty":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/DOMProperty.js","./ReactDefaultPerfAnalysis":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactDefaultPerfAnalysis.js","./ReactMount":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactMount.js","./ReactPerf":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactPerf.js","./performanceNow":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/performanceNow.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactDefaultPerfAnalysis.js":[function(require,module,exports){
+},{"./DOMProperty":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/DOMProperty.js","./ReactDefaultPerfAnalysis":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactDefaultPerfAnalysis.js","./ReactMount":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactMount.js","./ReactPerf":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactPerf.js","./performanceNow":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/performanceNow.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactDefaultPerfAnalysis.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -9602,7 +9650,7 @@ var ReactDefaultPerfAnalysis = {
 
 module.exports = ReactDefaultPerfAnalysis;
 
-},{"./Object.assign":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/Object.assign.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactElement.js":[function(require,module,exports){
+},{"./Object.assign":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/Object.assign.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactElement.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -9780,7 +9828,7 @@ ReactElement.createElement = function(type, config, children) {
   }
 
   // Resolve default props
-  if (type.defaultProps) {
+  if (type && type.defaultProps) {
     var defaultProps = type.defaultProps;
     for (propName in defaultProps) {
       if (typeof props[propName] === 'undefined') {
@@ -9848,7 +9896,8 @@ ReactElement.isValidElement = function(object) {
 module.exports = ReactElement;
 
 }).call(this,require('_process'))
-},{"./ReactContext":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactContext.js","./ReactCurrentOwner":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactCurrentOwner.js","./warning":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/warning.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactElementValidator.js":[function(require,module,exports){
+},{"./ReactContext":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactContext.js","./ReactCurrentOwner":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactCurrentOwner.js","./warning":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/warning.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactElementValidator.js":[function(require,module,exports){
+(function (process){
 /**
  * Copyright 2014, Facebook, Inc.
  * All rights reserved.
@@ -9874,6 +9923,7 @@ var ReactPropTypeLocations = require("./ReactPropTypeLocations");
 var ReactCurrentOwner = require("./ReactCurrentOwner");
 
 var monitorCodeUse = require("./monitorCodeUse");
+var warning = require("./warning");
 
 /**
  * Warn if there's no key explicitly set on dynamic arrays of children or
@@ -10071,6 +10121,15 @@ function checkPropTypes(componentName, propTypes, props, location) {
 var ReactElementValidator = {
 
   createElement: function(type, props, children) {
+    // We warn in this case but don't throw. We expect the element creation to
+    // succeed and there will likely be errors in render.
+    ("production" !== process.env.NODE_ENV ? warning(
+      type != null,
+      'React.createElement: type should not be null or undefined. It should ' +
+        'be a string (for DOM elements) or a ReactClass (for composite ' +
+        'components).'
+    ) : null);
+
     var element = ReactElement.createElement.apply(this, arguments);
 
     // The result can be nullish if a mock or a custom function is used.
@@ -10083,22 +10142,24 @@ var ReactElementValidator = {
       validateChildKeys(arguments[i], type);
     }
 
-    var name = type.displayName;
-    if (type.propTypes) {
-      checkPropTypes(
-        name,
-        type.propTypes,
-        element.props,
-        ReactPropTypeLocations.prop
-      );
-    }
-    if (type.contextTypes) {
-      checkPropTypes(
-        name,
-        type.contextTypes,
-        element._context,
-        ReactPropTypeLocations.context
-      );
+    if (type) {
+      var name = type.displayName;
+      if (type.propTypes) {
+        checkPropTypes(
+          name,
+          type.propTypes,
+          element.props,
+          ReactPropTypeLocations.prop
+        );
+      }
+      if (type.contextTypes) {
+        checkPropTypes(
+          name,
+          type.contextTypes,
+          element._context,
+          ReactPropTypeLocations.context
+        );
+      }
     }
     return element;
   },
@@ -10116,7 +10177,8 @@ var ReactElementValidator = {
 
 module.exports = ReactElementValidator;
 
-},{"./ReactCurrentOwner":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactCurrentOwner.js","./ReactElement":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactElement.js","./ReactPropTypeLocations":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactPropTypeLocations.js","./monitorCodeUse":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/monitorCodeUse.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactEmptyComponent.js":[function(require,module,exports){
+}).call(this,require('_process'))
+},{"./ReactCurrentOwner":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactCurrentOwner.js","./ReactElement":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactElement.js","./ReactPropTypeLocations":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactPropTypeLocations.js","./monitorCodeUse":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/monitorCodeUse.js","./warning":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/warning.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactEmptyComponent.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -10193,7 +10255,7 @@ var ReactEmptyComponent = {
 module.exports = ReactEmptyComponent;
 
 }).call(this,require('_process'))
-},{"./ReactElement":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactElement.js","./invariant":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactErrorUtils.js":[function(require,module,exports){
+},{"./ReactElement":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactElement.js","./invariant":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactErrorUtils.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -10225,7 +10287,7 @@ var ReactErrorUtils = {
 
 module.exports = ReactErrorUtils;
 
-},{}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactEventEmitterMixin.js":[function(require,module,exports){
+},{}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactEventEmitterMixin.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -10275,7 +10337,7 @@ var ReactEventEmitterMixin = {
 
 module.exports = ReactEventEmitterMixin;
 
-},{"./EventPluginHub":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/EventPluginHub.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactEventListener.js":[function(require,module,exports){
+},{"./EventPluginHub":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/EventPluginHub.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactEventListener.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -10459,7 +10521,7 @@ var ReactEventListener = {
 
 module.exports = ReactEventListener;
 
-},{"./EventListener":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/EventListener.js","./ExecutionEnvironment":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ExecutionEnvironment.js","./Object.assign":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/Object.assign.js","./PooledClass":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/PooledClass.js","./ReactInstanceHandles":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactInstanceHandles.js","./ReactMount":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactMount.js","./ReactUpdates":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactUpdates.js","./getEventTarget":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/getEventTarget.js","./getUnboundedScrollPosition":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/getUnboundedScrollPosition.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactInjection.js":[function(require,module,exports){
+},{"./EventListener":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/EventListener.js","./ExecutionEnvironment":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ExecutionEnvironment.js","./Object.assign":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/Object.assign.js","./PooledClass":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/PooledClass.js","./ReactInstanceHandles":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactInstanceHandles.js","./ReactMount":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactMount.js","./ReactUpdates":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactUpdates.js","./getEventTarget":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/getEventTarget.js","./getUnboundedScrollPosition":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/getUnboundedScrollPosition.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactInjection.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -10499,7 +10561,7 @@ var ReactInjection = {
 
 module.exports = ReactInjection;
 
-},{"./DOMProperty":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/DOMProperty.js","./EventPluginHub":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/EventPluginHub.js","./ReactBrowserEventEmitter":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactBrowserEventEmitter.js","./ReactComponent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactComponent.js","./ReactCompositeComponent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactCompositeComponent.js","./ReactEmptyComponent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactEmptyComponent.js","./ReactNativeComponent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactNativeComponent.js","./ReactPerf":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactPerf.js","./ReactRootIndex":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactRootIndex.js","./ReactUpdates":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactUpdates.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactInputSelection.js":[function(require,module,exports){
+},{"./DOMProperty":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/DOMProperty.js","./EventPluginHub":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/EventPluginHub.js","./ReactBrowserEventEmitter":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactBrowserEventEmitter.js","./ReactComponent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactComponent.js","./ReactCompositeComponent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactCompositeComponent.js","./ReactEmptyComponent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactEmptyComponent.js","./ReactNativeComponent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactNativeComponent.js","./ReactPerf":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactPerf.js","./ReactRootIndex":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactRootIndex.js","./ReactUpdates":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactUpdates.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactInputSelection.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -10635,7 +10697,7 @@ var ReactInputSelection = {
 
 module.exports = ReactInputSelection;
 
-},{"./ReactDOMSelection":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactDOMSelection.js","./containsNode":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/containsNode.js","./focusNode":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/focusNode.js","./getActiveElement":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/getActiveElement.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactInstanceHandles.js":[function(require,module,exports){
+},{"./ReactDOMSelection":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactDOMSelection.js","./containsNode":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/containsNode.js","./focusNode":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/focusNode.js","./getActiveElement":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/getActiveElement.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactInstanceHandles.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -10970,7 +11032,7 @@ var ReactInstanceHandles = {
 module.exports = ReactInstanceHandles;
 
 }).call(this,require('_process'))
-},{"./ReactRootIndex":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactRootIndex.js","./invariant":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactLegacyElement.js":[function(require,module,exports){
+},{"./ReactRootIndex":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactRootIndex.js","./invariant":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactLegacyElement.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -11217,7 +11279,7 @@ ReactLegacyElementFactory._isLegacyCallWarningEnabled = true;
 module.exports = ReactLegacyElementFactory;
 
 }).call(this,require('_process'))
-},{"./ReactCurrentOwner":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactCurrentOwner.js","./invariant":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/invariant.js","./monitorCodeUse":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/monitorCodeUse.js","./warning":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/warning.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactMarkupChecksum.js":[function(require,module,exports){
+},{"./ReactCurrentOwner":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactCurrentOwner.js","./invariant":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/invariant.js","./monitorCodeUse":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/monitorCodeUse.js","./warning":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/warning.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactMarkupChecksum.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -11265,7 +11327,7 @@ var ReactMarkupChecksum = {
 
 module.exports = ReactMarkupChecksum;
 
-},{"./adler32":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/adler32.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactMount.js":[function(require,module,exports){
+},{"./adler32":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/adler32.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactMount.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -11963,7 +12025,7 @@ ReactMount.renderComponent = deprecated(
 module.exports = ReactMount;
 
 }).call(this,require('_process'))
-},{"./DOMProperty":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/DOMProperty.js","./ReactBrowserEventEmitter":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactBrowserEventEmitter.js","./ReactCurrentOwner":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactCurrentOwner.js","./ReactElement":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactElement.js","./ReactInstanceHandles":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactInstanceHandles.js","./ReactLegacyElement":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactLegacyElement.js","./ReactPerf":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactPerf.js","./containsNode":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/containsNode.js","./deprecated":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/deprecated.js","./getReactRootElementInContainer":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/getReactRootElementInContainer.js","./instantiateReactComponent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/instantiateReactComponent.js","./invariant":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/invariant.js","./shouldUpdateReactComponent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/shouldUpdateReactComponent.js","./warning":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/warning.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactMultiChild.js":[function(require,module,exports){
+},{"./DOMProperty":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/DOMProperty.js","./ReactBrowserEventEmitter":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactBrowserEventEmitter.js","./ReactCurrentOwner":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactCurrentOwner.js","./ReactElement":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactElement.js","./ReactInstanceHandles":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactInstanceHandles.js","./ReactLegacyElement":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactLegacyElement.js","./ReactPerf":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactPerf.js","./containsNode":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/containsNode.js","./deprecated":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/deprecated.js","./getReactRootElementInContainer":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/getReactRootElementInContainer.js","./instantiateReactComponent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/instantiateReactComponent.js","./invariant":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/invariant.js","./shouldUpdateReactComponent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/shouldUpdateReactComponent.js","./warning":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/warning.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactMultiChild.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -12391,7 +12453,7 @@ var ReactMultiChild = {
 
 module.exports = ReactMultiChild;
 
-},{"./ReactComponent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactComponent.js","./ReactMultiChildUpdateTypes":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactMultiChildUpdateTypes.js","./flattenChildren":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/flattenChildren.js","./instantiateReactComponent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/instantiateReactComponent.js","./shouldUpdateReactComponent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/shouldUpdateReactComponent.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactMultiChildUpdateTypes.js":[function(require,module,exports){
+},{"./ReactComponent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactComponent.js","./ReactMultiChildUpdateTypes":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactMultiChildUpdateTypes.js","./flattenChildren":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/flattenChildren.js","./instantiateReactComponent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/instantiateReactComponent.js","./shouldUpdateReactComponent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/shouldUpdateReactComponent.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactMultiChildUpdateTypes.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -12424,7 +12486,7 @@ var ReactMultiChildUpdateTypes = keyMirror({
 
 module.exports = ReactMultiChildUpdateTypes;
 
-},{"./keyMirror":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/keyMirror.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactNativeComponent.js":[function(require,module,exports){
+},{"./keyMirror":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/keyMirror.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactNativeComponent.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -12491,13 +12553,13 @@ function createInstanceForTag(tag, props, parentType) {
 
 var ReactNativeComponent = {
   createInstanceForTag: createInstanceForTag,
-  injection: ReactNativeComponentInjection,
+  injection: ReactNativeComponentInjection
 };
 
 module.exports = ReactNativeComponent;
 
 }).call(this,require('_process'))
-},{"./Object.assign":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/Object.assign.js","./invariant":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactOwner.js":[function(require,module,exports){
+},{"./Object.assign":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/Object.assign.js","./invariant":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactOwner.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -12653,7 +12715,7 @@ var ReactOwner = {
 module.exports = ReactOwner;
 
 }).call(this,require('_process'))
-},{"./emptyObject":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/emptyObject.js","./invariant":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactPerf.js":[function(require,module,exports){
+},{"./emptyObject":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/emptyObject.js","./invariant":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactPerf.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -12737,7 +12799,7 @@ function _noMeasure(objName, fnName, func) {
 module.exports = ReactPerf;
 
 }).call(this,require('_process'))
-},{"_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactPropTransferer.js":[function(require,module,exports){
+},{"_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactPropTransferer.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -12904,7 +12966,7 @@ var ReactPropTransferer = {
 module.exports = ReactPropTransferer;
 
 }).call(this,require('_process'))
-},{"./Object.assign":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/Object.assign.js","./emptyFunction":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/emptyFunction.js","./invariant":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/invariant.js","./joinClasses":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/joinClasses.js","./warning":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/warning.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactPropTypeLocationNames.js":[function(require,module,exports){
+},{"./Object.assign":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/Object.assign.js","./emptyFunction":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/emptyFunction.js","./invariant":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/invariant.js","./joinClasses":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/joinClasses.js","./warning":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/warning.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactPropTypeLocationNames.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -12932,7 +12994,7 @@ if ("production" !== process.env.NODE_ENV) {
 module.exports = ReactPropTypeLocationNames;
 
 }).call(this,require('_process'))
-},{"_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactPropTypeLocations.js":[function(require,module,exports){
+},{"_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactPropTypeLocations.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -12956,7 +13018,7 @@ var ReactPropTypeLocations = keyMirror({
 
 module.exports = ReactPropTypeLocations;
 
-},{"./keyMirror":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/keyMirror.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactPropTypes.js":[function(require,module,exports){
+},{"./keyMirror":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/keyMirror.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactPropTypes.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -13310,7 +13372,7 @@ function getPreciseType(propValue) {
 
 module.exports = ReactPropTypes;
 
-},{"./ReactElement":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactElement.js","./ReactPropTypeLocationNames":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactPropTypeLocationNames.js","./deprecated":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/deprecated.js","./emptyFunction":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/emptyFunction.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactPutListenerQueue.js":[function(require,module,exports){
+},{"./ReactElement":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactElement.js","./ReactPropTypeLocationNames":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactPropTypeLocationNames.js","./deprecated":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/deprecated.js","./emptyFunction":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/emptyFunction.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactPutListenerQueue.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -13366,7 +13428,7 @@ PooledClass.addPoolingTo(ReactPutListenerQueue);
 
 module.exports = ReactPutListenerQueue;
 
-},{"./Object.assign":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/Object.assign.js","./PooledClass":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/PooledClass.js","./ReactBrowserEventEmitter":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactBrowserEventEmitter.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactReconcileTransaction.js":[function(require,module,exports){
+},{"./Object.assign":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/Object.assign.js","./PooledClass":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/PooledClass.js","./ReactBrowserEventEmitter":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactBrowserEventEmitter.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactReconcileTransaction.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -13542,7 +13604,7 @@ PooledClass.addPoolingTo(ReactReconcileTransaction);
 
 module.exports = ReactReconcileTransaction;
 
-},{"./CallbackQueue":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/CallbackQueue.js","./Object.assign":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/Object.assign.js","./PooledClass":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/PooledClass.js","./ReactBrowserEventEmitter":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactBrowserEventEmitter.js","./ReactInputSelection":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactInputSelection.js","./ReactPutListenerQueue":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactPutListenerQueue.js","./Transaction":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/Transaction.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactRootIndex.js":[function(require,module,exports){
+},{"./CallbackQueue":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/CallbackQueue.js","./Object.assign":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/Object.assign.js","./PooledClass":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/PooledClass.js","./ReactBrowserEventEmitter":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactBrowserEventEmitter.js","./ReactInputSelection":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactInputSelection.js","./ReactPutListenerQueue":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactPutListenerQueue.js","./Transaction":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/Transaction.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactRootIndex.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -13573,7 +13635,7 @@ var ReactRootIndex = {
 
 module.exports = ReactRootIndex;
 
-},{}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactServerRendering.js":[function(require,module,exports){
+},{}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactServerRendering.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -13653,7 +13715,7 @@ module.exports = {
 };
 
 }).call(this,require('_process'))
-},{"./ReactElement":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactElement.js","./ReactInstanceHandles":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactInstanceHandles.js","./ReactMarkupChecksum":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactMarkupChecksum.js","./ReactServerRenderingTransaction":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactServerRenderingTransaction.js","./instantiateReactComponent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/instantiateReactComponent.js","./invariant":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactServerRenderingTransaction.js":[function(require,module,exports){
+},{"./ReactElement":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactElement.js","./ReactInstanceHandles":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactInstanceHandles.js","./ReactMarkupChecksum":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactMarkupChecksum.js","./ReactServerRenderingTransaction":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactServerRenderingTransaction.js","./instantiateReactComponent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/instantiateReactComponent.js","./invariant":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactServerRenderingTransaction.js":[function(require,module,exports){
 /**
  * Copyright 2014, Facebook, Inc.
  * All rights reserved.
@@ -13766,7 +13828,7 @@ PooledClass.addPoolingTo(ReactServerRenderingTransaction);
 
 module.exports = ReactServerRenderingTransaction;
 
-},{"./CallbackQueue":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/CallbackQueue.js","./Object.assign":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/Object.assign.js","./PooledClass":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/PooledClass.js","./ReactPutListenerQueue":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactPutListenerQueue.js","./Transaction":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/Transaction.js","./emptyFunction":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/emptyFunction.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactTextComponent.js":[function(require,module,exports){
+},{"./CallbackQueue":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/CallbackQueue.js","./Object.assign":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/Object.assign.js","./PooledClass":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/PooledClass.js","./ReactPutListenerQueue":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactPutListenerQueue.js","./Transaction":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/Transaction.js","./emptyFunction":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/emptyFunction.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactTextComponent.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -13872,7 +13934,7 @@ ReactTextComponentFactory.type = ReactTextComponent;
 
 module.exports = ReactTextComponentFactory;
 
-},{"./DOMPropertyOperations":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/DOMPropertyOperations.js","./Object.assign":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/Object.assign.js","./ReactComponent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactComponent.js","./ReactElement":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactElement.js","./escapeTextForBrowser":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/escapeTextForBrowser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactUpdates.js":[function(require,module,exports){
+},{"./DOMPropertyOperations":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/DOMPropertyOperations.js","./Object.assign":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/Object.assign.js","./ReactComponent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactComponent.js","./ReactElement":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactElement.js","./escapeTextForBrowser":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/escapeTextForBrowser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactUpdates.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -14162,7 +14224,7 @@ var ReactUpdates = {
 module.exports = ReactUpdates;
 
 }).call(this,require('_process'))
-},{"./CallbackQueue":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/CallbackQueue.js","./Object.assign":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/Object.assign.js","./PooledClass":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/PooledClass.js","./ReactCurrentOwner":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactCurrentOwner.js","./ReactPerf":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactPerf.js","./Transaction":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/Transaction.js","./invariant":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/invariant.js","./warning":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/warning.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/SVGDOMPropertyConfig.js":[function(require,module,exports){
+},{"./CallbackQueue":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/CallbackQueue.js","./Object.assign":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/Object.assign.js","./PooledClass":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/PooledClass.js","./ReactCurrentOwner":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactCurrentOwner.js","./ReactPerf":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactPerf.js","./Transaction":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/Transaction.js","./invariant":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/invariant.js","./warning":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/warning.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/SVGDOMPropertyConfig.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -14254,7 +14316,7 @@ var SVGDOMPropertyConfig = {
 
 module.exports = SVGDOMPropertyConfig;
 
-},{"./DOMProperty":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/DOMProperty.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/SelectEventPlugin.js":[function(require,module,exports){
+},{"./DOMProperty":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/DOMProperty.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/SelectEventPlugin.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -14449,7 +14511,7 @@ var SelectEventPlugin = {
 
 module.exports = SelectEventPlugin;
 
-},{"./EventConstants":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/EventConstants.js","./EventPropagators":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/EventPropagators.js","./ReactInputSelection":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactInputSelection.js","./SyntheticEvent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/SyntheticEvent.js","./getActiveElement":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/getActiveElement.js","./isTextInputElement":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/isTextInputElement.js","./keyOf":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/keyOf.js","./shallowEqual":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/shallowEqual.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ServerReactRootIndex.js":[function(require,module,exports){
+},{"./EventConstants":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/EventConstants.js","./EventPropagators":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/EventPropagators.js","./ReactInputSelection":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactInputSelection.js","./SyntheticEvent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/SyntheticEvent.js","./getActiveElement":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/getActiveElement.js","./isTextInputElement":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/isTextInputElement.js","./keyOf":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/keyOf.js","./shallowEqual":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/shallowEqual.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ServerReactRootIndex.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -14480,7 +14542,7 @@ var ServerReactRootIndex = {
 
 module.exports = ServerReactRootIndex;
 
-},{}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/SimpleEventPlugin.js":[function(require,module,exports){
+},{}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/SimpleEventPlugin.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -14908,7 +14970,7 @@ var SimpleEventPlugin = {
 module.exports = SimpleEventPlugin;
 
 }).call(this,require('_process'))
-},{"./EventConstants":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/EventConstants.js","./EventPluginUtils":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/EventPluginUtils.js","./EventPropagators":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/EventPropagators.js","./SyntheticClipboardEvent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/SyntheticClipboardEvent.js","./SyntheticDragEvent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/SyntheticDragEvent.js","./SyntheticEvent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/SyntheticEvent.js","./SyntheticFocusEvent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/SyntheticFocusEvent.js","./SyntheticKeyboardEvent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/SyntheticKeyboardEvent.js","./SyntheticMouseEvent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/SyntheticMouseEvent.js","./SyntheticTouchEvent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/SyntheticTouchEvent.js","./SyntheticUIEvent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/SyntheticUIEvent.js","./SyntheticWheelEvent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/SyntheticWheelEvent.js","./getEventCharCode":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/getEventCharCode.js","./invariant":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/invariant.js","./keyOf":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/keyOf.js","./warning":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/warning.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/SyntheticClipboardEvent.js":[function(require,module,exports){
+},{"./EventConstants":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/EventConstants.js","./EventPluginUtils":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/EventPluginUtils.js","./EventPropagators":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/EventPropagators.js","./SyntheticClipboardEvent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/SyntheticClipboardEvent.js","./SyntheticDragEvent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/SyntheticDragEvent.js","./SyntheticEvent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/SyntheticEvent.js","./SyntheticFocusEvent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/SyntheticFocusEvent.js","./SyntheticKeyboardEvent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/SyntheticKeyboardEvent.js","./SyntheticMouseEvent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/SyntheticMouseEvent.js","./SyntheticTouchEvent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/SyntheticTouchEvent.js","./SyntheticUIEvent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/SyntheticUIEvent.js","./SyntheticWheelEvent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/SyntheticWheelEvent.js","./getEventCharCode":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/getEventCharCode.js","./invariant":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/invariant.js","./keyOf":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/keyOf.js","./warning":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/warning.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/SyntheticClipboardEvent.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -14954,7 +15016,7 @@ SyntheticEvent.augmentClass(SyntheticClipboardEvent, ClipboardEventInterface);
 module.exports = SyntheticClipboardEvent;
 
 
-},{"./SyntheticEvent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/SyntheticEvent.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/SyntheticCompositionEvent.js":[function(require,module,exports){
+},{"./SyntheticEvent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/SyntheticEvent.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/SyntheticCompositionEvent.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -15000,7 +15062,7 @@ SyntheticEvent.augmentClass(
 module.exports = SyntheticCompositionEvent;
 
 
-},{"./SyntheticEvent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/SyntheticEvent.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/SyntheticDragEvent.js":[function(require,module,exports){
+},{"./SyntheticEvent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/SyntheticEvent.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/SyntheticDragEvent.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -15039,7 +15101,7 @@ SyntheticMouseEvent.augmentClass(SyntheticDragEvent, DragEventInterface);
 
 module.exports = SyntheticDragEvent;
 
-},{"./SyntheticMouseEvent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/SyntheticMouseEvent.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/SyntheticEvent.js":[function(require,module,exports){
+},{"./SyntheticMouseEvent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/SyntheticMouseEvent.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/SyntheticEvent.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -15197,7 +15259,7 @@ PooledClass.addPoolingTo(SyntheticEvent, PooledClass.threeArgumentPooler);
 
 module.exports = SyntheticEvent;
 
-},{"./Object.assign":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/Object.assign.js","./PooledClass":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/PooledClass.js","./emptyFunction":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/emptyFunction.js","./getEventTarget":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/getEventTarget.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/SyntheticFocusEvent.js":[function(require,module,exports){
+},{"./Object.assign":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/Object.assign.js","./PooledClass":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/PooledClass.js","./emptyFunction":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/emptyFunction.js","./getEventTarget":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/getEventTarget.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/SyntheticFocusEvent.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -15236,7 +15298,7 @@ SyntheticUIEvent.augmentClass(SyntheticFocusEvent, FocusEventInterface);
 
 module.exports = SyntheticFocusEvent;
 
-},{"./SyntheticUIEvent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/SyntheticUIEvent.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/SyntheticInputEvent.js":[function(require,module,exports){
+},{"./SyntheticUIEvent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/SyntheticUIEvent.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/SyntheticInputEvent.js":[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  * All rights reserved.
@@ -15283,7 +15345,7 @@ SyntheticEvent.augmentClass(
 module.exports = SyntheticInputEvent;
 
 
-},{"./SyntheticEvent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/SyntheticEvent.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/SyntheticKeyboardEvent.js":[function(require,module,exports){
+},{"./SyntheticEvent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/SyntheticEvent.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/SyntheticKeyboardEvent.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -15370,7 +15432,7 @@ SyntheticUIEvent.augmentClass(SyntheticKeyboardEvent, KeyboardEventInterface);
 
 module.exports = SyntheticKeyboardEvent;
 
-},{"./SyntheticUIEvent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/SyntheticUIEvent.js","./getEventCharCode":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/getEventCharCode.js","./getEventKey":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/getEventKey.js","./getEventModifierState":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/getEventModifierState.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/SyntheticMouseEvent.js":[function(require,module,exports){
+},{"./SyntheticUIEvent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/SyntheticUIEvent.js","./getEventCharCode":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/getEventCharCode.js","./getEventKey":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/getEventKey.js","./getEventModifierState":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/getEventModifierState.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/SyntheticMouseEvent.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -15453,7 +15515,7 @@ SyntheticUIEvent.augmentClass(SyntheticMouseEvent, MouseEventInterface);
 
 module.exports = SyntheticMouseEvent;
 
-},{"./SyntheticUIEvent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/SyntheticUIEvent.js","./ViewportMetrics":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ViewportMetrics.js","./getEventModifierState":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/getEventModifierState.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/SyntheticTouchEvent.js":[function(require,module,exports){
+},{"./SyntheticUIEvent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/SyntheticUIEvent.js","./ViewportMetrics":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ViewportMetrics.js","./getEventModifierState":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/getEventModifierState.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/SyntheticTouchEvent.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -15501,7 +15563,7 @@ SyntheticUIEvent.augmentClass(SyntheticTouchEvent, TouchEventInterface);
 
 module.exports = SyntheticTouchEvent;
 
-},{"./SyntheticUIEvent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/SyntheticUIEvent.js","./getEventModifierState":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/getEventModifierState.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/SyntheticUIEvent.js":[function(require,module,exports){
+},{"./SyntheticUIEvent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/SyntheticUIEvent.js","./getEventModifierState":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/getEventModifierState.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/SyntheticUIEvent.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -15563,7 +15625,7 @@ SyntheticEvent.augmentClass(SyntheticUIEvent, UIEventInterface);
 
 module.exports = SyntheticUIEvent;
 
-},{"./SyntheticEvent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/SyntheticEvent.js","./getEventTarget":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/getEventTarget.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/SyntheticWheelEvent.js":[function(require,module,exports){
+},{"./SyntheticEvent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/SyntheticEvent.js","./getEventTarget":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/getEventTarget.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/SyntheticWheelEvent.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -15624,7 +15686,7 @@ SyntheticMouseEvent.augmentClass(SyntheticWheelEvent, WheelEventInterface);
 
 module.exports = SyntheticWheelEvent;
 
-},{"./SyntheticMouseEvent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/SyntheticMouseEvent.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/Transaction.js":[function(require,module,exports){
+},{"./SyntheticMouseEvent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/SyntheticMouseEvent.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/Transaction.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -15865,7 +15927,7 @@ var Transaction = {
 module.exports = Transaction;
 
 }).call(this,require('_process'))
-},{"./invariant":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ViewportMetrics.js":[function(require,module,exports){
+},{"./invariant":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ViewportMetrics.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -15897,7 +15959,7 @@ var ViewportMetrics = {
 
 module.exports = ViewportMetrics;
 
-},{"./getUnboundedScrollPosition":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/getUnboundedScrollPosition.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/accumulateInto.js":[function(require,module,exports){
+},{"./getUnboundedScrollPosition":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/getUnboundedScrollPosition.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/accumulateInto.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -15963,7 +16025,7 @@ function accumulateInto(current, next) {
 module.exports = accumulateInto;
 
 }).call(this,require('_process'))
-},{"./invariant":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/adler32.js":[function(require,module,exports){
+},{"./invariant":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/adler32.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -15997,7 +16059,7 @@ function adler32(data) {
 
 module.exports = adler32;
 
-},{}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/camelize.js":[function(require,module,exports){
+},{}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/camelize.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -16029,7 +16091,7 @@ function camelize(string) {
 
 module.exports = camelize;
 
-},{}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/camelizeStyleName.js":[function(require,module,exports){
+},{}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/camelizeStyleName.js":[function(require,module,exports){
 /**
  * Copyright 2014, Facebook, Inc.
  * All rights reserved.
@@ -16071,7 +16133,7 @@ function camelizeStyleName(string) {
 
 module.exports = camelizeStyleName;
 
-},{"./camelize":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/camelize.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/containsNode.js":[function(require,module,exports){
+},{"./camelize":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/camelize.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/containsNode.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -16115,7 +16177,7 @@ function containsNode(outerNode, innerNode) {
 
 module.exports = containsNode;
 
-},{"./isTextNode":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/isTextNode.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/createArrayFrom.js":[function(require,module,exports){
+},{"./isTextNode":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/isTextNode.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/createArrayFrom.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -16201,7 +16263,7 @@ function createArrayFrom(obj) {
 
 module.exports = createArrayFrom;
 
-},{"./toArray":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/toArray.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/createFullPageComponent.js":[function(require,module,exports){
+},{"./toArray":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/toArray.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/createFullPageComponent.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -16262,7 +16324,7 @@ function createFullPageComponent(tag) {
 module.exports = createFullPageComponent;
 
 }).call(this,require('_process'))
-},{"./ReactCompositeComponent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactCompositeComponent.js","./ReactElement":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactElement.js","./invariant":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/createNodesFromMarkup.js":[function(require,module,exports){
+},{"./ReactCompositeComponent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactCompositeComponent.js","./ReactElement":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactElement.js","./invariant":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/createNodesFromMarkup.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -16352,7 +16414,7 @@ function createNodesFromMarkup(markup, handleScript) {
 module.exports = createNodesFromMarkup;
 
 }).call(this,require('_process'))
-},{"./ExecutionEnvironment":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ExecutionEnvironment.js","./createArrayFrom":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/createArrayFrom.js","./getMarkupWrap":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/getMarkupWrap.js","./invariant":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/dangerousStyleValue.js":[function(require,module,exports){
+},{"./ExecutionEnvironment":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ExecutionEnvironment.js","./createArrayFrom":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/createArrayFrom.js","./getMarkupWrap":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/getMarkupWrap.js","./invariant":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/dangerousStyleValue.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -16410,7 +16472,7 @@ function dangerousStyleValue(name, value) {
 
 module.exports = dangerousStyleValue;
 
-},{"./CSSProperty":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/CSSProperty.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/deprecated.js":[function(require,module,exports){
+},{"./CSSProperty":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/CSSProperty.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/deprecated.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -16461,7 +16523,7 @@ function deprecated(namespace, oldName, newName, ctx, fn) {
 module.exports = deprecated;
 
 }).call(this,require('_process'))
-},{"./Object.assign":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/Object.assign.js","./warning":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/warning.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/emptyFunction.js":[function(require,module,exports){
+},{"./Object.assign":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/Object.assign.js","./warning":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/warning.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/emptyFunction.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -16495,7 +16557,7 @@ emptyFunction.thatReturnsArgument = function(arg) { return arg; };
 
 module.exports = emptyFunction;
 
-},{}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/emptyObject.js":[function(require,module,exports){
+},{}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/emptyObject.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -16519,7 +16581,7 @@ if ("production" !== process.env.NODE_ENV) {
 module.exports = emptyObject;
 
 }).call(this,require('_process'))
-},{"_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/escapeTextForBrowser.js":[function(require,module,exports){
+},{"_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/escapeTextForBrowser.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -16560,7 +16622,7 @@ function escapeTextForBrowser(text) {
 
 module.exports = escapeTextForBrowser;
 
-},{}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/flattenChildren.js":[function(require,module,exports){
+},{}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/flattenChildren.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -16629,7 +16691,7 @@ function flattenChildren(children) {
 module.exports = flattenChildren;
 
 }).call(this,require('_process'))
-},{"./ReactTextComponent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactTextComponent.js","./traverseAllChildren":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/traverseAllChildren.js","./warning":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/warning.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/focusNode.js":[function(require,module,exports){
+},{"./ReactTextComponent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactTextComponent.js","./traverseAllChildren":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/traverseAllChildren.js","./warning":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/warning.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/focusNode.js":[function(require,module,exports){
 /**
  * Copyright 2014, Facebook, Inc.
  * All rights reserved.
@@ -16658,7 +16720,7 @@ function focusNode(node) {
 
 module.exports = focusNode;
 
-},{}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/forEachAccumulated.js":[function(require,module,exports){
+},{}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/forEachAccumulated.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -16689,7 +16751,7 @@ var forEachAccumulated = function(arr, cb, scope) {
 
 module.exports = forEachAccumulated;
 
-},{}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/getActiveElement.js":[function(require,module,exports){
+},{}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/getActiveElement.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -16718,7 +16780,7 @@ function getActiveElement() /*?DOMElement*/ {
 
 module.exports = getActiveElement;
 
-},{}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/getEventCharCode.js":[function(require,module,exports){
+},{}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/getEventCharCode.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -16770,7 +16832,7 @@ function getEventCharCode(nativeEvent) {
 
 module.exports = getEventCharCode;
 
-},{}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/getEventKey.js":[function(require,module,exports){
+},{}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/getEventKey.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -16875,7 +16937,7 @@ function getEventKey(nativeEvent) {
 
 module.exports = getEventKey;
 
-},{"./getEventCharCode":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/getEventCharCode.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/getEventModifierState.js":[function(require,module,exports){
+},{"./getEventCharCode":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/getEventCharCode.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/getEventModifierState.js":[function(require,module,exports){
 /**
  * Copyright 2013 Facebook, Inc.
  * All rights reserved.
@@ -16922,7 +16984,7 @@ function getEventModifierState(nativeEvent) {
 
 module.exports = getEventModifierState;
 
-},{}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/getEventTarget.js":[function(require,module,exports){
+},{}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/getEventTarget.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -16953,7 +17015,7 @@ function getEventTarget(nativeEvent) {
 
 module.exports = getEventTarget;
 
-},{}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/getMarkupWrap.js":[function(require,module,exports){
+},{}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/getMarkupWrap.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -17070,7 +17132,7 @@ function getMarkupWrap(nodeName) {
 module.exports = getMarkupWrap;
 
 }).call(this,require('_process'))
-},{"./ExecutionEnvironment":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ExecutionEnvironment.js","./invariant":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/getNodeForCharacterOffset.js":[function(require,module,exports){
+},{"./ExecutionEnvironment":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ExecutionEnvironment.js","./invariant":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/getNodeForCharacterOffset.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -17145,7 +17207,7 @@ function getNodeForCharacterOffset(root, offset) {
 
 module.exports = getNodeForCharacterOffset;
 
-},{}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/getReactRootElementInContainer.js":[function(require,module,exports){
+},{}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/getReactRootElementInContainer.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -17180,7 +17242,7 @@ function getReactRootElementInContainer(container) {
 
 module.exports = getReactRootElementInContainer;
 
-},{}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/getTextContentAccessor.js":[function(require,module,exports){
+},{}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/getTextContentAccessor.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -17217,7 +17279,7 @@ function getTextContentAccessor() {
 
 module.exports = getTextContentAccessor;
 
-},{"./ExecutionEnvironment":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ExecutionEnvironment.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/getUnboundedScrollPosition.js":[function(require,module,exports){
+},{"./ExecutionEnvironment":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ExecutionEnvironment.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/getUnboundedScrollPosition.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -17257,7 +17319,7 @@ function getUnboundedScrollPosition(scrollable) {
 
 module.exports = getUnboundedScrollPosition;
 
-},{}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/hyphenate.js":[function(require,module,exports){
+},{}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/hyphenate.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -17290,7 +17352,7 @@ function hyphenate(string) {
 
 module.exports = hyphenate;
 
-},{}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/hyphenateStyleName.js":[function(require,module,exports){
+},{}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/hyphenateStyleName.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -17331,7 +17393,7 @@ function hyphenateStyleName(string) {
 
 module.exports = hyphenateStyleName;
 
-},{"./hyphenate":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/hyphenate.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/instantiateReactComponent.js":[function(require,module,exports){
+},{"./hyphenate":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/hyphenate.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/instantiateReactComponent.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -17445,7 +17507,7 @@ function instantiateReactComponent(element, parentCompositeType) {
 module.exports = instantiateReactComponent;
 
 }).call(this,require('_process'))
-},{"./ReactElement":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactElement.js","./ReactEmptyComponent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactEmptyComponent.js","./ReactLegacyElement":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactLegacyElement.js","./ReactNativeComponent":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactNativeComponent.js","./warning":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/warning.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/invariant.js":[function(require,module,exports){
+},{"./ReactElement":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactElement.js","./ReactEmptyComponent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactEmptyComponent.js","./ReactLegacyElement":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactLegacyElement.js","./ReactNativeComponent":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactNativeComponent.js","./warning":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/warning.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/invariant.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -17502,7 +17564,7 @@ var invariant = function(condition, format, a, b, c, d, e, f) {
 module.exports = invariant;
 
 }).call(this,require('_process'))
-},{"_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/isEventSupported.js":[function(require,module,exports){
+},{"_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/isEventSupported.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -17567,7 +17629,7 @@ function isEventSupported(eventNameSuffix, capture) {
 
 module.exports = isEventSupported;
 
-},{"./ExecutionEnvironment":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ExecutionEnvironment.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/isNode.js":[function(require,module,exports){
+},{"./ExecutionEnvironment":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ExecutionEnvironment.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/isNode.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -17595,7 +17657,7 @@ function isNode(object) {
 
 module.exports = isNode;
 
-},{}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/isTextInputElement.js":[function(require,module,exports){
+},{}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/isTextInputElement.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -17639,7 +17701,7 @@ function isTextInputElement(elem) {
 
 module.exports = isTextInputElement;
 
-},{}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/isTextNode.js":[function(require,module,exports){
+},{}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/isTextNode.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -17664,7 +17726,7 @@ function isTextNode(object) {
 
 module.exports = isTextNode;
 
-},{"./isNode":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/isNode.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/joinClasses.js":[function(require,module,exports){
+},{"./isNode":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/isNode.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/joinClasses.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -17705,7 +17767,7 @@ function joinClasses(className/*, ... */) {
 
 module.exports = joinClasses;
 
-},{}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/keyMirror.js":[function(require,module,exports){
+},{}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/keyMirror.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -17760,7 +17822,7 @@ var keyMirror = function(obj) {
 module.exports = keyMirror;
 
 }).call(this,require('_process'))
-},{"./invariant":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/keyOf.js":[function(require,module,exports){
+},{"./invariant":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/keyOf.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -17796,7 +17858,7 @@ var keyOf = function(oneKeyObj) {
 
 module.exports = keyOf;
 
-},{}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/mapObject.js":[function(require,module,exports){
+},{}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/mapObject.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -17849,7 +17911,7 @@ function mapObject(object, callback, context) {
 
 module.exports = mapObject;
 
-},{}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/memoizeStringOnly.js":[function(require,module,exports){
+},{}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/memoizeStringOnly.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -17883,7 +17945,7 @@ function memoizeStringOnly(callback) {
 
 module.exports = memoizeStringOnly;
 
-},{}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/monitorCodeUse.js":[function(require,module,exports){
+},{}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/monitorCodeUse.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -17917,7 +17979,7 @@ function monitorCodeUse(eventName, data) {
 module.exports = monitorCodeUse;
 
 }).call(this,require('_process'))
-},{"./invariant":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/onlyChild.js":[function(require,module,exports){
+},{"./invariant":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/onlyChild.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -17957,7 +18019,7 @@ function onlyChild(children) {
 module.exports = onlyChild;
 
 }).call(this,require('_process'))
-},{"./ReactElement":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactElement.js","./invariant":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/performance.js":[function(require,module,exports){
+},{"./ReactElement":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactElement.js","./invariant":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/performance.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -17985,7 +18047,7 @@ if (ExecutionEnvironment.canUseDOM) {
 
 module.exports = performance || {};
 
-},{"./ExecutionEnvironment":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ExecutionEnvironment.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/performanceNow.js":[function(require,module,exports){
+},{"./ExecutionEnvironment":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ExecutionEnvironment.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/performanceNow.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -18013,7 +18075,7 @@ var performanceNow = performance.now.bind(performance);
 
 module.exports = performanceNow;
 
-},{"./performance":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/performance.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/setInnerHTML.js":[function(require,module,exports){
+},{"./performance":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/performance.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/setInnerHTML.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -18091,7 +18153,7 @@ if (ExecutionEnvironment.canUseDOM) {
 
 module.exports = setInnerHTML;
 
-},{"./ExecutionEnvironment":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ExecutionEnvironment.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/shallowEqual.js":[function(require,module,exports){
+},{"./ExecutionEnvironment":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ExecutionEnvironment.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/shallowEqual.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -18135,7 +18197,7 @@ function shallowEqual(objA, objB) {
 
 module.exports = shallowEqual;
 
-},{}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/shouldUpdateReactComponent.js":[function(require,module,exports){
+},{}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/shouldUpdateReactComponent.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.
  * All rights reserved.
@@ -18173,7 +18235,7 @@ function shouldUpdateReactComponent(prevElement, nextElement) {
 
 module.exports = shouldUpdateReactComponent;
 
-},{}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/toArray.js":[function(require,module,exports){
+},{}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/toArray.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -18245,7 +18307,7 @@ function toArray(obj) {
 module.exports = toArray;
 
 }).call(this,require('_process'))
-},{"./invariant":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/traverseAllChildren.js":[function(require,module,exports){
+},{"./invariant":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/traverseAllChildren.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2013-2014, Facebook, Inc.
@@ -18428,7 +18490,7 @@ function traverseAllChildren(children, callback, traverseContext) {
 module.exports = traverseAllChildren;
 
 }).call(this,require('_process'))
-},{"./ReactElement":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactElement.js","./ReactInstanceHandles":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/ReactInstanceHandles.js","./invariant":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/warning.js":[function(require,module,exports){
+},{"./ReactElement":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactElement.js","./ReactInstanceHandles":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/ReactInstanceHandles.js","./invariant":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/invariant.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/warning.js":[function(require,module,exports){
 (function (process){
 /**
  * Copyright 2014, Facebook, Inc.
@@ -18473,10 +18535,10 @@ if ("production" !== process.env.NODE_ENV) {
 module.exports = warning;
 
 }).call(this,require('_process'))
-},{"./emptyFunction":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/emptyFunction.js","_process":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/react.js":[function(require,module,exports){
+},{"./emptyFunction":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/emptyFunction.js","_process":"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/react/react.js":[function(require,module,exports){
 module.exports = require('./lib/React');
 
-},{"./lib/React":"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/react/lib/React.js"}],"/Users/mschwoerer/Develop/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js":[function(require,module,exports){
+},{"./lib/React":"/Users/chengyin/dev/react-avatar-editor/node_modules/react/lib/React.js"}],"/Users/chengyin/dev/react-avatar-editor/node_modules/watchify/node_modules/browserify/node_modules/process/browser.js":[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -18564,4 +18626,4 @@ process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
 };
 
-},{}]},{},["/Users/mschwoerer/Develop/react-avatar-editor/example/app.js"]);
+},{}]},{},["/Users/chengyin/dev/react-avatar-editor/example/app.js"]);
