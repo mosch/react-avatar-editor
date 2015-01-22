@@ -120,8 +120,8 @@
                 var lastX = this.state.image.x;
                 var lastY = this.state.image.y;
 
-                var x = Math.round((width  + lastX <= borderX) ? lastX + (borderX - (width  + lastX)) : lastX);
-                var y = Math.round((height + lastY <= borderY) ? lastY + (borderY - (height + lastY)) : lastY);
+                var x = Math.round((height + lastX <= borderX) ? lastX + (borderX - (height + lastX)) : lastX);
+                var y = Math.round((width  + lastY <= borderY) ? lastY + (borderY - (width  + lastY)) : lastY);
 
                 return {
                     x: x,
