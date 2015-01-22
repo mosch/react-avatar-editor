@@ -59,6 +59,7 @@ var AvatarEditor = React.createClass({
     loadImage: function(imageURL) {
         var imageObj = new Image();
         imageObj.onload = this.handleImageReady.bind(this, imageObj);
+        imageObj.crossOrigin = 'anonymous';
         imageObj.src = imageURL;
     },
 
