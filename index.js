@@ -13,8 +13,8 @@ var AvatarEditor = React.createClass({
         return {
             scale: 1,
             border: 25,
-            width: 250,
-            height: 250
+            width: 200,
+            height: 200
         }
     },
     getInitialState: function() {
@@ -51,7 +51,7 @@ var AvatarEditor = React.createClass({
         dom.height = this.props.height;
 
         context.globalCompositeOperation = 'destination-over';
-        context.drawImage(image.resource, image.x - border, image.y - border, image.width, image.height);
+        this.paintImage(context, this.props.width/2);
 
         return dom.toDataURL();
     },
@@ -82,16 +82,18 @@ var AvatarEditor = React.createClass({
         var context = this.getDOMNode().getContext('2d');
         context.clearRect(0, 0, this.getDimensions().canvas.width, this.getDimensions().canvas.height);
         this.paint(context);
-        this.drawImage(context);
+        this.paintImage(context, this.getDimensions().canvas.width/2);
     },
 
     handleImageReady: function(image) {
-        var imageState = this.getInitialSizeAndPosition(image.width, image.height);
+        var imageState = this.getInitialSize(image.width, image.height);
         imageState.resource = image;
+        imageState.x = this.props.border;
+        imageState.y = this.props.border;
         this.setState({ drag: false, image: imageState });
     },
 
-    getInitialSizeAndPosition: function(width, height) {
+    getInitialSize: function(width, height) {
         var newHeight, newWidth;
 
         if (width > height) {
@@ -102,30 +104,9 @@ var AvatarEditor = React.createClass({
             newHeight = (height * (newWidth / width));
         }
 
-        var position = this.calculatePosition(newWidth, newHeight);
-
         return {
             height: newHeight,
-            width: newWidth,
-            x: position.x,
-            y: position.y
-        };
-    },
-
-    calculatePosition: function(width, height) {
-        var dimensions = this.getDimensions();
-        var borderX = dimensions.height + dimensions.border;
-        var borderY = dimensions.width  + dimensions.border;
-
-        var lastX = this.state.image.x;
-        var lastY = this.state.image.y;
-
-        var x = Math.round((width  + lastX <= borderX) ? lastX + (borderX - (width  + lastX)) : lastX);
-        var y = Math.round((height + lastY <= borderY) ? lastY + (borderY - (height + lastY)) : lastY);
-
-        return {
-            x: x,
-            y: y
+            width: newWidth
         };
     },
 
@@ -134,43 +115,54 @@ var AvatarEditor = React.createClass({
 
         if (this.props.image != newProps.image) {
             this.loadImage(newProps.image);
-        } else  if (image.resource) {
-            var width =  (image.width / this.props.scale) * newProps.scale;
-            var height = (image.width / this.props.scale) * newProps.scale;
-
-            var minHeight = this.props.height;
-            var minWidth  = this.props.width;
-
-            if (width > height) {
-                // this is an horizontal image
-                height = height <= minHeight ? minHeight : height;
-                width  = (image.width*(height / image.height));
-            } else {
-                // this is an vertical image
-                width  = width <= minWidth ? minWidth : width;
-                height = (image.height*(width / image.width));
-            }
-
-            var position = this.calculatePosition(width, height);
-
-            this.setState({ image: { height: height, width: width, x: position.x, y: position.y, resource: image.resource }});
+        } else if (this.props.scale !== newProps.scale) {
+            this.setState({ lastScale: this.props.scale });
         }
     },
 
-    drawImage: function(context) {
+    paintImage: function(context, size) {
         var image = this.state.image;
         if (image.resource) {
+            var position = this.calculatePosition(image);
             context.save();
             context.globalCompositeOperation = 'destination-over';
-            context.drawImage(image.resource, image.x, image.y, image.width, image.height);
+            context.drawImage(image.resource, position.x, position.y, position.width, position.height);
             context.restore();
+        }
+    },
+
+    calculatePosition: function(image) {
+        var x, y, width, height, dimensions = this.getDimensions();
+
+        width = image.width*this.props.scale;
+        height = image.height*this.props.scale;
+        var widthDiff = (width-image.width)/2;
+        var heightDiff = (height-image.height)/2;
+        x = image.x-widthDiff;
+        y = image.y-heightDiff;
+
+        // top and left border bounding
+        x = Math.min(x, dimensions.border);
+        y = Math.min(y, dimensions.border);
+
+        // right and bottom
+        var fromBottom = height+(y-dimensions.border);
+        y = fromBottom > dimensions.height ? y : (y+(dimensions.height-fromBottom));
+        var fromRight = width+(x-dimensions.border);
+        x = fromRight > dimensions.width ? x: (x+(dimensions.width-fromRight));
+
+        return {
+            x: x,
+            y: y,
+            height: height,
+            width: width
         }
     },
 
     paint: function(context) {
         context.save();
         context.translate(0, 0);
-        context.fillStyle = "rgba(255, 255, 255, 0.5)";
+        context.fillStyle = "rgba(0, 0, 0, 0.5)";
 
         var dimensions = this.getDimensions();
 
@@ -200,32 +192,39 @@ var AvatarEditor = React.createClass({
     },
 
     handleMouseMove: function(e) {
-        if (this.state.drag) {
-            var dimensions = this.getDimensions();
-
-            var imageState = this.state.image;
-            var lastX = imageState.x;
-            var lastY = imageState.y;
-
-            if (this.state.mx && this.state.my) {
-                var xDiff = this.state.mx - e.clientX;
-                var yDiff = this.state.my - e.clientY;
-                var x = Math.min(lastX - xDiff, dimensions.border);
-                var y = Math.min(lastY - yDiff, dimensions.border);
-            } else {
-                var x = lastX;
-                var y = lastY;
-            }
-            var width  = imageState.width;
-            var height = imageState.height;
-
-            var left = (width  <= dimensions.width)  ? dimensions.border : (width  + x <= dimensions.width  + dimensions.border ? lastX : x);
-            var top =  (height <= dimensions.height) ? dimensions.border : (height + y <= dimensions.height + dimensions.border ? lastY : y);
-
-            imageState.x = left;
-            imageState.y = top;
-            this.setState({ mx: e.clientX, my: e.clientY, image: imageState });
+        if (false == this.state.drag) {
+            return;
         }
+
+        var newState = {}
+        var dimensions = this.getDimensions();
+        var imageState = this.state.image;
+        var lastX = imageState.x;
+        var lastY = imageState.y;
+
+        var mousePositionX = e.clientX;
+        var mousePositionY = e.clientY;
+
+        newState = { mx: mousePositionX, my: mousePositionY, image: imageState };
+
+        if (this.state.mx && this.state.my) {
+            var xDiff = this.state.mx - mousePositionX;
+            var yDiff = this.state.my - mousePositionY;
+            xDiff = Math.max(-5, Math.min(5, xDiff));
+            yDiff = Math.max(-5, Math.min(5, yDiff));
+
+            var x = lastX - xDiff;
+            var y = lastY - yDiff;
+
+            var yMove = yDiff < 0 ? 'down' : 'up';
+            var xMove = xDiff < 0 ? 'right' : 'left';
+
+            imageState.y = y;
+            imageState.x = x;
+
+        }
+
+        this.setState(newState);
     },
 
     handleDragOver: function(e) {
