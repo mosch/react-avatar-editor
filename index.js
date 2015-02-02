@@ -19,14 +19,16 @@
             image: React.PropTypes.string,
             border: React.PropTypes.number,
             width: React.PropTypes.number,
-            height: React.PropTypes.number
+            height: React.PropTypes.number,
+            dragSpeed: React.PropTypes.number
         },
         getDefaultProps: function () {
             return {
                 scale: 1,
                 border: 25,
                 width: 200,
-                height: 200
+                height: 200,
+                dragSpeed: 0.5,
             }
         },
         getInitialState: function () {
@@ -229,8 +231,8 @@
             if (this.state.mx && this.state.my) {
                 var xDiff = this.state.mx - mousePositionX;
                 var yDiff = this.state.my - mousePositionY;
-                xDiff = Math.max(-5, Math.min(5, xDiff));
-                yDiff = Math.max(-5, Math.min(5, yDiff));
+                xDiff = Math.max(-10*this.props.dragSpeed, Math.min(10*this.props.dragSpeed, xDiff));
+                yDiff = Math.max(-10*this.props.dragSpeed, Math.min(10*this.props.dragSpeed, yDiff));
 
                 var x = lastX - xDiff;
                 var y = lastY - yDiff;
