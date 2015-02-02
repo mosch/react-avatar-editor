@@ -262,7 +262,7 @@
             var top = Math.floor(imageDiff/2 + this.props.border - y);
             var bottom = Math.floor(image.height*this.props.scale - cropHeight - this.props.border - (imageDiff/2) + y);
             if (top < 0)  return image.y;
-            if (bottom > 0) return image.y;
+            if (bottom < 0) return image.y;
             return y;
         },
 
