@@ -237,13 +237,33 @@
 
                 var yMove = yDiff < 0 ? 'down' : 'up';
                 var xMove = xDiff < 0 ? 'right' : 'left';
-
-                imageState.y = y;
-                imageState.x = x;
-
+                imageState.y = this.getBoundedY(y);
+                imageState.x = this.getBoundedX(x);
             }
 
             this.setState(newState);
+        },
+
+        getBoundedX: function (x) {
+            var image = this.state.image;
+            var imageDiff = image.width*this.props.scale - image.width;
+            var cropWidth = this.getDimensions().width;
+            var left = Math.floor(imageDiff/2 + this.props.border - x);
+            var right = Math.floor(image.width*this.props.scale - cropWidth - this.props.border - (imageDiff/2) + x);
+            if (left < 0)  return image.x;
+            if (right < 0) return image.x;
+            return x;
+        },
+
+        getBoundedY: function (y) {
+            var image = this.state.image;
+            var imageDiff = image.height*this.props.scale - image.height;
+            var cropHeight = this.getDimensions().height;
+            var top = Math.floor(imageDiff/2 + this.props.border - y);
+            var bottom = Math.floor(image.height*this.props.scale - cropHeight - this.props.border - (imageDiff/2) + y);
+            if (top < 0)  return image.y;
+            if (bottom > 0) return image.y;
+            return y;
         },
 
         handleDragOver: function (e) {
