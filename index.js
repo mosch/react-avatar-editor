@@ -89,10 +89,12 @@
                 this.loadImage(this.props.image);
             }
             this.paint(context);
+            document.addEventListener('mousemove', this.handleMouseMove, false);
             document.addEventListener('mouseup', this.handleMouseUp, false);
         },
 
         componentWillUnmount: function () {
+            document.removeEventListener('mousemove', this.handleMouseMove, false);
             document.removeEventListener('mouseup', this.handleMouseUp, false);
         },
 
