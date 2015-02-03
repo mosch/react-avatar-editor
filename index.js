@@ -89,12 +89,12 @@
                 this.loadImage(this.props.image);
             }
             this.paint(context);
-            document.addEventListener('mousemove', this.handleMouseMove, false);
+            // document.addEventListener('mousemove', this.handleMouseMove, false);
             document.addEventListener('mouseup', this.handleMouseUp, false);
         },
 
         componentWillUnmount: function () {
-            document.removeEventListener('mousemove', this.handleMouseMove, false);
+            // document.removeEventListener('mousemove', this.handleMouseMove, false);
             document.removeEventListener('mouseup', this.handleMouseUp, false);
         },
 
@@ -246,23 +246,25 @@
 
         getBoundedX: function (x) {
             var image = this.state.image;
-            var imageDiff = image.width*this.props.scale - image.width;
-            var cropWidth = this.getDimensions().width;
-            var left = Math.floor(imageDiff/2 + this.props.border - x);
-            var right = Math.floor(image.width*this.props.scale - cropWidth - this.props.border - (imageDiff/2) + x);
-            if (left < 0)  return image.x;
-            if (right < 0) return image.x;
+            var dimensions = this.getDimensions();
+            var scale = this.props.scale;
+            var widthDiff = ((image.width * this.props.scale) - image.width) / 2;
+            var xScale = Math.min(x - widthDiff, dimensions.border) * scale;
+
+            if (xScale === 0)  return Math.floor(widthDiff);
+            if (Math.ceil(xScale + (dimensions.width * scale)) < 0) return -Math.ceil(widthDiff);
             return x;
         },
 
         getBoundedY: function (y) {
             var image = this.state.image;
-            var imageDiff = image.height*this.props.scale - image.height;
-            var cropHeight = this.getDimensions().height;
-            var top = Math.floor(imageDiff/2 + this.props.border - y);
-            var bottom = Math.floor(image.height*this.props.scale - cropHeight - this.props.border - (imageDiff/2) + y);
-            if (top < 0)  return image.y;
-            if (bottom < 0) return image.y;
+            var dimensions = this.getDimensions();
+            var scale = this.props.scale;
+            var heightDiff = ((image.height * this.props.scale) - image.height) / 2;
+            var yScale = Math.min(y - heightDiff, dimensions.border) * scale;
+
+            if (yScale === 0)  return Math.floor(heightDiff);
+            if (Math.ceil(yScale + (dimensions.height * scale)) < 0) return -Math.ceil(heightDiff);
             return y;
         },
 
