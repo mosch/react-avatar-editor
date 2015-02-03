@@ -248,11 +248,11 @@
             var image = this.state.image;
             var dimensions = this.getDimensions();
             var scale = this.props.scale;
-            var widthDiff = ((image.width * this.props.scale) - image.width) / 2;
-            var xScale = Math.min(x - widthDiff, dimensions.border) * scale;
+            var widthDiff = ((image.width * this.props.scale) - dimensions.width) / 2;
+            var diffScale = Math.min(x - widthDiff, dimensions.border) * scale;
 
-            if (xScale === 0)  return Math.floor(widthDiff);
-            if (Math.ceil(xScale + (dimensions.width * scale)) < 0) return -Math.ceil(widthDiff);
+            if (diffScale === 0)  return Math.floor(widthDiff);
+            if (Math.ceil(x + widthDiff) < 0) return (-image.width*scale + dimensions.width)/2;
             return x;
         },
 
@@ -260,11 +260,11 @@
             var image = this.state.image;
             var dimensions = this.getDimensions();
             var scale = this.props.scale;
-            var heightDiff = ((image.height * this.props.scale) - image.height) / 2;
-            var yScale = Math.min(y - heightDiff, dimensions.border) * scale;
+            var heightDiff = ((image.height * this.props.scale) - dimensions.height) / 2;
+            var diffScale = Math.min(y - heightDiff, dimensions.border) * scale;
 
-            if (yScale === 0)  return Math.floor(heightDiff);
-            if (Math.ceil(yScale + (dimensions.height * scale)) < 0) return -Math.ceil(heightDiff);
+            if (diffScale === 0)  return Math.floor(heightDiff);
+            if (Math.ceil(y + heightDiff) < 0) return (-image.height*scale + dimensions.height)/2;
             return y;
         },
 
