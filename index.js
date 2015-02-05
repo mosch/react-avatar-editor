@@ -135,9 +135,7 @@
 
             if (this.props.image != newProps.image) {
                 this.loadImage(newProps.image);
-            } else if (this.props.scale !== newProps.scale) {
-                this.setState({lastScale: this.props.scale});
-            }
+            } 
         },
 
         paintImage: function (context, image) {
@@ -256,9 +254,6 @@
 
                 var x = lastX - xDiff;
                 var y = lastY - yDiff;
-
-                var yMove = yDiff < 0 ? 'down' : 'up';
-                var xMove = xDiff < 0 ? 'right' : 'left';
 
                 imageState.y = this.getBoundedY(y);
                 imageState.x = this.getBoundedX(x);
