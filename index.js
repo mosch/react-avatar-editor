@@ -19,14 +19,16 @@
             image: React.PropTypes.string,
             border: React.PropTypes.number,
             width: React.PropTypes.number,
-            height: React.PropTypes.number
+            height: React.PropTypes.number,
+            showFullImage: React.PropTypes.bool
         },
         getDefaultProps: function () {
             return {
                 scale: 1,
                 border: 25,
                 width: 200,
-                height: 200
+                height: 200,
+                showFullImage: true
             }
         },
         getInitialState: function () {
@@ -114,14 +116,25 @@
         },
 
         getInitialSize: function (width, height) {
-            var newHeight, newWidth;
+            var frameWidth  = this.getDimensions().width,
+                frameHeight = this.getDimensions().height,
+                newHeight,
+                newWidth;
 
             if (width > height) {
                 newHeight = (this.getDimensions().height);
                 newWidth = (width * (newHeight / height));
+                if (this.props.showFullImage && newWidth > frameWidth) {
+                    newWidth = frameWidth;
+                    newHeight = frameWidth * (height/width);
+                }
             } else {
                 newWidth = (this.getDimensions().width);
                 newHeight = (height * (newWidth / width));
+                if (this.props.showFullImage && newHeight > frameHeight) {
+                    newWidth = frameWidth;
+                    newHeight = frameWidth * (height/width);
+                }
             }
 
             return {
@@ -145,38 +158,44 @@
                 var position = this.calculatePosition(image);
                 context.save();
                 context.globalCompositeOperation = 'destination-over';
-                context.drawImage(image.resource, position.x, position.y, position.width, position.height);
+                context.drawImage(image.resource, position.centerX, position.centerY, position.width, position.height);
                 context.restore();
             }
         },
 
         calculatePosition: function (image) {
             image = image || this.state.image;
-            var x, y, width, height, dimensions = this.getDimensions();
 
-            width = image.width * this.props.scale;
-            height = image.height * this.props.scale;
+            var x = image.x,
+                y = image.y;
+            
+            var width = image.width * this.props.scale,
+                height = height = image.height * this.props.scale,
+                dimensions = this.getDimensions();
+
             var widthDiff = (width - image.width) / 2;
             var heightDiff = (height - image.height) / 2;
-            x = image.x - widthDiff;
-            y = image.y - heightDiff;
+            
+            var px = Math.min(x - widthDiff, dimensions.border);
+            var py = Math.min(y - heightDiff, dimensions.border);
 
-            // top and left border bounding
-            x = Math.min(x, dimensions.border);
-            y = Math.min(y, dimensions.border);
+            var fromRight  = width + (px - dimensions.border);
+            var fromBottom = height + (py - dimensions.border);
+            
+            px = fromRight  > dimensions.width  ? px : (px + (dimensions.width - fromRight));
+            py = fromBottom > dimensions.height ? py : (py + (dimensions.height - fromBottom));
 
-            // right and bottom
-            var fromBottom = height + (y - dimensions.border);
-            y = fromBottom > dimensions.height ? y : (y + (dimensions.height - fromBottom));
-            var fromRight = width + (x - dimensions.border);
-            x = fromRight > dimensions.width ? x : (x + (dimensions.width - fromRight));
+            var centerX = width  > dimensions.width ? px : (px + width / 2) - (dimensions.width/2);
+            var centerY = height > dimensions.height ? py : (py + height / 2) - (dimensions.height/2);
 
             return {
                 x: x,
                 y: y,
+                centerX: centerX,
+                centerY: centerY,
                 height: height,
                 width: width
-            }
+            };
         },
 
         getCroppingArea: function () {
