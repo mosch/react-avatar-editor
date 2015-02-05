@@ -260,12 +260,35 @@
                 var yMove = yDiff < 0 ? 'down' : 'up';
                 var xMove = xDiff < 0 ? 'right' : 'left';
 
-                imageState.y = y;
-                imageState.x = x;
-
+                imageState.y = this.getBoundedY(y);
+                imageState.x = this.getBoundedX(x);
             }
 
             this.setState(newState);
+        },
+
+        getBoundedX: function (x) {
+            var image = this.state.image;
+            var dimensions = this.getDimensions();
+            var scale = this.props.scale;
+            var widthDiff = Math.ceil((image.width * this.props.scale - image.width) / 2);
+            var rightPoint = Math.ceil(-image.width*scale + dimensions.width + dimensions.border);
+            
+            if (x - widthDiff >= dimensions.border) return dimensions.border + widthDiff;
+            if (x < rightPoint) return rightPoint;
+            return x;
+        },
+
+        getBoundedY: function (y) {
+            var image = this.state.image;
+            var dimensions = this.getDimensions();
+            var scale = this.props.scale;
+            var heightDiff = Math.ceil((image.height * this.props.scale - image.height) / 2);
+            var bottomPoint = Math.ceil((-image.height*scale + dimensions.height)/2);
+            
+            if (y - heightDiff >= dimensions.border) return dimensions.border + heightDiff;
+            if (y < bottomPoint) return bottomPoint;
+            return y;
         },
 
         handleDragOver: function (e) {
