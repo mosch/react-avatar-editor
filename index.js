@@ -237,6 +237,7 @@
 
                 var yMove = yDiff < 0 ? 'down' : 'up';
                 var xMove = xDiff < 0 ? 'right' : 'left';
+
                 imageState.y = this.getBoundedY(y);
                 imageState.x = this.getBoundedX(x);
             }
@@ -248,11 +249,11 @@
             var image = this.state.image;
             var dimensions = this.getDimensions();
             var scale = this.props.scale;
-            var widthDiff = ((image.width * this.props.scale) - dimensions.width) / 2;
-            var diffScale = Math.min(x - widthDiff, dimensions.border) * scale;
-
-            if (diffScale === 0)  return Math.floor(widthDiff);
-            if (Math.ceil(x + widthDiff) < 0) return (-image.width*scale + dimensions.width)/2;
+            var widthDiff = Math.ceil((image.width * this.props.scale - image.width) / 2);
+            var rightPoint = Math.ceil(-image.width*scale + dimensions.width + dimensions.border);
+            
+            if (x - widthDiff >= dimensions.border) return dimensions.border + widthDiff;
+            if (x < rightPoint) return rightPoint;
             return x;
         },
 
@@ -260,11 +261,11 @@
             var image = this.state.image;
             var dimensions = this.getDimensions();
             var scale = this.props.scale;
-            var heightDiff = ((image.height * this.props.scale) - dimensions.height) / 2;
-            var diffScale = Math.min(y - heightDiff, dimensions.border) * scale;
-
-            if (diffScale === 0)  return Math.floor(heightDiff);
-            if (Math.ceil(y + heightDiff) < 0) return (-image.height*scale + dimensions.height)/2;
+            var heightDiff = Math.ceil((image.height * this.props.scale - image.height) / 2);
+            var bottomPoint = Math.ceil((-image.height*scale + dimensions.height)/2);
+            
+            if (y - heightDiff >= dimensions.border) return dimensions.border + heightDiff;
+            if (y < bottomPoint) return bottomPoint;
             return y;
         },
 
