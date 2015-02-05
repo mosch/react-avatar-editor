@@ -61,16 +61,14 @@ React.render(React.createElement(App), document.getElementById('app'));
             image: React.PropTypes.string,
             border: React.PropTypes.number,
             width: React.PropTypes.number,
-            height: React.PropTypes.number,
-            dragSpeed: React.PropTypes.number
+            height: React.PropTypes.number
         },
         getDefaultProps: function () {
             return {
                 scale: 1,
                 border: 25,
                 width: 200,
-                height: 200,
-                dragSpeed: 0.5,
+                height: 200
             }
         },
         getInitialState: function () {
@@ -293,14 +291,9 @@ React.render(React.createElement(App), document.getElementById('app'));
             if (this.state.mx && this.state.my) {
                 var xDiff = this.state.mx - mousePositionX;
                 var yDiff = this.state.my - mousePositionY;
-                xDiff = Math.max(-10*this.props.dragSpeed, Math.min(10*this.props.dragSpeed, xDiff));
-                yDiff = Math.max(-10*this.props.dragSpeed, Math.min(10*this.props.dragSpeed, yDiff));
 
-                var x = lastX - xDiff;
-                var y = lastY - yDiff;
-
-                imageState.y = this.getBoundedY(y);
-                imageState.x = this.getBoundedX(x);
+                imageState.y = this.getBoundedY(lastY - yDiff);
+                imageState.x = this.getBoundedX(lastX - xDiff);
             }
 
             this.setState(newState);
