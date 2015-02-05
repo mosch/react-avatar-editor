@@ -249,14 +249,9 @@
             if (this.state.mx && this.state.my) {
                 var xDiff = this.state.mx - mousePositionX;
                 var yDiff = this.state.my - mousePositionY;
-                xDiff = Math.max(-5, Math.min(5, xDiff));
-                yDiff = Math.max(-5, Math.min(5, yDiff));
 
-                var x = lastX - xDiff;
-                var y = lastY - yDiff;
-
-                imageState.y = this.getBoundedY(y);
-                imageState.x = this.getBoundedX(x);
+                imageState.y = this.getBoundedY(lastY - yDiff);
+                imageState.x = this.getBoundedX(lastX - xDiff);
             }
 
             this.setState(newState);
