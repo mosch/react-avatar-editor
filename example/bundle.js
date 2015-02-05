@@ -179,9 +179,7 @@ React.render(React.createElement(App), document.getElementById('app'));
 
             if (this.props.image != newProps.image) {
                 this.loadImage(newProps.image);
-            } else if (this.props.scale !== newProps.scale) {
-                this.setState({lastScale: this.props.scale});
-            }
+            } 
         },
 
         paintImage: function (context, image) {
@@ -195,6 +193,7 @@ React.render(React.createElement(App), document.getElementById('app'));
         },
 
         calculatePosition: function (image) {
+            image = image || this.state.image;
             var x, y, width, height, dimensions = this.getDimensions();
 
             width = image.width * this.props.scale;
@@ -220,6 +219,27 @@ React.render(React.createElement(App), document.getElementById('app'));
                 height: height,
                 width: width
             }
+        },
+
+        getCroppingArea: function () {
+            var imagePosition = this.calculatePosition();
+            var image = this.state.image.resource;
+            var scaleW = image.naturalWidth / imagePosition.width;
+            var scaleH = image.naturalHeight / imagePosition.height;
+
+            var border = this.props.border;
+            var x = [-imagePosition.x+border] * scaleW;
+            var y = [-imagePosition.y+border] * scaleH;
+            var dimensions = this.getDimensions();
+
+            var value = {
+              x1: Math.floor(Math.max(x, 0)),
+              y1: Math.floor(Math.max(y, 0))
+            };
+
+            value.x2 = Math.ceil(x + (dimensions.width * scaleW));
+            value.y2 = Math.ceil(value.y1 + (dimensions.height * scaleH));
+            return value;
         },
 
         paint: function (context) {
@@ -279,15 +299,35 @@ React.render(React.createElement(App), document.getElementById('app'));
                 var x = lastX - xDiff;
                 var y = lastY - yDiff;
 
-                var yMove = yDiff < 0 ? 'down' : 'up';
-                var xMove = xDiff < 0 ? 'right' : 'left';
-
-                imageState.y = y;
-                imageState.x = x;
-
+                imageState.y = this.getBoundedY(y);
+                imageState.x = this.getBoundedX(x);
             }
 
             this.setState(newState);
+        },
+
+        getBoundedX: function (x) {
+            var image = this.state.image;
+            var dimensions = this.getDimensions();
+            var scale = this.props.scale;
+            var widthDiff = Math.ceil((image.width * this.props.scale - image.width) / 2);
+            var rightPoint = Math.ceil(-image.width*scale + dimensions.width + dimensions.border);
+            
+            if (x - widthDiff >= dimensions.border) return dimensions.border + widthDiff;
+            if (x < rightPoint) return rightPoint;
+            return x;
+        },
+
+        getBoundedY: function (y) {
+            var image = this.state.image;
+            var dimensions = this.getDimensions();
+            var scale = this.props.scale;
+            var heightDiff = Math.ceil((image.height * this.props.scale - image.height) / 2);
+            var bottomPoint = Math.ceil((-image.height*scale + dimensions.height)/2);
+            
+            if (y - heightDiff >= dimensions.border) return dimensions.border + heightDiff;
+            if (y < bottomPoint) return bottomPoint;
+            return y;
         },
 
         handleDragOver: function (e) {
@@ -318,6 +358,7 @@ React.render(React.createElement(App), document.getElementById('app'));
     });
 
 }));
+
 },{"react":"/Users/Jake/Documents/react-avatar-editor/node_modules/react/react.js"}],"/Users/Jake/Documents/react-avatar-editor/node_modules/react/lib/AutoFocusMixin.js":[function(require,module,exports){
 /**
  * Copyright 2013-2014, Facebook, Inc.

@@ -14,7 +14,7 @@ var MyEditor = React.createClass({
 
   render: function() {
     return (
-        <AvatarEditor image="http://example.com/initialimage.jpg" width="250" height="250" border"50" scale="1.2"/>
+        <AvatarEditor image="http://example.com/initialimage.jpg" width="250" height="250" border="50" scale="1.2"/>
     );
   }
 
@@ -28,7 +28,7 @@ module.exports = MyEditor;
 | ------ | --------------
 | width  | The total width of the editor
 | height | The total width of the editor
-| border | The cropping border. Image will be visible through the border, but cut off in the resulting image. 
+| border | The cropping border. Image will be visible through the border, but cut off in the resulting image.
 
 ## Accessing the resulting image
 
@@ -54,4 +54,3 @@ var MyEditor = React.createClass({
 
 module.exports = MyEditor;
 ```
-
