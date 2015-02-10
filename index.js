@@ -12,6 +12,11 @@
         root.returnExports = factory(root.react);
     }
 }(this, function (React) {
+    var TOUCH = ('ontouchstart' in document || (navigator && navigator.msMaxTouchPoints));
+    var MOBILE_EVENTS = { down: 'onTouchStart', drag: 'onTouchMove', drop: 'onTouchEnd', move: 'touchmove', up: 'touchend' };
+    var DESKTOP_EVENTS = { down: 'onMouseDown', drag: 'onDragOver', drop: 'onDrop', move: 'mousemove', up: 'mouseup' }
+
+    var DEVICE_EVENTS = TOUCH ? MOBILE_EVENTS : DESKTOP_EVENTS;
 
     return React.createClass({
         propTypes: {
@@ -241,8 +246,8 @@
             var lastX = imageState.x;
             var lastY = imageState.y;
 
-            var mousePositionX = e.clientX;
-            var mousePositionY = e.clientY;
+            var mousePositionX = TOUCH ? event.targetTouches[0].pageX : e.clientX;
+            var mousePositionY = TOUCH ? event.targetTouches[0].pageY : e.clientY;
 
             newState = {mx: mousePositionX, my: mousePositionY, image: imageState};
 
@@ -297,13 +302,14 @@
         },
 
         render: function () {
-            return React.createElement('canvas', {
+            var attributes = {
                 width: this.getDimensions().canvas.width,
                 height: this.getDimensions().canvas.height,
-                onMouseDown: this.handleMouseDown,
-                onDragOver: this.handleDragOver,
-                onDrop: this.handleDrop
-            }, null);
+            }
+            attributes[DEVICE_EVENTS['down']] =  this.handleMouseDown;
+            attributes[DEVICE_EVENTS['drag']] =  this.handleDragOver;
+            attributes[DEVICE_EVENTS['drop']] =  this.handleDrop;
+            return React.createElement('canvas', attributes, null);
         }
 
     });
