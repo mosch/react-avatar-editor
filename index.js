@@ -119,9 +119,14 @@
         },
 
         getInitialSize: function (width, height) {
-            var newHeight, newWidth;
+            var newHeight, newWidth, dimensions, canvasRatio, imageRatio;
 
-            if (width > height) {
+            dimensions = this.getDimensions();
+
+            canvasRatio = dimensions.height / dimensions.width;
+            imageRatio = height / width;
+
+            if (canvasRatio > imageRatio) {
                 newHeight = (this.getDimensions().height);
                 newWidth = (width * (newHeight / height));
             } else {
