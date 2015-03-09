@@ -81,10 +81,15 @@
             return dom.toDataURL();
         },
 
+        isDataURL: function(str) {
+            regex = /^\s*data:([a-z]+\/[a-z]+(;[a-z\-]+\=[a-z\-]+)?)?(;base64)?,[a-z0-9\!\$\&\'\,\(\)\*\+\,\;\=\-\.\_\~\:\@\/\?\%\s]*\s*$/i;
+            return !!str.match(regex);
+        },
+
         loadImage: function (imageURL) {
             var imageObj = new Image();
             imageObj.onload = this.handleImageReady.bind(this, imageObj);
-            imageObj.crossOrigin = 'anonymous';
+            if (!this.isDataURL(imageURL)) imageObj.crossOrigin = 'anonymous';
             imageObj.src = imageURL;
         },
 
@@ -145,7 +150,7 @@
 
             if (this.props.image != newProps.image) {
                 this.loadImage(newProps.image);
-            } 
+            }
         },
 
         paintImage: function (context, image) {
@@ -199,8 +204,8 @@
             var dimensions = this.getDimensions();
 
             var value = {
-              x1: Math.floor(Math.max(x, 0)),
-              y1: Math.floor(Math.max(y, 0))
+                x1: Math.floor(Math.max(x, 0)),
+                y1: Math.floor(Math.max(y, 0))
             };
 
             value.x2 = Math.ceil(x + (dimensions.width * scaleW));
@@ -273,7 +278,7 @@
             var scale = this.props.scale;
             var widthDiff = Math.ceil((image.width * this.props.scale - image.width) / 2);
             var rightPoint = Math.ceil(-image.width*scale + dimensions.width + dimensions.border);
-            
+
             if (x - widthDiff >= dimensions.border) return dimensions.border + widthDiff;
             if (x < rightPoint) return rightPoint;
             return x;
@@ -285,7 +290,7 @@
             var scale = this.props.scale;
             var heightDiff = Math.ceil((image.height * this.props.scale - image.height) / 2);
             var bottomPoint = Math.ceil((-image.height*scale + dimensions.height)/2);
-            
+
             if (y - heightDiff >= dimensions.border) return dimensions.border + heightDiff;
             if (y < bottomPoint) return bottomPoint;
             return y;
@@ -294,6 +299,7 @@
         handleDragOver: function (e) {
             e.preventDefault();
         },
+
         handleDrop: function (e) {
             e.stopPropagation();
             e.preventDefault();
@@ -302,6 +308,7 @@
             reader.onload = this.handleUploadReady;
             reader.readAsDataURL(e.dataTransfer.files[0]);
         },
+
         handleUploadReady: function (e) {
             this.loadImage(e.target.result);
         },
