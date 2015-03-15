@@ -81,10 +81,15 @@
             return dom.toDataURL();
         },
 
+        isDataURL: function(str) {
+            regex = /^\s*data:([a-z]+\/[a-z]+(;[a-z\-]+\=[a-z\-]+)?)?(;base64)?,[a-z0-9\!\$\&\'\,\(\)\*\+\,\;\=\-\.\_\~\:\@\/\?\%\s]*\s*$/i;
+            return !!str.match(regex);
+        },
+
         loadImage: function (imageURL) {
             var imageObj = new Image();
             imageObj.onload = this.handleImageReady.bind(this, imageObj);
-            imageObj.crossOrigin = 'anonymous';
+            if (!this.isDataURL(imageURL)) imageObj.crossOrigin = 'anonymous';
             imageObj.src = imageURL;
         },
 
