@@ -145,7 +145,7 @@
 
             if (this.props.image != newProps.image) {
                 this.loadImage(newProps.image);
-            } 
+            }
         },
 
         paintImage: function (context, image) {
@@ -153,7 +153,7 @@
                 var position = this.calculatePosition(image);
                 context.save();
                 context.globalCompositeOperation = 'destination-over';
-                context.drawImage(image.resource, position.x, position.y, position.width, position.height);
+                context.drawImage(image.resource, image.x, image.y, position.width, position.height);
                 context.restore();
             }
         },
@@ -185,27 +185,6 @@
                 height: height,
                 width: width
             }
-        },
-
-        getCroppingArea: function () {
-            var imagePosition = this.calculatePosition();
-            var image = this.state.image.resource;
-            var scaleW = image.naturalWidth / imagePosition.width;
-            var scaleH = image.naturalHeight / imagePosition.height;
-
-            var border = this.props.border;
-            var x = [-imagePosition.x+border] * scaleW;
-            var y = [-imagePosition.y+border] * scaleH;
-            var dimensions = this.getDimensions();
-
-            var value = {
-              x1: Math.floor(Math.max(x, 0)),
-              y1: Math.floor(Math.max(y, 0))
-            };
-
-            value.x2 = Math.ceil(x + (dimensions.width * scaleW));
-            value.y2 = Math.ceil(value.y1 + (dimensions.height * scaleH));
-            return value;
         },
 
         paint: function (context) {
@@ -273,7 +252,7 @@
             var scale = this.props.scale;
             var widthDiff = Math.ceil((image.width * this.props.scale - image.width) / 2);
             var rightPoint = Math.ceil(-image.width*scale + dimensions.width + dimensions.border);
-            
+
             if (x - widthDiff >= dimensions.border) return dimensions.border + widthDiff;
             if (x < rightPoint) return rightPoint;
             return x;
@@ -285,7 +264,7 @@
             var scale = this.props.scale;
             var heightDiff = Math.ceil((image.height * this.props.scale - image.height) / 2);
             var bottomPoint = Math.ceil((-image.height*scale + dimensions.height)/2);
-            
+
             if (y - heightDiff >= dimensions.border) return dimensions.border + heightDiff;
             if (y < bottomPoint) return bottomPoint;
             return y;
@@ -294,6 +273,7 @@
         handleDragOver: function (e) {
             e.preventDefault();
         },
+
         handleDrop: function (e) {
             e.stopPropagation();
             e.preventDefault();
@@ -302,6 +282,7 @@
             reader.onload = this.handleUploadReady;
             reader.readAsDataURL(e.dataTransfer.files[0]);
         },
+
         handleUploadReady: function (e) {
             this.loadImage(e.target.result);
         },
