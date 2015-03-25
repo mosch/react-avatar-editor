@@ -256,7 +256,7 @@
             var image = this.state.image;
             var dimensions = this.getDimensions();
             var scale = this.props.scale;
-            var widthDiff = Math.ceil((image.width * this.props.scale - image.width) / 2);
+            var widthDiff = Math.ceil((image.width * scale - image.width) / 2);
             var rightPoint = Math.ceil(-image.width*scale + dimensions.width + dimensions.border);
             var leftPoint = dimensions.border;
 
@@ -270,13 +270,13 @@
             var image = this.state.image;
             var dimensions = this.getDimensions();
             var scale = this.props.scale;
-            var heightDiff = Math.ceil((image.height * this.props.scale - image.height) / 2);
-            var bottomPoint = Math.ceil((-image.height*scale + dimensions.height)/2);
+            var heightDiff = Math.ceil((image.height * scale - image.height) / 2);
+            var bottomPoint = Math.ceil((-image.height * scale + dimensions.height + dimensions.border));
             var topPoint = dimensions.border;
 
             if (y - heightDiff >= dimensions.border) return dimensions.border + heightDiff;
             if (y < bottomPoint) return bottomPoint;
-            if (y > topPoint) return topPoint;
+            if (y > topPoint) return topPoit;
             return y;
         },
 
