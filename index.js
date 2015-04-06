@@ -276,7 +276,7 @@
 
             if (y - heightDiff >= dimensions.border) return dimensions.border + heightDiff;
             if (y < bottomPoint) return bottomPoint;
-            if (y > topPoint) return topPoit;
+            if (y > topPoint) return topPoint;
             return y;
         },
 
