@@ -1,6 +1,6 @@
 var React = require('react')
 
-var TOUCH = ('ontouchstart' in document || (navigator && navigator.msMaxTouchPoints));
+var TOUCH = global.document && ( 'ontouchstart' in global.document || (global.document.navigator && global.document.navigator.msMaxTouchPoints) )
 var MOBILE_EVENTS = { down: 'onTouchStart', drag: 'onTouchMove', drop: 'onTouchEnd', move: 'touchmove', up: 'touchend' };
 var DESKTOP_EVENTS = { down: 'onMouseDown', drag: 'onDragOver', drop: 'onDrop', move: 'mousemove', up: 'mouseup' }
 var DEVICE_EVENTS = TOUCH ? MOBILE_EVENTS : DESKTOP_EVENTS;
