@@ -20,11 +20,6 @@
         "reactjs",
         "react"
     ],
-    "browserify": {
-        "transform": [
-            "reactify"
-        ]
-    },
     "peerDependencies": {
         "react": "0.13.x"
     },
