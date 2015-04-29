@@ -1,6 +1,6 @@
 {
     "name": "react-avatar-editor",
-    "version": "0.4.9",
+    "version": "0.4.10",
     "description": "Facebook like avatar / profile picture component. Resize and crop your uploaded image using a intutive user interface.",
     "main": "index.js",
     "scripts": {
@@ -24,9 +24,6 @@
         "transform": [
             "reactify"
         ]
-    },
-    "peerDependencies": {
-        "react": "^0.12"
     },
     "devDependencies": {
         "react": "^0.12",
