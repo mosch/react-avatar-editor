@@ -14,7 +14,12 @@ var MyEditor = React.createClass({
 
   render: function() {
     return (
-        <AvatarEditor image="http://example.com/initialimage.jpg" width="250" height="250" border="50" scale="1.2"/>
+        <AvatarEditor 
+          image="http://example.com/initialimage.jpg" 
+          width="250" 
+          height="250" 
+          border="50" 
+          scale="1.2" />
     );
   }
 
@@ -46,7 +51,12 @@ var MyEditor = React.createClass({
   },
   render: function() {
     return (
-        <AvatarEditor ref="editor" image="http://example.com/initial-image.jpg" width="250" height="250" border"50" scale="1.2"/>
+        <AvatarEditor 
+          image="http://example.com/initialimage.jpg" 
+          width="250" 
+          height="250" 
+          border="50" 
+          scale="1.2" />
     );
   }
 

@@ -25,9 +25,6 @@
             "reactify"
         ]
     },
-    "peerDependencies": {
-        "react": "^0.12"
-    },
     "devDependencies": {
         "react": "^0.12",
         "http-server": "^0.7.4",
