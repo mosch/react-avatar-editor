@@ -14,10 +14,10 @@ var MyEditor = React.createClass({
 
   render: function() {
     return (
-        <AvatarEditor 
-          image="http://example.com/initialimage.jpg" 
-          width="250" 
-          height="250" 
+        <AvatarEditor
+          image="http://example.com/initialimage.jpg"
+          width="250"
+          height="250"
           border="50"
           color={[255, 255, 255, 0.6]} // RGBA
           scale="1.2" />
@@ -30,11 +30,14 @@ module.exports = MyEditor;
 ```
 
 ## Props
-| Prop   | Description
-| ------ | --------------
-| width  | The total width of the editor
-| height | The total width of the editor
-| border | The cropping border. Image will be visible through the border, but cut off in the resulting image.
+| Prop         | Description
+| ------------ | ---------------
+| width        | The total width of the editor
+| height       | The total width of the editor
+| border       | The cropping border. Image will be visible through the border, but cut off in the resulting image.
+| color        | The color of the cropping border
+| onImageReady | Callback function for when the image has been loaded into the editor
+
 
 ## Accessing the resulting image
 
@@ -52,11 +55,11 @@ var MyEditor = React.createClass({
   },
   render: function() {
     return (
-        <AvatarEditor 
-          image="http://example.com/initialimage.jpg" 
-          width="250" 
-          height="250" 
-          border="50" 
+        <AvatarEditor
+          image="http://example.com/initialimage.jpg"
+          width="250"
+          height="250"
+          border="50"
           scale="1.2" />
     );
   }
