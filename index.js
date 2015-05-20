@@ -102,13 +102,13 @@
                 this.loadImage(this.props.image);
             }
             this.paint(context);
-            document.addEventListener('mousemove', this.handleMouseMove, false);
-            document.addEventListener('mouseup', this.handleMouseUp, false);
+            document && document.addEventListener('mousemove', this.handleMouseMove, false);
+            document && document.addEventListener('mouseup', this.handleMouseUp, false);
         },
 
         componentWillUnmount: function () {
-            document.removeEventListener('mousemove', this.handleMouseMove, false);
-            document.removeEventListener('mouseup', this.handleMouseUp, false);
+            document && document.removeEventListener('mousemove', this.handleMouseMove, false);
+            document && document.removeEventListener('mouseup', this.handleMouseUp, false);
         },
 
         componentDidUpdate: function () {
