@@ -308,9 +308,14 @@
                 width: this.getDimensions().canvas.width,
                 height: this.getDimensions().canvas.height,
             }
-            attributes[DEVICE_EVENTS['down']] =  this.handleMouseDown;
-            attributes[DEVICE_EVENTS['drag']] =  this.handleDragOver;
-            attributes[DEVICE_EVENTS['drop']] =  this.handleDrop;
+            attributes[DESKTOP_EVENTS['down']] =  this.handleMouseDown;
+            attributes[DESKTOP_EVENTS['drag']] =  this.handleDragOver;
+            attributes[DESKTOP_EVENTS['drop']] =  this.handleDrop;
+            if(TOUCH){
+                attributes[MOBILE_EVENTS['down']] =  this.handleMouseDown;
+                attributes[MOBILE_EVENTS['drag']] =  this.handleDragOver;
+                attributes[MOBILE_EVENTS['drop']] =  this.handleDrop;
+            }
             return React.createElement('canvas', attributes, null);
         }
 
