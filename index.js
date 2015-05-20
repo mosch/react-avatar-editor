@@ -23,7 +23,8 @@
             image: React.PropTypes.string,
             border: React.PropTypes.number,
             width: React.PropTypes.number,
-            height: React.PropTypes.number
+            height: React.PropTypes.number,
+            color: React.PropTypes.arrayOf(React.PropTypes.number)
         },
 
         getDefaultProps: function () {
@@ -31,7 +32,8 @@
                 scale: 1,
                 border: 25,
                 width: 200,
-                height: 200
+                height: 200,
+                color: [0, 0, 0, 0.5]
             }
         },
 
@@ -196,7 +198,7 @@
         paint: function (context) {
             context.save();
             context.translate(0, 0);
-            context.fillStyle = "rgba(0, 0, 0, 0.5)";
+            context.fillStyle = "rgba("+this.props.color.slice(0, 4).join(",")+")";
 
             var dimensions = this.getDimensions();
 
@@ -247,7 +249,6 @@
 
                 imageState.y = this.getBoundedY(lastY - yDiff);
                 imageState.x = this.getBoundedX(lastX - xDiff);
-                console.log("X", imageState.x);
             }
 
             this.setState(newState);
