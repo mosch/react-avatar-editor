@@ -239,7 +239,7 @@
             var mousePositionX = TOUCH ? event.targetTouches[0].pageX : e.clientX;
             var mousePositionY = TOUCH ? event.targetTouches[0].pageY : e.clientY;
 
-            newState = {mx: mousePositionX, my: mousePositionY, image: imageState};
+            newState = { mx: mousePositionX, my: mousePositionY, image: imageState };
 
             if (this.state.mx && this.state.my) {
                 var xDiff = this.state.mx - mousePositionX;
@@ -247,6 +247,7 @@
 
                 imageState.y = this.getBoundedY(lastY - yDiff);
                 imageState.x = this.getBoundedX(lastX - xDiff);
+                console.log("X", imageState.x);
             }
 
             this.setState(newState);
@@ -257,13 +258,15 @@
             var dimensions = this.getDimensions();
             var scale = this.props.scale;
             var widthDiff = Math.ceil((image.width * scale - image.width) / 2);
-            var rightPoint = Math.ceil(-image.width*scale + dimensions.width + dimensions.border);
+            var rightPoint = Math.floor(-image.width*scale + dimensions.width + dimensions.border);
             var leftPoint = dimensions.border;
 
-            if (x - widthDiff >= dimensions.border) return dimensions.border + widthDiff;
-            if (x < rightPoint) return rightPoint;
-            if (x > leftPoint) return leftPoint;
-            return x;
+            var result;
+            if (x - widthDiff >= dimensions.border) result = dimensions.border + widthDiff;
+            if (x < rightPoint) result = rightPoint;
+            if (x > leftPoint) result = leftPoint;
+
+            return result || x;
         },
 
         getBoundedY: function (y) {
@@ -274,10 +277,12 @@
             var bottomPoint = Math.ceil((-image.height * scale + dimensions.height + dimensions.border));
             var topPoint = dimensions.border;
 
-            if (y - heightDiff >= dimensions.border) return dimensions.border + heightDiff;
-            if (y < bottomPoint) return bottomPoint;
-            if (y > topPoint) return topPoint;
-            return y;
+            var result;
+            if (y - heightDiff >= dimensions.border) result = dimensions.border + heightDiff;
+            if (y < bottomPoint) result = bottomPoint;
+            if (y > topPoint) result = topPoint;
+
+            return result || y;
         },
 
         handleDragOver: function (e) {

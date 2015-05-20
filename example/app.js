@@ -25,7 +25,7 @@ var App = React.createClass({
 
     render: function() {
         return <div>
-            <Editor ref="avatar" rotation={this.state.rotation} scale={this.state.scale} onSave={this.handleSave} image="example.jpg" />
+            <Editor ref="avatar" rotation={this.state.rotation} scale={parseFloat(this.state.scale)} onSave={this.handleSave} image="example.jpg" />
             <br />
             <input name="scale" type="range" ref="scale" onChange={this.handleScale} min="1" max="2" step="0.01" defaultValue="1" />    <br />
             <br />
