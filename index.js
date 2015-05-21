@@ -24,7 +24,8 @@
             border: React.PropTypes.number,
             width: React.PropTypes.number,
             height: React.PropTypes.number,
-            color: React.PropTypes.arrayOf(React.PropTypes.number)
+            color: React.PropTypes.arrayOf(React.PropTypes.number),
+            onImageReady: React.PropTypes.func,
         },
 
         getDefaultProps: function () {
@@ -33,7 +34,8 @@
                 border: 25,
                 width: 200,
                 height: 200,
-                color: [0, 0, 0, 0.5]
+                color: [0, 0, 0, 0.5],
+                onImageReady: function() {}
             }
         },
 
@@ -123,7 +125,7 @@
             imageState.resource = image;
             imageState.x = this.props.border;
             imageState.y = this.props.border;
-            this.setState({drag: false, image: imageState});
+            this.setState({drag: false, image: imageState}, this.props.onImageReady);                        
         },
 
         getInitialSize: function (width, height) {
