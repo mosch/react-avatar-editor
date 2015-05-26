@@ -65,7 +65,9 @@ React.render(React.createElement(App), document.getElementById('app'));
             image: React.PropTypes.string,
             border: React.PropTypes.number,
             width: React.PropTypes.number,
-            height: React.PropTypes.number
+            height: React.PropTypes.number,
+            color: React.PropTypes.arrayOf(React.PropTypes.number),
+            onImageReady: React.PropTypes.func,
         },
 
         getDefaultProps: function () {
@@ -73,7 +75,9 @@ React.render(React.createElement(App), document.getElementById('app'));
                 scale: 1,
                 border: 25,
                 width: 200,
-                height: 200
+                height: 200,
+                color: [0, 0, 0, 0.5],
+                onImageReady: function() {}
             }
         },
 
@@ -142,13 +146,13 @@ React.render(React.createElement(App), document.getElementById('app'));
                 this.loadImage(this.props.image);
             }
             this.paint(context);
-            document.addEventListener('mousemove', this.handleMouseMove, false);
-            document.addEventListener('mouseup', this.handleMouseUp, false);
+            document && document.addEventListener('mousemove', this.handleMouseMove, false);
+            document && document.addEventListener('mouseup', this.handleMouseUp, false);
         },
 
         componentWillUnmount: function () {
-            document.removeEventListener('mousemove', this.handleMouseMove, false);
-            document.removeEventListener('mouseup', this.handleMouseUp, false);
+            document && document.removeEventListener('mousemove', this.handleMouseMove, false);
+            document && document.removeEventListener('mouseup', this.handleMouseUp, false);
         },
 
         componentDidUpdate: function () {
@@ -163,7 +167,7 @@ React.render(React.createElement(App), document.getElementById('app'));
             imageState.resource = image;
             imageState.x = this.props.border;
             imageState.y = this.props.border;
-            this.setState({drag: false, image: imageState});
+            this.setState({drag: false, image: imageState}, this.props.onImageReady);                        
         },
 
         getInitialSize: function (width, height) {
@@ -238,7 +242,7 @@ React.render(React.createElement(App), document.getElementById('app'));
         paint: function (context) {
             context.save();
             context.translate(0, 0);
-            context.fillStyle = "rgba(0, 0, 0, 0.5)";
+            context.fillStyle = "rgba("+this.props.color.slice(0, 4).join(",")+")";
 
             var dimensions = this.getDimensions();
 
@@ -289,7 +293,6 @@ React.render(React.createElement(App), document.getElementById('app'));
 
                 imageState.y = this.getBoundedY(lastY - yDiff);
                 imageState.x = this.getBoundedX(lastX - xDiff);
-                console.log("X", imageState.x);
             }
 
             this.setState(newState);
@@ -349,9 +352,14 @@ React.render(React.createElement(App), document.getElementById('app'));
                 width: this.getDimensions().canvas.width,
                 height: this.getDimensions().canvas.height,
             }
-            attributes[DEVICE_EVENTS['down']] =  this.handleMouseDown;
-            attributes[DEVICE_EVENTS['drag']] =  this.handleDragOver;
-            attributes[DEVICE_EVENTS['drop']] =  this.handleDrop;
+            attributes[DESKTOP_EVENTS['down']] =  this.handleMouseDown;
+            attributes[DESKTOP_EVENTS['drag']] =  this.handleDragOver;
+            attributes[DESKTOP_EVENTS['drop']] =  this.handleDrop;
+            if(TOUCH){
+                attributes[MOBILE_EVENTS['down']] =  this.handleMouseDown;
+                attributes[MOBILE_EVENTS['drag']] =  this.handleDragOver;
+                attributes[MOBILE_EVENTS['drop']] =  this.handleDrop;
+            }
             return React.createElement('canvas', attributes, null);
         }
 
