@@ -63,7 +63,7 @@
             }
         },
 
-        getImage: function () {
+        getImage: function (type, quality) {
             var dom = document.createElement('canvas');
             var context = dom.getContext('2d');
             var dimensions = this.getDimensions();
@@ -83,7 +83,7 @@
                 height: imageState.height
             });
 
-            return dom.toDataURL();
+            return dom.toDataURL(type, quality);
         },
 
         isDataURL: function(str) {
