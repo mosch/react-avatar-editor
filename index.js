@@ -6,13 +6,14 @@
         // Node. Does not work with strict CommonJS, but
         // only CommonJS-like environments that support module.exports,
         // like Node.
-        module.exports = factory(require('react'));
+        module.exports = factory(require('react'), root);
     } else {
         // Browser globals (root is window)
-        root.returnExports = factory(root.react);
+        root.returnExports = factory(root.react, root);
     }
-}(this, function (React) {
-    var TOUCH = ('ontouchstart' in document || (navigator && navigator.msMaxTouchPoints));
+}(this, function (React, global) {
+    global = global || window
+    var TOUCH = global.document && ( 'ontouchstart' in global.document || (global.document.navigator && global.document.navigator.msMaxTouchPoints) );
     var MOBILE_EVENTS = { down: 'onTouchStart', drag: 'onTouchMove', drop: 'onTouchEnd', move: 'touchmove', up: 'touchend' };
     var DESKTOP_EVENTS = { down: 'onMouseDown', drag: 'onDragOver', drop: 'onDrop', move: 'mousemove', up: 'mouseup' }
     var DEVICE_EVENTS = TOUCH ? MOBILE_EVENTS : DESKTOP_EVENTS;
@@ -63,7 +64,7 @@
             }
         },
 
-        getImage: function () {
+        getImage: function (type, quality) {
             var dom = document.createElement('canvas');
             var context = dom.getContext('2d');
             var dimensions = this.getDimensions();
@@ -83,7 +84,7 @@
                 height: imageState.height
             });
 
-            return dom.toDataURL();
+            return dom.toDataURL(type, quality);
         },
 
         isDataURL: function(str) {
