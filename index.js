@@ -9,7 +9,7 @@
         module.exports = factory(require('react'), root);
     } else {
         // Browser globals (root is window)
-        root.returnExports = factory(root.React, root);
+        root.AvatarEditor = factory(root.React, root);
     }
 }(this, function (React, global) {
     global = global || window
