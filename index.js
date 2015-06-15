@@ -249,7 +249,7 @@
             var dimensions = this.getDimensions();
             var scale = this.props.scale;
             var widthDiff = Math.ceil((image.width * scale - image.width) / 2);
-            var rightPoint = Math.floor(-image.width*scale + dimensions.width + dimensions.border);
+            var rightPoint = Math.ceil(-image.width * scale + dimensions.width + dimensions.border);
             var leftPoint = dimensions.border;
 
             var result;
