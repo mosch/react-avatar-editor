@@ -12,11 +12,42 @@
         root.AvatarEditor = factory(root.React, root);
     }
 }(this, function (React, global) {
-    global = global || window
-    var TOUCH = global.document && ( 'ontouchstart' in global.document || (global.document.navigator && global.document.navigator.msMaxTouchPoints) );
-    var MOBILE_EVENTS = { down: 'onTouchStart', drag: 'onTouchMove', drop: 'onTouchEnd', move: 'touchmove', up: 'touchend' };
-    var DESKTOP_EVENTS = { down: 'onMouseDown', drag: 'onDragOver', drop: 'onDrop', move: 'mousemove', up: 'mouseup' }
-    var DEVICE_EVENTS = TOUCH ? MOBILE_EVENTS : DESKTOP_EVENTS;
+    var isTouchDevice = 'ontouchstart' in window || navigator.msMaxTouchPoints > 0;
+    var draggableEvents = {
+        mobile: {
+            react: {
+                down: 'onTouchStart',
+                drag: 'onTouchMove',
+                drop: 'onTouchEnd',
+                move: 'onTouchMove',
+                up: 'onTouchUp'
+            },
+            native: {
+                down: 'touchstart',
+                drag: 'touchmove',
+                drop: 'touchend',
+                move: 'touchmove',
+                up: 'touchup'
+            }
+        },
+        desktop: {
+            react: {
+                down: 'onMouseDown',
+                drag: 'onDragOver',
+                drop: 'onDrop',
+                move: 'onMouseMove',
+                up: 'onMouseUp'
+            },
+            native: {
+                down: 'mousedown',
+                drag: 'dragStart',
+                drop: 'drop',
+                move: 'mousemove',
+                up: 'mouseup'
+            }
+        }
+    };
+    var deviceEvents = isTouchDevice ? draggableEvents.mobile : draggableEvents.desktop;
 
     return React.createClass({
         propTypes: {
@@ -29,18 +60,18 @@
             onImageReady: React.PropTypes.func,
         },
 
-        getDefaultProps: function () {
+        getDefaultProps() {
             return {
                 scale: 1,
                 border: 25,
                 width: 200,
                 height: 200,
                 color: [0, 0, 0, 0.5],
-                onImageReady: function() {}
+                onImageReady() {}
             }
         },
 
-        getInitialState: function () {
+        getInitialState() {
             return {
                 drag: false,
                 my: null,
@@ -52,7 +83,7 @@
             };
         },
 
-        getDimensions: function () {
+        getDimensions() {
             return {
                 width: this.props.width,
                 height: this.props.height,
@@ -64,7 +95,7 @@
             }
         },
 
-        getImage: function (type, quality) {
+        getImage(type, quality) {
             var dom = document.createElement('canvas');
             var context = dom.getContext('2d');
             var dimensions = this.getDimensions();
@@ -87,41 +118,43 @@
             return dom.toDataURL(type, quality);
         },
 
-        isDataURL: function(str) {
-            regex = /^\s*data:([a-z]+\/[a-z]+(;[a-z\-]+\=[a-z\-]+)?)?(;base64)?,[a-z0-9\!\$\&\'\,\(\)\*\+\,\;\=\-\.\_\~\:\@\/\?\%\s]*\s*$/i;
+        isDataURL(str) {
+            var regex = /^\s*data:([a-z]+\/[a-z]+(;[a-z\-]+\=[a-z\-]+)?)?(;base64)?,[a-z0-9\!\$\&\'\,\(\)\*\+\,\;\=\-\.\_\~\:\@\/\?\%\s]*\s*$/i;
             return !!str.match(regex);
         },
 
-        loadImage: function (imageURL) {
+        loadImage(imageURL) {
             var imageObj = new Image();
             imageObj.onload = this.handleImageReady.bind(this, imageObj);
             if (!this.isDataURL(imageURL)) imageObj.crossOrigin = 'anonymous';
             imageObj.src = imageURL;
         },
 
-        componentDidMount: function () {
+        componentDidMount() {
             var context = this.getDOMNode().getContext('2d');
             if (this.props.image) {
                 this.loadImage(this.props.image);
             }
             this.paint(context);
-            document && document.addEventListener('mousemove', this.handleMouseMove, false);
-            document && document.addEventListener('mouseup', this.handleMouseUp, false);
+            document && document.addEventListener(deviceEvents.native.move, this.handleMouseMove, false);
+            document && document.addEventListener(deviceEvents.native.up, this.handleMouseUp, false);
+
+            if (isTouchDevice) React.initializeTouchEvents(true);
         },
 
-        componentWillUnmount: function () {
-            document && document.removeEventListener('mousemove', this.handleMouseMove, false);
-            document && document.removeEventListener('mouseup', this.handleMouseUp, false);
+        componentWillUnmount() {
+            document && document.removeEventListener(deviceEvents.native.move, this.handleMouseMove, false);
+            document && document.removeEventListener(deviceEvents.native.up, this.handleMouseUp, false);
         },
 
-        componentDidUpdate: function () {
+        componentDidUpdate() {
             var context = this.getDOMNode().getContext('2d');
             context.clearRect(0, 0, this.getDimensions().canvas.width, this.getDimensions().canvas.height);
             this.paint(context);
             this.paintImage(context, this.state.image);
         },
 
-        handleImageReady: function (image) {
+        handleImageReady(image) {
             var imageState = this.getInitialSize(image.width, image.height);
             imageState.resource = image;
             imageState.x = this.props.border;
@@ -129,7 +162,7 @@
             this.setState({drag: false, image: imageState}, this.props.onImageReady);                        
         },
 
-        getInitialSize: function (width, height) {
+        getInitialSize(width, height) {
             var newHeight, newWidth, dimensions, canvasRatio, imageRatio;
 
             dimensions = this.getDimensions();
@@ -151,15 +184,16 @@
             };
         },
 
-        componentWillReceiveProps: function (newProps) {
-            var image = this.state.image;
-
+        componentWillReceiveProps(newProps) {
             if (this.props.image != newProps.image) {
                 this.loadImage(newProps.image);
             }
+            if (this.props.scale != newProps.scale) {
+                this.squeeze();
+            }
         },
 
-        paintImage: function (context, image) {
+        paintImage(context, image) {
             if (image.resource) {
                 var position = this.calculatePosition(image);
                 context.save();
@@ -168,8 +202,7 @@
                 context.restore();
             }
         },
-
-        calculatePosition: function (image) {
+        calculatePosition(image) {
             image = image || this.state.image;
             var x, y, width, height, dimensions = this.getDimensions();
 
@@ -198,7 +231,7 @@
             }
         },
 
-        paint: function (context) {
+        paint(context) {
             context.save();
             context.translate(0, 0);
             context.fillStyle = "rgba("+this.props.color.slice(0, 4).join(",")+")";
@@ -217,34 +250,32 @@
             context.restore();
         },
 
-        handleMouseDown: function () {
+        handleMouseDown() {
             this.setState({
                 drag: true,
                 mx: null,
                 my: null
             });
         },
-        handleMouseUp: function () {
+        handleMouseUp() {
             if (this.state.drag) {
                 this.setState({drag: false});
             }
         },
 
-        handleMouseMove: function (e) {
+        handleMouseMove(e) {
             if (false == this.state.drag) {
                 return;
             }
 
-            var newState = {}
-            var dimensions = this.getDimensions();
             var imageState = this.state.image;
             var lastX = imageState.x;
             var lastY = imageState.y;
 
-            var mousePositionX = TOUCH ? event.targetTouches[0].pageX : e.clientX;
-            var mousePositionY = TOUCH ? event.targetTouches[0].pageY : e.clientY;
+            var mousePositionX = isTouchDevice ? event.targetTouches[0].pageX : e.clientX;
+            var mousePositionY = isTouchDevice ? event.targetTouches[0].pageY : e.clientY;
 
-            newState = { mx: mousePositionX, my: mousePositionY, image: imageState };
+            var newState = { mx: mousePositionX, my: mousePositionY, image: imageState };
 
             if (this.state.mx && this.state.my) {
                 var xDiff = this.state.mx - mousePositionX;
@@ -257,12 +288,21 @@
             this.setState(newState);
         },
 
-        getBoundedX: function (x) {
+        // @todo Bit buggy, the boundaries aren't exactly right when scale changes. Why?
+        squeeze() {
+            var imageState = this.state.image;
+            imageState.y = this.getBoundedY(imageState.y);
+            imageState.x = this.getBoundedX(imageState.x);
+
+            this.setState({ image: imageState });
+        },
+
+        getBoundedX(x) {
             var image = this.state.image;
             var dimensions = this.getDimensions();
             var scale = this.props.scale;
             var widthDiff = Math.ceil((image.width * scale - image.width) / 2);
-            var rightPoint = Math.floor(-image.width*scale + dimensions.width + dimensions.border);
+            var rightPoint = Math.ceil(-image.width * scale + dimensions.width + dimensions.border);
             var leftPoint = dimensions.border;
 
             var result;
@@ -273,7 +313,7 @@
             return result || x;
         },
 
-        getBoundedY: function (y) {
+        getBoundedY(y) {
             var image = this.state.image;
             var dimensions = this.getDimensions();
             var scale = this.props.scale;
@@ -289,11 +329,11 @@
             return result || y;
         },
 
-        handleDragOver: function (e) {
+        handleDragOver(e) {
             e.preventDefault();
         },
 
-        handleDrop: function (e) {
+        handleDrop(e) {
             e.stopPropagation();
             e.preventDefault();
 
@@ -302,24 +342,21 @@
             reader.readAsDataURL(e.dataTransfer.files[0]);
         },
 
-        handleUploadReady: function (e) {
+        handleUploadReady(e) {
             this.loadImage(e.target.result);
         },
 
-        render: function () {
+        render() {
             var attributes = {
                 width: this.getDimensions().canvas.width,
                 height: this.getDimensions().canvas.height,
-            }
-            attributes[DESKTOP_EVENTS['down']] =  this.handleMouseDown;
-            attributes[DESKTOP_EVENTS['drag']] =  this.handleDragOver;
-            attributes[DESKTOP_EVENTS['drop']] =  this.handleDrop;
-            if(TOUCH){
-                attributes[MOBILE_EVENTS['down']] =  this.handleMouseDown;
-                attributes[MOBILE_EVENTS['drag']] =  this.handleDragOver;
-                attributes[MOBILE_EVENTS['drop']] =  this.handleDrop;
-            }
-            return React.createElement('canvas', attributes, null);
+            };
+
+            attributes[deviceEvents.react.down] = this.handleMouseDown;
+            attributes[deviceEvents.react.drag] = this.handleDragOver;
+            attributes[deviceEvents.react.drop] = this.handleDrop;
+
+            return <canvas {...attributes} />;
         }
 
     });
