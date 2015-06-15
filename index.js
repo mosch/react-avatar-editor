@@ -12,10 +12,42 @@
         root.AvatarEditor = factory(root.React, root);
     }
 }(this, function (React, global) {
-    var TOUCH = 'ontouchstart' in window || navigator.msMaxTouchPoints > 0;
-    var MOBILE_EVENTS = { down: 'onTouchStart', drag: 'onTouchMove', drop: 'onTouchEnd', move: 'onTouchMove', up: 'onTouchUp' };
-    var DESKTOP_EVENTS = { down: 'onMouseDown', drag: 'onDragOver', drop: 'onDrop', move: 'onMouseMove', up: 'onMouseUp' };
-    var DEVICE_EVENTS = TOUCH ? MOBILE_EVENTS : DESKTOP_EVENTS;
+    var isTouchDevice = 'ontouchstart' in window || navigator.msMaxTouchPoints > 0;
+    var draggableEvents = {
+        mobile: {
+            react: {
+                down: 'onTouchStart',
+                drag: 'onTouchMove',
+                drop: 'onTouchEnd',
+                move: 'onTouchMove',
+                up: 'onTouchUp'
+            },
+            native: {
+                down: 'touchstart',
+                drag: 'touchmove',
+                drop: 'touchend',
+                move: 'touchmove',
+                up: 'touchup'
+            }
+        },
+        desktop: {
+            react: {
+                down: 'onMouseDown',
+                drag: 'onDragOver',
+                drop: 'onDrop',
+                move: 'onMouseMove',
+                up: 'onMouseUp'
+            },
+            native: {
+                down: 'mousedown',
+                drag: 'dragStart',
+                drop: 'drop',
+                move: 'mousemove',
+                up: 'mouseup'
+            }
+        }
+    };
+    var deviceEvents = isTouchDevice ? draggableEvents.mobile : draggableEvents.desktop;
 
     return React.createClass({
         propTypes: {
@@ -104,6 +136,15 @@
                 this.loadImage(this.props.image);
             }
             this.paint(context);
+            document.addEventListener(deviceEvents.native.move, this.handleMouseMove, false);
+            document.addEventListener(deviceEvents.native.up, this.handleMouseUp, false);
+
+            if (isTouchDevice) React.initializeTouchEvents(true);
+        },
+
+        componentWillUnmount() {
+            document.removeEventListener(deviceEvents.native.move, this.handleMouseMove, false);
+            document.removeEventListener(deviceEvents.native.up, this.handleMouseUp, false);
         },
 
         componentDidUpdate() {
@@ -228,8 +269,8 @@
             var lastX = imageState.x;
             var lastY = imageState.y;
 
-            var mousePositionX = TOUCH ? event.targetTouches[0].pageX : e.clientX;
-            var mousePositionY = TOUCH ? event.targetTouches[0].pageY : e.clientY;
+            var mousePositionX = isTouchDevice ? event.targetTouches[0].pageX : e.clientX;
+            var mousePositionY = isTouchDevice ? event.targetTouches[0].pageY : e.clientY;
 
             var newState = { mx: mousePositionX, my: mousePositionY, image: imageState };
 
@@ -299,13 +340,9 @@
                 height: this.getDimensions().canvas.height,
             };
 
-            attributes[DEVICE_EVENTS['down']] = this.handleMouseDown;
-            attributes[DEVICE_EVENTS['drag']] = this.handleDragOver;
-            attributes[DEVICE_EVENTS['drop']] = this.handleDrop;
-            attributes[DEVICE_EVENTS['move']] = this.handleMouseMove;
-            attributes[DEVICE_EVENTS['up']] = this.handleMouseUp;
-
-            if (TOUCH) React.initializeTouchEvents(true);
+            attributes[deviceEvents.react.down] = this.handleMouseDown;
+            attributes[deviceEvents.react.drag] = this.handleDragOver;
+            attributes[deviceEvents.react.drop] = this.handleDrop;
 
             return <canvas {...attributes} />;
         }
