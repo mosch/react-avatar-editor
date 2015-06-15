@@ -20,14 +20,14 @@
         "reactjs",
         "react"
     ],
-    "peerDependencies": {
-        "react": "0.13.x"
-    },
     "devDependencies": {
-        "react": "^0.12",
+        "react": "0.13.x",
         "http-server": "^0.7.4",
         "watchify": "^2.1.1",
         "reactify": "0.17.1"
+    },
+    "browserify": {
+        "transform": [["reactify", { "es6": true }]]
     }
 }
 
