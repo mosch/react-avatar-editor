@@ -12,8 +12,7 @@
         root.AvatarEditor = factory(root.React, root);
     }
 }(this, function (React, global) {
-    global = global || window;
-    var TOUCH = 'ontouchstart' in window || navigator.msMaxTouchPoints;
+    var TOUCH = 'ontouchstart' in window || navigator.msMaxTouchPoints > 0;
     var MOBILE_EVENTS = { down: 'onTouchStart', drag: 'onTouchMove', drop: 'onTouchEnd', move: 'onTouchMove', up: 'onTouchUp' };
     var DESKTOP_EVENTS = { down: 'onMouseDown', drag: 'onDragOver', drop: 'onDrop', move: 'onMouseMove', up: 'onMouseUp' };
     var DEVICE_EVENTS = TOUCH ? MOBILE_EVENTS : DESKTOP_EVENTS;
@@ -29,18 +28,18 @@
             onImageReady: React.PropTypes.func,
         },
 
-        getDefaultProps: function () {
+        getDefaultProps() {
             return {
                 scale: 1,
                 border: 25,
                 width: 200,
                 height: 200,
                 color: [0, 0, 0, 0.5],
-                onImageReady: function() {}
+                onImageReady() {}
             }
         },
 
-        getInitialState: function () {
+        getInitialState() {
             return {
                 drag: false,
                 my: null,
@@ -52,7 +51,7 @@
             };
         },
 
-        getDimensions: function () {
+        getDimensions() {
             return {
                 width: this.props.width,
                 height: this.props.height,
@@ -64,7 +63,7 @@
             }
         },
 
-        getImage: function (type, quality) {
+        getImage(type, quality) {
             var dom = document.createElement('canvas');
             var context = dom.getContext('2d');
             var dimensions = this.getDimensions();
@@ -87,19 +86,19 @@
             return dom.toDataURL(type, quality);
         },
 
-        isDataURL: function(str) {
+        isDataURL(str) {
             var regex = /^\s*data:([a-z]+\/[a-z]+(;[a-z\-]+\=[a-z\-]+)?)?(;base64)?,[a-z0-9\!\$\&\'\,\(\)\*\+\,\;\=\-\.\_\~\:\@\/\?\%\s]*\s*$/i;
             return !!str.match(regex);
         },
 
-        loadImage: function (imageURL) {
+        loadImage(imageURL) {
             var imageObj = new Image();
             imageObj.onload = this.handleImageReady.bind(this, imageObj);
             if (!this.isDataURL(imageURL)) imageObj.crossOrigin = 'anonymous';
             imageObj.src = imageURL;
         },
 
-        componentDidMount: function () {
+        componentDidMount() {
             var context = this.getDOMNode().getContext('2d');
             if (this.props.image) {
                 this.loadImage(this.props.image);
@@ -107,14 +106,14 @@
             this.paint(context);
         },
 
-        componentDidUpdate: function () {
+        componentDidUpdate() {
             var context = this.getDOMNode().getContext('2d');
             context.clearRect(0, 0, this.getDimensions().canvas.width, this.getDimensions().canvas.height);
             this.paint(context);
             this.paintImage(context, this.state.image);
         },
 
-        handleImageReady: function (image) {
+        handleImageReady(image) {
             var imageState = this.getInitialSize(image.width, image.height);
             imageState.resource = image;
             imageState.x = this.props.border;
@@ -122,7 +121,7 @@
             this.setState({drag: false, image: imageState}, this.props.onImageReady);                        
         },
 
-        getInitialSize: function (width, height) {
+        getInitialSize(width, height) {
             var newHeight, newWidth, dimensions, canvasRatio, imageRatio;
 
             dimensions = this.getDimensions();
@@ -144,13 +143,13 @@
             };
         },
 
-        componentWillReceiveProps: function (newProps) {
+        componentWillReceiveProps(newProps) {
             if (this.props.image != newProps.image) {
                 this.loadImage(newProps.image);
             }
         },
 
-        paintImage: function (context, image) {
+        paintImage(context, image) {
             if (image.resource) {
                 var position = this.calculatePosition(image);
                 context.save();
@@ -159,8 +158,7 @@
                 context.restore();
             }
         },
-
-        calculatePosition: function (image) {
+        calculatePosition(image) {
             image = image || this.state.image;
             var x, y, width, height, dimensions = this.getDimensions();
 
@@ -189,7 +187,7 @@
             }
         },
 
-        paint: function (context) {
+        paint(context) {
             context.save();
             context.translate(0, 0);
             context.fillStyle = "rgba("+this.props.color.slice(0, 4).join(",")+")";
@@ -208,20 +206,20 @@
             context.restore();
         },
 
-        handleMouseDown: function () {
+        handleMouseDown() {
             this.setState({
                 drag: true,
                 mx: null,
                 my: null
             });
         },
-        handleMouseUp: function () {
+        handleMouseUp() {
             if (this.state.drag) {
                 this.setState({drag: false});
             }
         },
 
-        handleMouseMove: function (e) {
+        handleMouseMove(e) {
             if (false == this.state.drag) {
                 return;
             }
@@ -246,7 +244,7 @@
             this.setState(newState);
         },
 
-        getBoundedX: function (x) {
+        getBoundedX(x) {
             var image = this.state.image;
             var dimensions = this.getDimensions();
             var scale = this.props.scale;
@@ -262,7 +260,7 @@
             return result || x;
         },
 
-        getBoundedY: function (y) {
+        getBoundedY(y) {
             var image = this.state.image;
             var dimensions = this.getDimensions();
             var scale = this.props.scale;
@@ -278,11 +276,11 @@
             return result || y;
         },
 
-        handleDragOver: function (e) {
+        handleDragOver(e) {
             e.preventDefault();
         },
 
-        handleDrop: function (e) {
+        handleDrop(e) {
             e.stopPropagation();
             e.preventDefault();
 
@@ -291,11 +289,11 @@
             reader.readAsDataURL(e.dataTransfer.files[0]);
         },
 
-        handleUploadReady: function (e) {
+        handleUploadReady(e) {
             this.loadImage(e.target.result);
         },
 
-        render: function () {
+        render() {
             var attributes = {
                 width: this.getDimensions().canvas.width,
                 height: this.getDimensions().canvas.height,
