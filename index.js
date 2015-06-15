@@ -136,15 +136,15 @@
                 this.loadImage(this.props.image);
             }
             this.paint(context);
-            document.addEventListener(deviceEvents.native.move, this.handleMouseMove, false);
-            document.addEventListener(deviceEvents.native.up, this.handleMouseUp, false);
+            document && document.addEventListener(deviceEvents.native.move, this.handleMouseMove, false);
+            document && document.addEventListener(deviceEvents.native.up, this.handleMouseUp, false);
 
             if (isTouchDevice) React.initializeTouchEvents(true);
         },
 
         componentWillUnmount() {
-            document.removeEventListener(deviceEvents.native.move, this.handleMouseMove, false);
-            document.removeEventListener(deviceEvents.native.up, this.handleMouseUp, false);
+            document && document.removeEventListener(deviceEvents.native.move, this.handleMouseMove, false);
+            document && document.removeEventListener(deviceEvents.native.up, this.handleMouseUp, false);
         },
 
         componentDidUpdate() {
