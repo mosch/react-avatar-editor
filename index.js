@@ -12,10 +12,10 @@
         root.AvatarEditor = factory(root.React, root);
     }
 }(this, function (React, global) {
-    global = global || window
-    var TOUCH = global.document && ( 'ontouchstart' in global.document || (global.document.navigator && global.document.navigator.msMaxTouchPoints) );
-    var MOBILE_EVENTS = { down: 'onTouchStart', drag: 'onTouchMove', drop: 'onTouchEnd', move: 'touchmove', up: 'touchend' };
-    var DESKTOP_EVENTS = { down: 'onMouseDown', drag: 'onDragOver', drop: 'onDrop', move: 'mousemove', up: 'mouseup' }
+    global = global || window;
+    var TOUCH = 'ontouchstart' in window || navigator.msMaxTouchPoints;
+    var MOBILE_EVENTS = { down: 'onTouchStart', drag: 'onTouchMove', drop: 'onTouchEnd', move: 'onTouchMove', up: 'onTouchUp' };
+    var DESKTOP_EVENTS = { down: 'onMouseDown', drag: 'onDragOver', drop: 'onDrop', move: 'onMouseMove', up: 'onMouseUp' };
     var DEVICE_EVENTS = TOUCH ? MOBILE_EVENTS : DESKTOP_EVENTS;
 
     return React.createClass({
@@ -88,7 +88,7 @@
         },
 
         isDataURL: function(str) {
-            regex = /^\s*data:([a-z]+\/[a-z]+(;[a-z\-]+\=[a-z\-]+)?)?(;base64)?,[a-z0-9\!\$\&\'\,\(\)\*\+\,\;\=\-\.\_\~\:\@\/\?\%\s]*\s*$/i;
+            var regex = /^\s*data:([a-z]+\/[a-z]+(;[a-z\-]+\=[a-z\-]+)?)?(;base64)?,[a-z0-9\!\$\&\'\,\(\)\*\+\,\;\=\-\.\_\~\:\@\/\?\%\s]*\s*$/i;
             return !!str.match(regex);
         },
 
@@ -105,13 +105,6 @@
                 this.loadImage(this.props.image);
             }
             this.paint(context);
-            document && document.addEventListener('mousemove', this.handleMouseMove, false);
-            document && document.addEventListener('mouseup', this.handleMouseUp, false);
-        },
-
-        componentWillUnmount: function () {
-            document && document.removeEventListener('mousemove', this.handleMouseMove, false);
-            document && document.removeEventListener('mouseup', this.handleMouseUp, false);
         },
 
         componentDidUpdate: function () {
@@ -152,8 +145,6 @@
         },
 
         componentWillReceiveProps: function (newProps) {
-            var image = this.state.image;
-
             if (this.props.image != newProps.image) {
                 this.loadImage(newProps.image);
             }
@@ -235,8 +226,6 @@
                 return;
             }
 
-            var newState = {}
-            var dimensions = this.getDimensions();
             var imageState = this.state.image;
             var lastX = imageState.x;
             var lastY = imageState.y;
@@ -244,7 +233,7 @@
             var mousePositionX = TOUCH ? event.targetTouches[0].pageX : e.clientX;
             var mousePositionY = TOUCH ? event.targetTouches[0].pageY : e.clientY;
 
-            newState = { mx: mousePositionX, my: mousePositionY, image: imageState };
+            var newState = { mx: mousePositionX, my: mousePositionY, image: imageState };
 
             if (this.state.mx && this.state.my) {
                 var xDiff = this.state.mx - mousePositionX;
@@ -310,16 +299,17 @@
             var attributes = {
                 width: this.getDimensions().canvas.width,
                 height: this.getDimensions().canvas.height,
-            }
-            attributes[DESKTOP_EVENTS['down']] =  this.handleMouseDown;
-            attributes[DESKTOP_EVENTS['drag']] =  this.handleDragOver;
-            attributes[DESKTOP_EVENTS['drop']] =  this.handleDrop;
-            if(TOUCH){
-                attributes[MOBILE_EVENTS['down']] =  this.handleMouseDown;
-                attributes[MOBILE_EVENTS['drag']] =  this.handleDragOver;
-                attributes[MOBILE_EVENTS['drop']] =  this.handleDrop;
-            }
-            return React.createElement('canvas', attributes, null);
+            };
+
+            attributes[DEVICE_EVENTS['down']] = this.handleMouseDown;
+            attributes[DEVICE_EVENTS['drag']] = this.handleDragOver;
+            attributes[DEVICE_EVENTS['drop']] = this.handleDrop;
+            attributes[DEVICE_EVENTS['move']] = this.handleMouseMove;
+            attributes[DEVICE_EVENTS['up']] = this.handleMouseUp;
+
+            if (TOUCH) React.initializeTouchEvents(true);
+
+            return <canvas {...attributes} />;
         }
 
     });
