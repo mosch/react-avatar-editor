@@ -188,6 +188,9 @@
             if (this.props.image != newProps.image) {
                 this.loadImage(newProps.image);
             }
+            if (this.props.scale != newProps.scale) {
+                this.squeeze();
+            }
         },
 
         paintImage(context, image) {
@@ -283,6 +286,15 @@
             }
 
             this.setState(newState);
+        },
+
+        // @todo Bit buggy, the boundaries aren't exactly right when scale changes. Why?
+        squeeze() {
+            var imageState = this.state.image;
+            imageState.y = this.getBoundedY(imageState.y);
+            imageState.x = this.getBoundedX(imageState.x);
+
+            this.setState({ image: imageState });
         },
 
         getBoundedX(x) {
