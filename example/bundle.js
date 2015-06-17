@@ -26,7 +26,7 @@ var App = React.createClass({displayName: "App",
 
     render: function() {
         return React.createElement("div", null, 
-            React.createElement(Editor, {ref: "avatar", rotation: this.state.rotation, scale: parseFloat(this.state.scale), onSave: this.handleSave, image: "example.jpg"}), 
+            React.createElement(Editor, {ref: "avatar", rotation: this.state.rotation, scale: parseFloat(this.state.scale), onSave: this.handleSave, image: "example/avatar.jpg"}), 
             React.createElement("br", null), 
             React.createElement("input", {name: "scale", type: "range", ref: "scale", onChange: this.handleScale, min: "1", max: "2", step: "0.01", defaultValue: "1"}), "    ", React.createElement("br", null), 
             React.createElement("br", null), 
@@ -38,7 +38,7 @@ var App = React.createClass({displayName: "App",
 
 });
 
-React.render(React.createElement(App), document.getElementById('app'));
+React.render(React.createElement(App, null), document.getElementById('app'));
 },{"../index.js":2,"react":148}],2:[function(require,module,exports){
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
@@ -233,7 +233,7 @@ React.render(React.createElement(App), document.getElementById('app'));
                 this.loadImage(newProps.image);
             }
             if (this.props.scale != newProps.scale) {
-                this.squeeze();
+                this.squeeze(newProps);
             }
         },
 
@@ -243,9 +243,11 @@ React.render(React.createElement(App), document.getElementById('app'));
                 context.save();
                 context.globalCompositeOperation = 'destination-over';
                 context.drawImage(image.resource, image.x, image.y, position.width, position.height);
+
                 context.restore();
             }
         },
+
         calculatePosition:function(image) {
             image = image || this.state.image;
             var x, y, width, height, dimensions = this.getDimensions();
@@ -325,26 +327,23 @@ React.render(React.createElement(App), document.getElementById('app'));
                 var xDiff = this.state.mx - mousePositionX;
                 var yDiff = this.state.my - mousePositionY;
 
-                imageState.y = this.getBoundedY(lastY - yDiff);
-                imageState.x = this.getBoundedX(lastX - xDiff);
+                imageState.y = this.getBoundedY(lastY - yDiff, this.props.scale);
+                imageState.x = this.getBoundedX(lastX - xDiff, this.props.scale);
             }
 
             this.setState(newState);
         },
 
-        // @todo Bit buggy, the boundaries aren't exactly right when scale changes. Why?
-        squeeze:function() {
+        squeeze:function(props) {
             var imageState = this.state.image;
-            imageState.y = this.getBoundedY(imageState.y);
-            imageState.x = this.getBoundedX(imageState.x);
-
+            imageState.y = this.getBoundedY(imageState.y, props.scale);
+            imageState.x = this.getBoundedX(imageState.x, props.scale);
             this.setState({ image: imageState });
         },
 
-        getBoundedX:function(x) {
+        getBoundedX:function(x, scale) {
             var image = this.state.image;
             var dimensions = this.getDimensions();
-            var scale = this.props.scale;
             var widthDiff = Math.ceil((image.width * scale - image.width) / 2);
             var rightPoint = Math.ceil(-image.width * scale + dimensions.width + dimensions.border);
             var leftPoint = dimensions.border;
@@ -357,10 +356,9 @@ React.render(React.createElement(App), document.getElementById('app'));
             return result || x;
         },
 
-        getBoundedY:function(y) {
+        getBoundedY:function(y, scale) {
             var image = this.state.image;
             var dimensions = this.getDimensions();
-            var scale = this.props.scale;
             var heightDiff = Math.ceil((image.height * scale - image.height) / 2);
             var bottomPoint = Math.ceil((-image.height * scale + dimensions.height + dimensions.border));
             var topPoint = dimensions.border;
