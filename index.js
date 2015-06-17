@@ -58,6 +58,7 @@
             height: React.PropTypes.number,
             color: React.PropTypes.arrayOf(React.PropTypes.number),
             onImageReady: React.PropTypes.func,
+            style: React.PropTypes.object
         },
 
         getDefaultProps() {
@@ -67,7 +68,8 @@
                 width: 200,
                 height: 200,
                 color: [0, 0, 0, 0.5],
-                onImageReady() {}
+                onImageReady() {},
+                style: {}
             }
         },
 
@@ -159,7 +161,7 @@
             imageState.resource = image;
             imageState.x = this.props.border;
             imageState.y = this.props.border;
-            this.setState({drag: false, image: imageState}, this.props.onImageReady);                        
+            this.setState({drag: false, image: imageState}, this.props.onImageReady);
         },
 
         getInitialSize(width, height) {
@@ -350,6 +352,7 @@
             var attributes = {
                 width: this.getDimensions().canvas.width,
                 height: this.getDimensions().canvas.height,
+                style: this.props.style
             };
 
             attributes[deviceEvents.react.down] = this.handleMouseDown;
