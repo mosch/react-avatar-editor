@@ -19,7 +19,12 @@
     "keywords": [
         "react-component",
         "reactjs",
-        "react"
+        "react",
+	"canvas",
+	"avatar",
+	"editor",
+	"profile",
+	"image"
     ],
     "devDependencies": {
         "react": "0.13.x",
