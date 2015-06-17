@@ -1,4 +1,6 @@
 # react-avatar-editor
+[![SemVer]](http://semver.org)
+
 Facebook like, avatar / profile picture component.
 Resize and crop your uploaded image using a clear user interface.
 
@@ -69,3 +71,5 @@ var MyEditor = React.createClass({
 
 module.exports = MyEditor;
 ```
+
+[SemVer]: http://img.shields.io/:semver-1.1.1-brightgreen.svg?style=flat-square
