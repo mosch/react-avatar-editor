@@ -37,6 +37,7 @@ module.exports = MyEditor;
 | border       | The cropping border. Image will be visible through the border, but cut off in the resulting image.
 | color        | The color of the cropping border
 | onImageReady | Callback function for when the image has been loaded into the editor
+| style        | Styles for the canvas element 
 
 
 ## Accessing the resulting image
