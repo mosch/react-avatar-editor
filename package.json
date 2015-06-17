@@ -4,7 +4,8 @@
     "description": "Facebook like avatar / profile picture component. Resize and crop your uploaded image using a intutive user interface.",
     "main": "index.min.js",
     "scripts": {
-        "start": "watchify example/app.js -o example/bundle.js -v"
+        "demo": "watchify example/app.js -o example/bundle.js -v",
+	"build": "babel index.js --out-file index.min.js --source-maps"
     },
     "author": {
         "name": "Moritz Schwoerer",
