@@ -191,7 +191,7 @@
                 this.loadImage(newProps.image);
             }
             if (this.props.scale != newProps.scale) {
-                this.squeeze();
+                this.squeeze(newProps);
             }
         },
 
@@ -201,9 +201,11 @@
                 context.save();
                 context.globalCompositeOperation = 'destination-over';
                 context.drawImage(image.resource, image.x, image.y, position.width, position.height);
+
                 context.restore();
             }
         },
+
         calculatePosition(image) {
             image = image || this.state.image;
             var x, y, width, height, dimensions = this.getDimensions();
@@ -283,26 +285,23 @@
                 var xDiff = this.state.mx - mousePositionX;
                 var yDiff = this.state.my - mousePositionY;
 
-                imageState.y = this.getBoundedY(lastY - yDiff);
-                imageState.x = this.getBoundedX(lastX - xDiff);
+                imageState.y = this.getBoundedY(lastY - yDiff, this.props.scale);
+                imageState.x = this.getBoundedX(lastX - xDiff, this.props.scale);
             }
 
             this.setState(newState);
         },
 
-        // @todo Bit buggy, the boundaries aren't exactly right when scale changes. Why?
-        squeeze() {
+        squeeze(props) {
             var imageState = this.state.image;
-            imageState.y = this.getBoundedY(imageState.y);
-            imageState.x = this.getBoundedX(imageState.x);
-
+            imageState.y = this.getBoundedY(imageState.y, props.scale);
+            imageState.x = this.getBoundedX(imageState.x, props.scale);
             this.setState({ image: imageState });
         },
 
-        getBoundedX(x) {
+        getBoundedX(x, scale) {
             var image = this.state.image;
             var dimensions = this.getDimensions();
-            var scale = this.props.scale;
             var widthDiff = Math.ceil((image.width * scale - image.width) / 2);
             var rightPoint = Math.ceil(-image.width * scale + dimensions.width + dimensions.border);
             var leftPoint = dimensions.border;
@@ -315,10 +314,9 @@
             return result || x;
         },
 
-        getBoundedY(y) {
+        getBoundedY(y, scale) {
             var image = this.state.image;
             var dimensions = this.getDimensions();
-            var scale = this.props.scale;
             var heightDiff = Math.ceil((image.height * scale - image.height) / 2);
             var bottomPoint = Math.ceil((-image.height * scale + dimensions.height + dimensions.border));
             var topPoint = dimensions.border;
