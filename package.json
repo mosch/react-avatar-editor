@@ -2,7 +2,7 @@
     "name": "react-avatar-editor",
     "version": "1.2.2",
     "description": "Facebook like avatar / profile picture component. Resize and crop your uploaded image using a intutive user interface.",
-    "main": "index.min.js",
+    "main": "dist/build.js",
     "scripts": {
         "demo": "watchify example/app.js -o example/bundle.js -v",
         "build": "browserify index.js -s AvatarEditor | uglifyjs -c > dist/build.min.js",
