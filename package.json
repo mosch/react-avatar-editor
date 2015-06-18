@@ -2,15 +2,23 @@
     "name": "react-avatar-editor",
     "version": "1.2.2",
     "description": "Facebook like avatar / profile picture component. Resize and crop your uploaded image using a intutive user interface.",
-    "main": "index.min.js",
+    "main": "dist/build.js",
     "scripts": {
         "demo": "watchify example/app.js -o example/bundle.js -v",
-	"build": "babel index.js --out-file index.min.js --source-maps"
+        "build": "browserify index.js -s AvatarEditor | uglifyjs -c > dist/build.min.js",
+        "build-watch": "watchify index.js -s AvatarEditor -d -o dist/build.js -v",
+        "build-debug": "browserify index.js -d -s AvatarEditor > dist/build.js"
     },
     "author": {
         "name": "Moritz Schwoerer",
         "email": "mr.mosch@gmail.com"
     },
+    "contributors": [
+        {
+            "name": "Daniel Lehr",
+            "email": "daniellehr@gmx.de"
+        }
+    ],
     "repository": {
         "type": "git",
         "url": "git://github.com/mosch/react-avatar-editor.git"
@@ -24,8 +32,9 @@
     "devDependencies": {
         "react": "0.13.x",
         "http-server": "^0.7.4",
-        "watchify": "^2.1.1",
-        "reactify": "0.17.1"
+        "watchify": "^3.2.2",
+        "reactify": "0.17.1",
+        "uglifyjs": "^2.4.10"
     },
     "browserify": {
         "transform": [["reactify", { "es6": true }]]
