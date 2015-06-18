@@ -29,11 +29,13 @@
         "reactjs",
         "react"
     ],
+    "dependencies": {
+        "reactify": "0.17.1"
+    },
     "devDependencies": {
         "react": "0.13.x",
         "http-server": "^0.7.4",
         "watchify": "^3.2.2",
-        "reactify": "0.17.1",
         "uglifyjs": "^2.4.10"
     },
     "browserify": {
