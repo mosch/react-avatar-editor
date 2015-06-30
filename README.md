@@ -81,4 +81,4 @@ For development you can use following build tools:
 * `npm run build-watch`: The same as `build-debug`, but it watches `index.js` and dependencies for changes and rebuilds then.
 * `npm run demo`: Builds the demo app in the `example/` directory.
 
-[SemVer]: http://img.shields.io/:semver-1.1.1-brightgreen.svg?style=flat-square
+[SemVer]: http://img.shields.io/:semver-1.2.5-brightgreen.svg?style=flat-square
