@@ -109,7 +109,7 @@ var ReactAvatarEditor = React.createClass({
             y: imageState.y - dimensions.border,
             width: imageState.width,
             height: imageState.height
-        });
+        }, true);
 
         return dom.toDataURL(type, quality);
     },
@@ -189,13 +189,13 @@ var ReactAvatarEditor = React.createClass({
         }
     },
 
-    paintImage: function paintImage(context, image) {
+    paintImage: function paintImage(context, image, saving) {
         if (image.resource) {
             var position = this.calculatePosition(image);
             context.save();
             context.globalCompositeOperation = 'destination-over';
             
-            if (this.props.highQuality) {
+            if (this.props.highQuality && saving) {
                 var scale = image.resource.width / position.width;
     
                 var dimensions = this.getDimensions();
