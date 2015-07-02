@@ -50,7 +50,8 @@ var ReactAvatarEditor = React.createClass({
         height: React.PropTypes.number,
         color: React.PropTypes.arrayOf(React.PropTypes.number),
         onImageReady: React.PropTypes.func,
-        style: React.PropTypes.object
+        style: React.PropTypes.object,
+        highQuality: React.PropTypes.bool
     },
 
     getDefaultProps: function getDefaultProps() {
@@ -61,7 +62,8 @@ var ReactAvatarEditor = React.createClass({
             height: 200,
             color: [0, 0, 0, 0.5],
             onImageReady: function onImageReady() {},
-            style: {}
+            style: {},
+            highQuality: false
         };
     },
 
@@ -101,7 +103,7 @@ var ReactAvatarEditor = React.createClass({
 
         var imageState = this.state.image;
 
-        this.paintHQImage(dom, context, {
+        this.paintImage(context, {
             resource: imageState.resource,
             x: imageState.x - dimensions.border,
             y: imageState.y - dimensions.border,
@@ -192,28 +194,21 @@ var ReactAvatarEditor = React.createClass({
             var position = this.calculatePosition(image);
             context.save();
             context.globalCompositeOperation = 'destination-over';
-            context.drawImage(image.resource, image.x, image.y, position.width, position.height);
-
-            context.restore();
-        }
-    },
-
-    paintHQImage: function paintHQImage(canvas, context, image) {
-        if (image.resource) {
-            var position = this.calculatePosition(image);
-            context.save();
-            context.globalCompositeOperation = 'destination-over';
-
-            var scale = image.resource.width / position.width;
-
-            var dimensions = this.getDimensions();
-            canvas.width = dimensions.width * scale;
-            canvas.height = dimensions.height * scale;
-
-            var x = image.x * scale;
-            var y = image.y * scale;
-
-            context.drawImage(image.resource, x, y, image.resource.width, image.resource.height);
+            
+            if (this.props.highQuality) {
+                var scale = image.resource.width / position.width;
+    
+                var dimensions = this.getDimensions();
+                context.canvas.width = dimensions.width * scale;
+                context.canvas.height = dimensions.height * scale;
+    
+                var x = image.x * scale;
+                var y = image.y * scale;
+    
+                context.drawImage(image.resource, x, y, image.resource.width, image.resource.height);
+            } else {
+                context.drawImage(image.resource, image.x, image.y, position.width, position.height);
+            }
 
             context.restore();
         }
