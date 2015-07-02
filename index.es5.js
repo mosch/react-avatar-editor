@@ -101,7 +101,7 @@ var ReactAvatarEditor = React.createClass({
 
         var imageState = this.state.image;
 
-        this.paintImage(context, {
+        this.paintHQImage(dom, context, {
             resource: imageState.resource,
             x: imageState.x - dimensions.border,
             y: imageState.y - dimensions.border,
@@ -193,6 +193,27 @@ var ReactAvatarEditor = React.createClass({
             context.save();
             context.globalCompositeOperation = 'destination-over';
             context.drawImage(image.resource, image.x, image.y, position.width, position.height);
+
+            context.restore();
+        }
+    },
+
+    paintHQImage: function paintHQImage(canvas, context, image) {
+        if (image.resource) {
+            var position = this.calculatePosition(image);
+            context.save();
+            context.globalCompositeOperation = 'destination-over';
+
+            var scale = image.resource.width / position.width;
+
+            var dimensions = this.getDimensions();
+            canvas.width = dimensions.width * scale;
+            canvas.height = dimensions.height * scale;
+
+            var x = image.x * scale;
+            var y = image.y * scale;
+
+            context.drawImage(image.resource, x, y, image.resource.width, image.resource.height);
 
             context.restore();
         }
