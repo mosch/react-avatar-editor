@@ -288,6 +288,45 @@ var ReactAvatarEditor = React.createClass({
         this.setState(newState);
     },
 
+    rotate: function rotate(angle) {
+        // Normalize angle (only 90/180/270 is allowed)
+        angle %= 360;
+        angle = (angle < 0) ? angle + 360 : angle;
+        angle -= angle % 90;
+
+        if (!angle) {
+            return;
+        }
+
+        var canvas = document.createElement('canvas');
+        var context = canvas.getContext('2d');
+
+        var imageState = this.state.image;
+
+        var iWidth = imageState.resource.width;
+        var iHeight = imageState.resource.height
+
+        canvas.width = iWidth;
+        canvas.height = iHeight;
+
+        // if 90 or 270 - switch width and height
+        if ((angle % 180) !== 0) {
+            canvas.width = iHeight;
+            canvas.height = iWidth;
+        }
+
+        context.save();
+
+        context.translate((canvas.width / 2), (canvas.height / 2));
+        context.rotate((angle * Math.PI / 180));
+        context.translate(-(iWidth / 2), -(iHeight / 2));
+
+        context.drawImage(imageState.resource, 0, 0);
+
+        context.restore();
+
+        this.handleImageReady(canvas);
+    },
     squeeze: function squeeze(props) {
         var imageState = this.state.image;
         imageState.y = this.getBoundedY(imageState.y, props.scale);
