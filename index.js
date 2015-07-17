@@ -1,6 +1,10 @@
 var React = require('react');
 
-var isTouchDevice = 'ontouchstart' in window || navigator.msMaxTouchPoints > 0;
+var isTouchDevice =
+    !!(typeof window !== 'undefined' &&
+       typeof navigator !== 'undefined' &&
+       ('ontouchstart' in window || navigator.msMaxTouchPoints > 0)
+      );
 var draggableEvents = {
     mobile: {
         react: {
