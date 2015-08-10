@@ -50,7 +50,8 @@ var ReactAvatarEditor = React.createClass({
         height: React.PropTypes.number,
         color: React.PropTypes.arrayOf(React.PropTypes.number),
         onImageReady: React.PropTypes.func,
-        style: React.PropTypes.object
+        style: React.PropTypes.object,
+        highQuality: React.PropTypes.bool
     },
 
     getDefaultProps() {
@@ -61,7 +62,8 @@ var ReactAvatarEditor = React.createClass({
             height: 200,
             color: [0, 0, 0, 0.5],
             onImageReady() {},
-            style: {}
+            style: {},
+            highQuality: false
         }
     },
 
@@ -100,7 +102,7 @@ var ReactAvatarEditor = React.createClass({
 
         context.globalCompositeOperation = 'destination-over';
 
-        this.paintImage(context, this.state.image, border);
+        this.paintImage(context, this.state.image, border, true);
 
         return dom.toDataURL(type, quality);
     },
@@ -180,12 +182,26 @@ var ReactAvatarEditor = React.createClass({
         }
     },
 
-    paintImage(context, image, border) {
+    paintImage(context, image, border, saving) {
         if (image.resource) {
             var position = this.calculatePosition(image, border);
             context.save();
             context.globalCompositeOperation = 'destination-over';
-            context.drawImage(image.resource, position.x, position.y, position.width, position.height);
+
+            if (this.props.highQuality && saving) {
+                var scale = image.resource.width / position.width;
+
+                var dimensions = this.getDimensions();
+                context.canvas.width = dimensions.width * scale;
+                context.canvas.height = dimensions.height * scale;
+
+                var x = position.x * scale;
+                var y = position.y * scale;
+
+                context.drawImage(image.resource, x, y, image.resource.width, image.resource.height);
+            } else {
+                context.drawImage(image.resource, position.x, position.y, position.width, position.height);
+            }
 
             context.restore();
         }
