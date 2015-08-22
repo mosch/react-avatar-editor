@@ -80,8 +80,7 @@ module.exports = MyEditor;
 
 For development you can use following build tools:
 
-* `npm run build`: Builds a minified dist file: `dist/build.min.js`
-* `npm run build-debug`: Builds an unminified dist file with integrated source maps: `dist/build.js`
-* `npm run build-watch`: The same as `build-debug`, but it watches `index.js` and dependencies for changes and rebuilds then.
-* `npm run demo`: Builds the demo app in the `example/` directory.
-
+* `npm run build`: Builds a minified dist file: `dist/index.js`
+* `npm run build-debug`: Builds an unminified dist file: `dist/index.js`
+* `npm run watch`: Watches for file changes and builds unminified into: `dist/index.js`
+* `npm run demo`: Builds the demo based on the dist file `dist/index.js`

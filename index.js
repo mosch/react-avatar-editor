@@ -41,7 +41,7 @@ var draggableEvents = {
 };
 var deviceEvents = isTouchDevice ? draggableEvents.mobile : draggableEvents.desktop;
 
-var ReactAvatarEditor = React.createClass({
+var AvatarEditor = React.createClass({
     propTypes: {
         scale: React.PropTypes.number,
         image: React.PropTypes.string,
@@ -318,7 +318,6 @@ var ReactAvatarEditor = React.createClass({
 
         return <canvas {...attributes} />;
     }
-
 });
 
-module.exports = ReactAvatarEditor;
+export default AvatarEditor;
