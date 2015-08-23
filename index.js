@@ -183,7 +183,12 @@ var AvatarEditor = React.createClass({
         if (this.props.image != newProps.image) {
             this.loadImage(newProps.image);
         }
-        if (this.props.scale != newProps.scale) {
+        if (
+            this.props.scale != newProps.scale
+            || this.props.height != newProps.height
+            || this.props.width != newProps.width
+            || this.props.border != newProps.border
+        ) {
             this.squeeze(newProps);
         }
     },
