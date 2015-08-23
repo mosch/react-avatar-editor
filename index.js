@@ -50,7 +50,11 @@ var AvatarEditor = React.createClass({
         height: React.PropTypes.number,
         color: React.PropTypes.arrayOf(React.PropTypes.number),
         onImageReady: React.PropTypes.func,
-        style: React.PropTypes.object
+        style: React.PropTypes.object,
+
+        onLoadFailed: React.PropTypes.func,
+        onUpload: React.PropTypes.func,
+        onImageLoad: React.PropTypes.func,
     },
 
     getDefaultProps() {
@@ -60,8 +64,10 @@ var AvatarEditor = React.createClass({
             width: 200,
             height: 200,
             color: [0, 0, 0, 0.5],
-            onImageReady() {},
-            style: {}
+            style: {},
+            onLoadFailed() {},
+            onUpload() {},
+            onImageLoad() {}
         }
     },
 
@@ -113,6 +119,7 @@ var AvatarEditor = React.createClass({
     loadImage(imageURL) {
         var imageObj = new Image();
         imageObj.onload = this.handleImageReady.bind(this, imageObj);
+        imageObj.onerror = this.props.onLoadFailed;
         if (!this.isDataURL(imageURL)) imageObj.crossOrigin = 'anonymous';
         imageObj.src = imageURL;
     },
@@ -146,6 +153,7 @@ var AvatarEditor = React.createClass({
         imageState.resource = image;
         imageState.x = 0;
         imageState.y = 0;
+        this.props.onImageLoad(imageState);
         this.setState({drag: false, image: imageState}, this.props.onImageReady);
     },
 
@@ -295,14 +303,10 @@ var AvatarEditor = React.createClass({
     handleDrop(e) {
         e.stopPropagation();
         e.preventDefault();
-
-        var reader = new FileReader();
-        reader.onload = this.handleUploadReady;
-        reader.readAsDataURL(e.dataTransfer.files[0]);
-    },
-
-    handleUploadReady(e) {
-        this.loadImage(e.target.result);
+        let reader = new FileReader();
+        let file = e.dataTransfer.files[0];
+        reader.onload = (e) => this.loadImage(e.target.result);
+        reader.readAsDataURL(file);
     },
 
     render() {
