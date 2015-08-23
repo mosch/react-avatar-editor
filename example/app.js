@@ -24,9 +24,20 @@ var App = React.createClass({
         this.setState({scale: scale})
     },
 
+    logCallback: function(e) {
+        console.log("callback", e);
+    },
+
     render: function() {
         return <div>
-                <Editor ref="avatar" rotation={this.state.rotation} scale={parseFloat(this.state.scale)} onSave={this.handleSave} image="example/avatar.jpg" />
+                <Editor
+                    ref="avatar"
+                    scale={parseFloat(this.state.scale)}
+                    onSave={this.handleSave}
+                    onLoadFailed={this.logCallback.bind(this, 'onLoadFailed')}
+                    onUpload={this.logCallback.bind(this, 'onUpload')}
+                    onImageLoad={this.logCallback.bind(this, 'onImageLoad')}
+                    image="example/avatar.jpg" />
                 <br />
                 <input name="scale" type="range" ref="scale" onChange={this.handleScale} min="1" max="2" step="0.01" defaultValue="1" />
                 <br />
