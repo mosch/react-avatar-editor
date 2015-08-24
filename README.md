@@ -42,9 +42,10 @@ module.exports = MyEditor;
 | height       | The total width of the editor
 | border       | The cropping border. Image will be visible through the border, but cut off in the resulting image.
 | color        | The color of the cropping border
-| onImageReady | Callback function for when the image has been loaded into the editor
 | style        | Styles for the canvas element 
-
+| onUpload     | Callback. Invoked when user uploads an image via drag & drop 
+| onImageLoad  | Callback. Invoked when a new image is loaded into the editor.
+| onLoadFailed | Callback. Invoked when an uploaded image / passed image could not get loaded.
 
 ## Accessing the resulting image
 
