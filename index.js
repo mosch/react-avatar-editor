@@ -44,6 +44,7 @@ var deviceEvents = isTouchDevice ? draggableEvents.mobile : draggableEvents.desk
 var ReactAvatarEditor = React.createClass({
     propTypes: {
         scale: React.PropTypes.number,
+        angle: React.PropTypes.number,
         image: React.PropTypes.string,
         border: React.PropTypes.number,
         width: React.PropTypes.number,
@@ -56,6 +57,7 @@ var ReactAvatarEditor = React.createClass({
     getDefaultProps() {
         return {
             scale: 1,
+            angle: 0,
             border: 25,
             width: 200,
             height: 200,
@@ -184,6 +186,9 @@ var ReactAvatarEditor = React.createClass({
         }
         if (this.props.scale != newProps.scale) {
             this.squeeze(newProps);
+        }
+        if (this.props.angle != newProps.angle) {
+            this.rotate((newProps.angle - this.props.angle));
         }
     },
 
