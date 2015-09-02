@@ -1,5 +1,9 @@
 # react-avatar-editor
-[![SemVer]](http://semver.org)
+
+<p align="center">
+  <a href="http://badge.fury.io/js/react-avatar-editor"><img alt="npm version" src="https://badge.fury.io/js/react-avatar-editor.svg"></a>
+  <a href="https://npmjs.org/package/react-avatar-editor"><img alt="Downloads" src="http://img.shields.io/npm/dm/react-avatar-editor.svg"></a>
+</p>
 
 Facebook like, avatar / profile picture component.
 Resize and crop your uploaded image using a clear user interface.
@@ -38,9 +42,11 @@ module.exports = MyEditor;
 | height       | The total width of the editor
 | border       | The cropping border. Image will be visible through the border, but cut off in the resulting image.
 | color        | The color of the cropping border
-| onImageReady | Callback function for when the image has been loaded into the editor
-| style        | Styles for the canvas element 
-
+| style        | Styles for the canvas element
+| scale        | The scale of the image. You can use this to add your own resizing slider.
+| onUpload     | Callback. Invoked when user uploads an image via drag & drop 
+| onImageLoad  | Callback. Invoked when a new image is loaded into the editor.
+| onLoadFailed | Callback. Invoked when an uploaded image / passed image could not get loaded.
 
 ## Accessing the resulting image
 
@@ -76,9 +82,7 @@ module.exports = MyEditor;
 
 For development you can use following build tools:
 
-* `npm run build`: Builds a minified dist file: `dist/build.min.js`
-* `npm run build-debug`: Builds an unminified dist file with integrated source maps: `dist/build.js`
-* `npm run build-watch`: The same as `build-debug`, but it watches `index.js` and dependencies for changes and rebuilds then.
-* `npm run demo`: Builds the demo app in the `example/` directory.
-
-[SemVer]: http://img.shields.io/:semver-1.2.6-brightgreen.svg?style=flat-square
+* `npm run build`: Builds a minified dist file: `dist/index.js`
+* `npm run build-debug`: Builds an unminified dist file: `dist/index.js`
+* `npm run watch`: Watches for file changes and builds unminified into: `dist/index.js`
+* `npm run demo`: Builds the demo based on the dist file `dist/index.js`

@@ -41,7 +41,7 @@ var draggableEvents = {
 };
 var deviceEvents = isTouchDevice ? draggableEvents.mobile : draggableEvents.desktop;
 
-var ReactAvatarEditor = React.createClass({
+var AvatarEditor = React.createClass({
     propTypes: {
         scale: React.PropTypes.number,
         angle: React.PropTypes.number,
@@ -51,7 +51,11 @@ var ReactAvatarEditor = React.createClass({
         height: React.PropTypes.number,
         color: React.PropTypes.arrayOf(React.PropTypes.number),
         onImageReady: React.PropTypes.func,
-        style: React.PropTypes.object
+        style: React.PropTypes.object,
+
+        onLoadFailed: React.PropTypes.func,
+        onUpload: React.PropTypes.func,
+        onImageLoad: React.PropTypes.func,
     },
 
     getDefaultProps() {
@@ -62,8 +66,10 @@ var ReactAvatarEditor = React.createClass({
             width: 200,
             height: 200,
             color: [0, 0, 0, 0.5],
-            onImageReady() {},
-            style: {}
+            style: {},
+            onLoadFailed() {},
+            onUpload() {},
+            onImageLoad() {}
         }
     },
 
@@ -95,21 +101,14 @@ var ReactAvatarEditor = React.createClass({
         var dom = document.createElement('canvas');
         var context = dom.getContext('2d');
         var dimensions = this.getDimensions();
+        var border = 0;
 
         dom.width = dimensions.width;
         dom.height = dimensions.height;
 
         context.globalCompositeOperation = 'destination-over';
 
-        var imageState = this.state.image;
-
-        this.paintImage(context, {
-            resource: imageState.resource,
-            x: imageState.x - dimensions.border,
-            y: imageState.y - dimensions.border,
-            width: imageState.width,
-            height: imageState.height
-        });
+        this.paintImage(context, this.state.image, border);
 
         return dom.toDataURL(type, quality);
     },
@@ -122,6 +121,7 @@ var ReactAvatarEditor = React.createClass({
     loadImage(imageURL) {
         var imageObj = new Image();
         imageObj.onload = this.handleImageReady.bind(this, imageObj);
+        imageObj.onerror = this.props.onLoadFailed;
         if (!this.isDataURL(imageURL)) imageObj.crossOrigin = 'anonymous';
         imageObj.src = imageURL;
     },
@@ -147,14 +147,15 @@ var ReactAvatarEditor = React.createClass({
         var context = this.getDOMNode().getContext('2d');
         context.clearRect(0, 0, this.getDimensions().canvas.width, this.getDimensions().canvas.height);
         this.paint(context);
-        this.paintImage(context, this.state.image);
+        this.paintImage(context, this.state.image, this.props.border);
     },
 
     handleImageReady(image) {
         var imageState = this.getInitialSize(image.width, image.height);
         imageState.resource = image;
-        imageState.x = this.props.border;
-        imageState.y = this.props.border;
+        imageState.x = 0;
+        imageState.y = 0;
+        this.props.onImageLoad(imageState);
         this.setState({drag: false, image: imageState}, this.props.onImageReady);
     },
 
@@ -184,7 +185,12 @@ var ReactAvatarEditor = React.createClass({
         if (this.props.image != newProps.image) {
             this.loadImage(newProps.image);
         }
-        if (this.props.scale != newProps.scale) {
+        if (
+            this.props.scale != newProps.scale
+            || this.props.height != newProps.height
+            || this.props.width != newProps.width
+            || this.props.border != newProps.border
+        ) {
             this.squeeze(newProps);
         }
         if (this.props.angle != newProps.angle) {
@@ -192,37 +198,27 @@ var ReactAvatarEditor = React.createClass({
         }
     },
 
-    paintImage(context, image) {
+    paintImage(context, image, border) {
         if (image.resource) {
-            var position = this.calculatePosition(image);
+            var position = this.calculatePosition(image, border);
             context.save();
             context.globalCompositeOperation = 'destination-over';
-            context.drawImage(image.resource, image.x, image.y, position.width, position.height);
+            context.drawImage(image.resource, position.x, position.y, position.width, position.height);
 
             context.restore();
         }
     },
 
-    calculatePosition(image) {
+    calculatePosition(image, border) {
         image = image || this.state.image;
         var x, y, width, height, dimensions = this.getDimensions();
-
         width = image.width * this.props.scale;
         height = image.height * this.props.scale;
-        var widthDiff = (width - image.width) / 2;
-        var heightDiff = (height - image.height) / 2;
-        x = image.x - widthDiff;
-        y = image.y - heightDiff;
 
-        // top and left border bounding
-        x = Math.min(x, dimensions.border);
-        y = Math.min(y, dimensions.border);
-
-        // right and bottom
-        var fromBottom = height + (y - dimensions.border);
-        y = fromBottom > dimensions.height ? y : (y + (dimensions.height - fromBottom));
-        var fromRight = width + (x - dimensions.border);
-        x = fromRight > dimensions.width ? x : (x + (dimensions.width - fromRight));
+        var widthDiff = (width - dimensions.width) / 2;
+        var heightDiff = (height - dimensions.height) / 2;
+        x = image.x * this.props.scale - widthDiff + border;
+        y = image.y * this.props.scale - heightDiff + border;
 
         return {
             x: x,
@@ -279,8 +275,8 @@ var ReactAvatarEditor = React.createClass({
         var newState = { mx: mousePositionX, my: mousePositionY, image: imageState };
 
         if (this.state.mx && this.state.my) {
-            var xDiff = this.state.mx - mousePositionX;
-            var yDiff = this.state.my - mousePositionY;
+            var xDiff = (this.state.mx - mousePositionX) / this.props.scale;
+            var yDiff = (this.state.my - mousePositionY) / this.props.scale;
 
             imageState.y = this.getBoundedY(lastY - yDiff, this.props.scale);
             imageState.x = this.getBoundedX(lastX - xDiff, this.props.scale);
@@ -339,31 +335,15 @@ var ReactAvatarEditor = React.createClass({
     getBoundedX(x, scale) {
         var image = this.state.image;
         var dimensions = this.getDimensions();
-        var widthDiff = Math.ceil((image.width * scale - image.width) / 2);
-        var rightPoint = Math.ceil(-image.width * scale + dimensions.width + dimensions.border);
-        var leftPoint = dimensions.border;
-
-        var result;
-        if (x - widthDiff >= dimensions.border) result = dimensions.border + widthDiff;
-        if (x < rightPoint) result = rightPoint;
-        if (x > leftPoint) result = leftPoint;
-
-        return result || x;
+        var widthDiff = Math.floor((image.width - dimensions.width / scale) / 2);
+        return Math.max(-widthDiff, Math.min(x, widthDiff));
     },
 
     getBoundedY(y, scale) {
         var image = this.state.image;
         var dimensions = this.getDimensions();
-        var heightDiff = Math.ceil((image.height * scale - image.height) / 2);
-        var bottomPoint = Math.ceil((-image.height * scale + dimensions.height + dimensions.border));
-        var topPoint = dimensions.border;
-
-        var result;
-        if (y - heightDiff >= dimensions.border) result = dimensions.border + heightDiff;
-        if (y < bottomPoint) result = bottomPoint;
-        if (y > topPoint) result = topPoint;
-
-        return result || y;
+        var heightDiff = Math.floor((image.height - dimensions.height / scale) / 2);
+        return Math.max(-heightDiff, Math.min(y, heightDiff));
     },
 
     handleDragOver(e) {
@@ -373,14 +353,10 @@ var ReactAvatarEditor = React.createClass({
     handleDrop(e) {
         e.stopPropagation();
         e.preventDefault();
-
-        var reader = new FileReader();
-        reader.onload = this.handleUploadReady;
-        reader.readAsDataURL(e.dataTransfer.files[0]);
-    },
-
-    handleUploadReady(e) {
-        this.loadImage(e.target.result);
+        let reader = new FileReader();
+        let file = e.dataTransfer.files[0];
+        reader.onload = (e) => this.loadImage(e.target.result);
+        reader.readAsDataURL(file);
     },
 
     render() {
@@ -396,7 +372,6 @@ var ReactAvatarEditor = React.createClass({
 
         return <canvas {...attributes} />;
     }
-
 });
 
-module.exports = ReactAvatarEditor;
+export default AvatarEditor;
