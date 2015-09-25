@@ -125,7 +125,7 @@ var AvatarEditor = React.createClass({
     },
 
     componentDidMount() {
-        var context = this.getDOMNode().getContext('2d');
+        var context = React.findDOMNode(this.refs.canvas).getContext('2d');
         if (this.props.image) {
             this.loadImage(this.props.image);
         }
@@ -142,7 +142,7 @@ var AvatarEditor = React.createClass({
     },
 
     componentDidUpdate() {
-        var context = this.getDOMNode().getContext('2d');
+        var context = React.findDOMNode(this.refs.canvas).getContext('2d');
         context.clearRect(0, 0, this.getDimensions().canvas.width, this.getDimensions().canvas.height);
         this.paint(context);
         this.paintImage(context, this.state.image, this.props.border);
@@ -315,17 +315,21 @@ var AvatarEditor = React.createClass({
     },
 
     render() {
+        var defaultStyle = {
+            cursor: this.state.drag? 'grabbing' : 'grab'
+        };
+    
         var attributes = {
             width: this.getDimensions().canvas.width,
             height: this.getDimensions().canvas.height,
-            style: this.props.style
+            style: Object.assign(defaultStyle, this.props.style)
         };
 
         attributes[deviceEvents.react.down] = this.handleMouseDown;
         attributes[deviceEvents.react.drag] = this.handleDragOver;
         attributes[deviceEvents.react.drop] = this.handleDrop;
 
-        return <canvas {...attributes} />;
+        return <canvas ref='canvas' {...attributes} />;
     }
 });
 
