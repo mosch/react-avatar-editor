@@ -68,7 +68,7 @@ var AvatarEditor = React.createClass({
             onLoadFailed() {},
             onUpload() {},
             onImageLoad() {}
-        }
+        };
     },
 
     getInitialState() {
@@ -92,7 +92,7 @@ var AvatarEditor = React.createClass({
                 width: this.props.width + (this.props.border * 2),
                 height: this.props.height + (this.props.border * 2)
             }
-        }
+        };
     },
 
     getImage(type, quality) {
@@ -220,7 +220,7 @@ var AvatarEditor = React.createClass({
             y: y,
             height: height,
             width: width
-        }
+        };
     },
 
     paint(context) {
