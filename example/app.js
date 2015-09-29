@@ -34,9 +34,9 @@ var App = React.createClass({
                     ref="avatar"
                     scale={parseFloat(this.state.scale)}
                     onSave={this.handleSave}
-                    onLoadFailed={this.logCallback.bind(this, 'onLoadFailed')}
-                    onUpload={this.logCallback.bind(this, 'onUpload')}
-                    onImageLoad={this.logCallback.bind(this, 'onImageLoad')}
+                    onLoadFailure={this.logCallback.bind(this, 'onLoadFailed')}
+                    onDropFile={this.logCallback.bind(this, 'onDropFile')}
+                    onLoadSuccess={this.logCallback.bind(this, 'onImageLoad')}
                     image="example/avatar.jpg" />
                 <br />
                 <input name="scale" type="range" ref="scale" onChange={this.handleScale} min="1" max="2" step="0.01" defaultValue="1" />
