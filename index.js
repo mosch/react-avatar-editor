@@ -49,12 +49,12 @@ var AvatarEditor = React.createClass({
         width: React.PropTypes.number,
         height: React.PropTypes.number,
         color: React.PropTypes.arrayOf(React.PropTypes.number),
-        onImageReady: React.PropTypes.func,
         style: React.PropTypes.object,
 
+        onDropFile: React.PropTypes.func,
         onLoadFailed: React.PropTypes.func,
-        onUpload: React.PropTypes.func,
         onImageLoad: React.PropTypes.func,
+        onImageReady: React.PropTypes.func,
     },
 
     getDefaultProps() {
@@ -65,10 +65,11 @@ var AvatarEditor = React.createClass({
             height: 200,
             color: [0, 0, 0, 0.5],
             style: {},
+            onDropFile() {},
             onLoadFailed() {},
-            onUpload() {},
-            onImageLoad() {}
-        }
+            onImageLoad() {},
+            onImageReady() {},
+        };
     },
 
     getInitialState() {
@@ -92,7 +93,7 @@ var AvatarEditor = React.createClass({
                 width: this.props.width + (this.props.border * 2),
                 height: this.props.height + (this.props.border * 2)
             }
-        }
+        };
     },
 
     getImage(type, quality) {
@@ -220,7 +221,7 @@ var AvatarEditor = React.createClass({
             y: y,
             height: height,
             width: width
-        }
+        };
     },
 
     paint(context) {
@@ -308,10 +309,14 @@ var AvatarEditor = React.createClass({
     handleDrop(e) {
         e.stopPropagation();
         e.preventDefault();
-        let reader = new FileReader();
-        let file = e.dataTransfer.files[0];
-        reader.onload = (e) => this.loadImage(e.target.result);
-        reader.readAsDataURL(file);
+        
+        if (e.dataTransfer.files.length) {
+            this.props.onDropFile(e);
+            let reader = new FileReader();
+            let file = e.dataTransfer.files[0];
+            reader.onload = (e) => this.loadImage(e.target.result);
+            reader.readAsDataURL(file);
+        }
     },
 
     render() {
