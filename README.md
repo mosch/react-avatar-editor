@@ -36,17 +36,17 @@ module.exports = MyEditor;
 ```
 
 ## Props
-| Prop         | Description
-| ------------ | ---------------
-| width        | The total width of the editor
-| height       | The total width of the editor
-| border       | The cropping border. Image will be visible through the border, but cut off in the resulting image.
-| color        | The color of the cropping border
-| style        | Styles for the canvas element
-| scale        | The scale of the image. You can use this to add your own resizing slider.
-| onUpload     | Callback. Invoked when user uploads an image via drag & drop 
-| onImageLoad  | Callback. Invoked when a new image is loaded into the editor.
-| onLoadFailed | Callback. Invoked when an uploaded image / passed image could not get loaded.
+| Prop                   | Type     | Description
+| ---------------------- | -------- | ---------------
+| width                  | Number   | The total width of the editor
+| height                 | Number   | The total width of the editor
+| border                 | Number   | The cropping border. Image will be visible through the border, but cut off in the resulting image.
+| color                  | Number[] | The color of the cropping border, in the form: [red (0-255), green (0-255), blue (0-255), alpha (0.0-1.0)]
+| style                  | Object   | Styles for the canvas element
+| scale                  | Number   | The scale of the image. You can use this to add your own resizing slider.
+| onDropFile(event)      | function | Invoked when user drops a file (or more) onto the canvas. Does not perform any further check.
+| onLoadSuccess(imgInfo) | function | Invoked when an image (whether passed by props or dropped) load succeeds.
+| onLoadFailure(event)   | function | Invoked when an image (whether passed by props or dropped) load fails.
 
 ## Accessing the resulting image
 
