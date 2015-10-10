@@ -1,4 +1,5 @@
 var React = require('react');
+var ReactDOM = require('react-dom');
 
 var isTouchDevice =
     !!(typeof window !== 'undefined' &&
@@ -126,7 +127,7 @@ var AvatarEditor = React.createClass({
     },
 
     componentDidMount() {
-        var context = React.findDOMNode(this.refs.canvas).getContext('2d');
+        var context = ReactDOM.findDOMNode(this.refs.canvas).getContext('2d');
         if (this.props.image) {
             this.loadImage(this.props.image);
         }
@@ -143,7 +144,7 @@ var AvatarEditor = React.createClass({
     },
 
     componentDidUpdate() {
-        var context = React.findDOMNode(this.refs.canvas).getContext('2d');
+        var context = ReactDOM.findDOMNode(this.refs.canvas).getContext('2d');
         context.clearRect(0, 0, this.getDimensions().canvas.width, this.getDimensions().canvas.height);
         this.paint(context);
         this.paintImage(context, this.state.image, this.props.border);

@@ -4,10 +4,10 @@
     "description": "Facebook like avatar / profile picture component. Resize and crop your uploaded image using a intuitive user interface.",
     "main": "dist/index.js",
     "scripts": {
-        "demo":        "watchify -t reactify example/app.js -o example/bundle.js -v",
-        "build":       "babel --modules umd index.js | uglifyjs > dist/index.js",
+        "demo": "watchify -t reactify example/app.js -o example/bundle.js -v",
+        "build": "babel --modules umd index.js | uglifyjs > dist/index.js",
         "build-debug": "babel --modules umd index.js > dist/index.js",
-        "watch":       "babel --modules umd index.js -w -o dist/index.js"
+        "watch": "babel --modules umd index.js -w -o dist/index.js"
     },
     "author": {
         "name": "Moritz Schwoerer",
@@ -36,10 +36,11 @@
     ],
     "devDependencies": {
         "babel": "^5.5.8",
-        "react": "0.13.x",
         "http-server": "^0.7.4",
-        "watchify": "^3.2.2",
+        "react": "^0.14.0",
+        "react-dom": "^0.14.0",
         "reactify": "0.17.1",
-        "uglifyjs": "^2.4.10"
+        "uglifyjs": "^2.4.10",
+        "watchify": "^3.2.2"
     }
 }
