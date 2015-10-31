@@ -290,8 +290,8 @@ var AvatarEditor = React.createClass({
         var lastX = imageState.x;
         var lastY = imageState.y;
 
-        var mousePositionX = event.targetTouches ? event.targetTouches[0].pageX : e.clientX;
-        var mousePositionY = event.targetTouches ? event.targetTouches[0].pageY : e.clientY;
+        var mousePositionX = e.targetTouches ? e.targetTouches[0].pageX : e.clientX;
+        var mousePositionY = e.targetTouches ? e.targetTouches[0].pageY : e.clientY;
 
         var newState = { mx: mousePositionX, my: mousePositionY, image: imageState };
 
