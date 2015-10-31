@@ -13,14 +13,14 @@ var draggableEvents = {
             drag: 'onTouchMove',
             drop: 'onTouchEnd',
             move: 'onTouchMove',
-            up: 'onTouchUp'
+            up: 'onTouchEnd'
         },
         native: {
             down: 'touchstart',
             drag: 'touchmove',
             drop: 'touchend',
             move: 'touchmove',
-            up: 'touchup'
+            up: 'touchend'
         }
     },
     desktop: {
