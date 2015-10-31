@@ -265,6 +265,7 @@ var AvatarEditor = React.createClass({
     },
 
     handleMouseDown(e) {
+        var e = e || window.event;
         // if e is a touch event, preventDefault keeps
         // corresponding mouse events from also being fired
         // later.
@@ -275,13 +276,14 @@ var AvatarEditor = React.createClass({
             my: null
         });
     },
-    handleMouseUp(e) {
+    handleMouseUp() {
         if (this.state.drag) {
             this.setState({drag: false});
         }
     },
 
     handleMouseMove(e) {
+        var e = e || window.event;
         if (false == this.state.drag) {
             return;
         }
@@ -328,10 +330,12 @@ var AvatarEditor = React.createClass({
     },
 
     handleDragOver(e) {
+        var e = e || window.event;
         e.preventDefault();
     },
 
     handleDrop(e) {
+        var e = e || window.event;
         e.stopPropagation();
         e.preventDefault();
         
