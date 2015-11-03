@@ -7,20 +7,26 @@ var isTouchDevice =
        ('ontouchstart' in window || navigator.msMaxTouchPoints > 0)
       );
 var draggableEvents = {
-    mobile: {
+    touch: {
         react: {
             down: 'onTouchStart',
+            mouseDown: 'onMouseDown',
             drag: 'onTouchMove',
             drop: 'onTouchEnd',
             move: 'onTouchMove',
-            up: 'onTouchUp'
+            mouseMove: 'onMouseMove',
+            up: 'onTouchEnd',
+            mouseUp: 'onMouseUp'
         },
         native: {
             down: 'touchstart',
+            mouseDown: 'mousedown',
             drag: 'touchmove',
             drop: 'touchend',
             move: 'touchmove',
-            up: 'touchup'
+            mouseMove: 'mousemove',
+            up: 'touchend',
+            mouseUp: 'mouseup'
         }
     },
     desktop: {
@@ -40,7 +46,7 @@ var draggableEvents = {
         }
     }
 };
-var deviceEvents = isTouchDevice ? draggableEvents.mobile : draggableEvents.desktop;
+var deviceEvents = isTouchDevice ? draggableEvents.touch : draggableEvents.desktop;
 
 var AvatarEditor = React.createClass({
     propTypes: {
@@ -132,15 +138,29 @@ var AvatarEditor = React.createClass({
             this.loadImage(this.props.image);
         }
         this.paint(context);
-        document && document.addEventListener(deviceEvents.native.move, this.handleMouseMove, false);
-        document && document.addEventListener(deviceEvents.native.up, this.handleMouseUp, false);
+        if (document) {
+            var nativeEvents = deviceEvents.native;
+            document.addEventListener(nativeEvents.move, this.handleMouseMove, false);
+            document.addEventListener(nativeEvents.up, this.handleMouseUp, false);
+            if (isTouchDevice) {
+                document.addEventListener(nativeEvents.mouseMove, this.handleMouseMove, false);
+                document.addEventListener(nativeEvents.mouseUp, this.handleMouseUp, false);
+            }
+        }
 
-        if (isTouchDevice) React.initializeTouchEvents(true);
+        if (isTouchDevice && React.initializeTouchEvents) React.initializeTouchEvents(true);
     },
 
     componentWillUnmount() {
-        document && document.removeEventListener(deviceEvents.native.move, this.handleMouseMove, false);
-        document && document.removeEventListener(deviceEvents.native.up, this.handleMouseUp, false);
+        if (document) {
+            var nativeEvents = deviceEvents.native;
+            document.removeEventListener(nativeEvents.move, this.handleMouseMove, false);
+            document.removeEventListener(nativeEvents.up, this.handleMouseUp, false);
+            if (isTouchDevice) {
+                document.removeEventListener(nativeEvents.mouseMove, this.handleMouseMove, false);
+                document.removeEventListener(nativeEvents.mouseUp, this.handleMouseUp, false);
+            }
+        }
     },
 
     componentDidUpdate() {
@@ -244,7 +264,12 @@ var AvatarEditor = React.createClass({
         context.restore();
     },
 
-    handleMouseDown() {
+    handleMouseDown(e) {
+        var e = e || window.event;
+        // if e is a touch event, preventDefault keeps
+        // corresponding mouse events from also being fired
+        // later.
+        e.preventDefault();
         this.setState({
             drag: true,
             mx: null,
@@ -258,6 +283,7 @@ var AvatarEditor = React.createClass({
     },
 
     handleMouseMove(e) {
+        var e = e || window.event;
         if (false == this.state.drag) {
             return;
         }
@@ -266,8 +292,8 @@ var AvatarEditor = React.createClass({
         var lastX = imageState.x;
         var lastY = imageState.y;
 
-        var mousePositionX = isTouchDevice ? event.targetTouches[0].pageX : e.clientX;
-        var mousePositionY = isTouchDevice ? event.targetTouches[0].pageY : e.clientY;
+        var mousePositionX = e.targetTouches ? e.targetTouches[0].pageX : e.clientX;
+        var mousePositionY = e.targetTouches ? e.targetTouches[0].pageY : e.clientY;
 
         var newState = { mx: mousePositionX, my: mousePositionY, image: imageState };
 
@@ -304,14 +330,16 @@ var AvatarEditor = React.createClass({
     },
 
     handleDragOver(e) {
+        var e = e || window.event;
         e.preventDefault();
     },
 
     handleDrop(e) {
+        var e = e || window.event;
         e.stopPropagation();
         e.preventDefault();
         
-        if (e.dataTransfer.files.length) {
+        if (e.dataTransfer && e.dataTransfer.files.length) {
             this.props.onDropFile(e);
             let reader = new FileReader();
             let file = e.dataTransfer.files[0];
@@ -334,6 +362,7 @@ var AvatarEditor = React.createClass({
         attributes[deviceEvents.react.down] = this.handleMouseDown;
         attributes[deviceEvents.react.drag] = this.handleDragOver;
         attributes[deviceEvents.react.drop] = this.handleDrop;
+        if (isTouchDevice) attributes[deviceEvents.react.mouseDown] = this.handleMouseDown;
 
         return <canvas ref='canvas' {...attributes} />;
     }
