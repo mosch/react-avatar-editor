@@ -1,4 +1,5 @@
 var React = require('react');
+var ReactDOM = require('react-dom');
 var Editor = require('../dist/index.js');
 
 var App = React.createClass({
@@ -21,7 +22,7 @@ var App = React.createClass({
 
     handleScale: function() {
         var scale = this.refs.scale.getDOMNode().value;
-        this.setState({scale: scale})
+        this.setState({scale: scale});
     },
 
     logCallback: function(e) {
@@ -49,4 +50,4 @@ var App = React.createClass({
 
 });
 
-React.render(<App />, document.getElementById('app'));
+ReactDOM.render(<App />, document.getElementById('app'));
