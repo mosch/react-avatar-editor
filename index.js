@@ -1,6 +1,10 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
 
+if ( !Object.assign ) {
+    Object.assign = require('object-assign');
+}
+
 var isTouchDevice =
     !!(typeof window !== 'undefined' &&
        typeof navigator !== 'undefined' &&
