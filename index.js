@@ -356,7 +356,7 @@ var AvatarEditor = React.createClass({
         var attributes = {
             width: this.getDimensions().canvas.width,
             height: this.getDimensions().canvas.height,
-            style: Object.assign(defaultStyle, this.props.style)
+            style: {...defaultStyle, ...this.props.style}
         };
 
         attributes[deviceEvents.react.down] = this.handleMouseDown;
