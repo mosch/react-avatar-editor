@@ -1,8 +1,448 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-(function(global,factory){if(typeof define==="function"&&define.amd){define(["exports","module"],factory)}else if(typeof exports!=="undefined"&&typeof module!=="undefined"){factory(exports,module)}else{var mod={exports:{}};factory(mod.exports,mod);global.index=mod.exports}})(this,function(exports,module){"use strict";var _extends=Object.assign||function(target){for(var i=1;i<arguments.length;i++){var source=arguments[i];for(var key in source){if(Object.prototype.hasOwnProperty.call(source,key)){target[key]=source[key]}}}return target};var React=require("react");var ReactDOM=require("react-dom");var isTouchDevice=!!(typeof window!=="undefined"&&typeof navigator!=="undefined"&&("ontouchstart"in window||navigator.msMaxTouchPoints>0));var draggableEvents={touch:{react:{down:"onTouchStart",mouseDown:"onMouseDown",drag:"onTouchMove",drop:"onTouchEnd",move:"onTouchMove",mouseMove:"onMouseMove",up:"onTouchEnd",mouseUp:"onMouseUp"},"native":{down:"touchstart",mouseDown:"mousedown",drag:"touchmove",drop:"touchend",move:"touchmove",mouseMove:"mousemove",up:"touchend",mouseUp:"mouseup"}},desktop:{react:{down:"onMouseDown",drag:"onDragOver",drop:"onDrop",move:"onMouseMove",up:"onMouseUp"},"native":{down:"mousedown",drag:"dragStart",drop:"drop",move:"mousemove",up:"mouseup"}}};var deviceEvents=isTouchDevice?draggableEvents.touch:draggableEvents.desktop;var AvatarEditor=React.createClass({displayName:"AvatarEditor",propTypes:{scale:React.PropTypes.number,image:React.PropTypes.string,border:React.PropTypes.number,width:React.PropTypes.number,height:React.PropTypes.number,color:React.PropTypes.arrayOf(React.PropTypes.number),style:React.PropTypes.object,onDropFile:React.PropTypes.func,onLoadFailure:React.PropTypes.func,onLoadSuccess:React.PropTypes.func,onImageReady:React.PropTypes.func},getDefaultProps:function getDefaultProps(){return{scale:1,border:25,width:200,height:200,color:[0,0,0,.5],style:{},onDropFile:function onDropFile(){},onLoadFailure:function onLoadFailure(){},onLoadSuccess:function onLoadSuccess(){},onImageReady:function onImageReady(){}}},getInitialState:function getInitialState(){return{drag:false,my:null,mx:null,image:{x:0,y:0}}},getDimensions:function getDimensions(){return{width:this.props.width,height:this.props.height,border:this.props.border,canvas:{width:this.props.width+this.props.border*2,height:this.props.height+this.props.border*2}}},getImage:function getImage(type,quality){var dom=document.createElement("canvas");var context=dom.getContext("2d");var dimensions=this.getDimensions();var border=0;dom.width=dimensions.width;dom.height=dimensions.height;context.globalCompositeOperation="destination-over";this.paintImage(context,this.state.image,border);return dom.toDataURL(type,quality)},isDataURL:function isDataURL(str){var regex=/^\s*data:([a-z]+\/[a-z]+(;[a-z\-]+\=[a-z\-]+)?)?(;base64)?,[a-z0-9\!\$\&\'\,\(\)\*\+\,\;\=\-\.\_\~\:\@\/\?\%\s]*\s*$/i;return!!str.match(regex)},loadImage:function loadImage(imageURL){var imageObj=new Image;imageObj.onload=this.handleImageReady.bind(this,imageObj);imageObj.onerror=this.props.onLoadFailure;if(!this.isDataURL(imageURL))imageObj.crossOrigin="anonymous";imageObj.src=imageURL},componentDidMount:function componentDidMount(){var context=ReactDOM.findDOMNode(this.refs.canvas).getContext("2d");if(this.props.image){this.loadImage(this.props.image)}this.paint(context);if(document){var nativeEvents=deviceEvents.native;document.addEventListener(nativeEvents.move,this.handleMouseMove,false);document.addEventListener(nativeEvents.up,this.handleMouseUp,false);if(isTouchDevice){document.addEventListener(nativeEvents.mouseMove,this.handleMouseMove,false);document.addEventListener(nativeEvents.mouseUp,this.handleMouseUp,false)}}if(isTouchDevice&&React.initializeTouchEvents)React.initializeTouchEvents(true)},componentWillUnmount:function componentWillUnmount(){if(document){var nativeEvents=deviceEvents.native;document.removeEventListener(nativeEvents.move,this.handleMouseMove,false);document.removeEventListener(nativeEvents.up,this.handleMouseUp,false);if(isTouchDevice){document.removeEventListener(nativeEvents.mouseMove,this.handleMouseMove,false);document.removeEventListener(nativeEvents.mouseUp,this.handleMouseUp,false)}}},componentDidUpdate:function componentDidUpdate(){var context=ReactDOM.findDOMNode(this.refs.canvas).getContext("2d");context.clearRect(0,0,this.getDimensions().canvas.width,this.getDimensions().canvas.height);this.paint(context);this.paintImage(context,this.state.image,this.props.border)},handleImageReady:function handleImageReady(image){var imageState=this.getInitialSize(image.width,image.height);imageState.resource=image;imageState.x=0;imageState.y=0;this.props.onLoadSuccess(imageState);this.setState({drag:false,image:imageState},this.props.onImageReady)},getInitialSize:function getInitialSize(width,height){var newHeight,newWidth,dimensions,canvasRatio,imageRatio;dimensions=this.getDimensions();canvasRatio=dimensions.height/dimensions.width;imageRatio=height/width;if(canvasRatio>imageRatio){newHeight=this.getDimensions().height;newWidth=width*(newHeight/height)}else{newWidth=this.getDimensions().width;newHeight=height*(newWidth/width)}return{height:newHeight,width:newWidth}},componentWillReceiveProps:function componentWillReceiveProps(newProps){if(this.props.image!=newProps.image){this.loadImage(newProps.image)}if(this.props.scale!=newProps.scale||this.props.height!=newProps.height||this.props.width!=newProps.width||this.props.border!=newProps.border){this.squeeze(newProps)}},paintImage:function paintImage(context,image,border){if(image.resource){var position=this.calculatePosition(image,border);context.save();context.globalCompositeOperation="destination-over";context.drawImage(image.resource,position.x,position.y,position.width,position.height);context.restore()}},calculatePosition:function calculatePosition(image,border){image=image||this.state.image;var x,y,width,height,dimensions=this.getDimensions();width=image.width*this.props.scale;height=image.height*this.props.scale;var widthDiff=(width-dimensions.width)/2;var heightDiff=(height-dimensions.height)/2;x=image.x*this.props.scale-widthDiff+border;y=image.y*this.props.scale-heightDiff+border;return{x:x,y:y,height:height,width:width}},paint:function paint(context){context.save();context.translate(0,0);context.fillStyle="rgba("+this.props.color.slice(0,4).join(",")+")";var dimensions=this.getDimensions();var borderSize=dimensions.border;var height=dimensions.canvas.height;var width=dimensions.canvas.width;context.fillRect(0,0,width,borderSize);context.fillRect(0,height-borderSize,width,borderSize);context.fillRect(0,borderSize,borderSize,height-borderSize*2);context.fillRect(width-borderSize,borderSize,borderSize,height-borderSize*2);context.restore()},handleMouseDown:function handleMouseDown(e){var e=e||window.event;e.preventDefault();this.setState({drag:true,mx:null,my:null})},handleMouseUp:function handleMouseUp(){if(this.state.drag){this.setState({drag:false})}},handleMouseMove:function handleMouseMove(e){var e=e||window.event;if(false==this.state.drag){return}var imageState=this.state.image;var lastX=imageState.x;var lastY=imageState.y;var mousePositionX=e.targetTouches?e.targetTouches[0].pageX:e.clientX;var mousePositionY=e.targetTouches?e.targetTouches[0].pageY:e.clientY;var newState={mx:mousePositionX,my:mousePositionY,image:imageState};if(this.state.mx&&this.state.my){var xDiff=(this.state.mx-mousePositionX)/this.props.scale;var yDiff=(this.state.my-mousePositionY)/this.props.scale;imageState.y=this.getBoundedY(lastY-yDiff,this.props.scale);imageState.x=this.getBoundedX(lastX-xDiff,this.props.scale)}this.setState(newState)},squeeze:function squeeze(props){var imageState=this.state.image;imageState.y=this.getBoundedY(imageState.y,props.scale);imageState.x=this.getBoundedX(imageState.x,props.scale);this.setState({image:imageState})},getBoundedX:function getBoundedX(x,scale){var image=this.state.image;var dimensions=this.getDimensions();var widthDiff=Math.floor((image.width-dimensions.width/scale)/2);return Math.max(-widthDiff,Math.min(x,widthDiff))},getBoundedY:function getBoundedY(y,scale){var image=this.state.image;var dimensions=this.getDimensions();var heightDiff=Math.floor((image.height-dimensions.height/scale)/2);return Math.max(-heightDiff,Math.min(y,heightDiff))},handleDragOver:function handleDragOver(e){var e=e||window.event;e.preventDefault()},handleDrop:function handleDrop(e){var _this=this;var e=e||window.event;e.stopPropagation();e.preventDefault();if(e.dataTransfer&&e.dataTransfer.files.length){this.props.onDropFile(e);var reader=new FileReader;var file=e.dataTransfer.files[0];reader.onload=function(e){return _this.loadImage(e.target.result)};reader.readAsDataURL(file)}},render:function render(){var defaultStyle={cursor:this.state.drag?"grabbing":"grab"};var attributes={width:this.getDimensions().canvas.width,height:this.getDimensions().canvas.height,style:Object.assign(defaultStyle,this.props.style)};attributes[deviceEvents.react.down]=this.handleMouseDown;attributes[deviceEvents.react.drag]=this.handleDragOver;attributes[deviceEvents.react.drop]=this.handleDrop;if(isTouchDevice)attributes[deviceEvents.react.mouseDown]=this.handleMouseDown;return React.createElement("canvas",_extends({ref:"canvas"},attributes))}});module.exports=AvatarEditor});
+(function (global, factory) {
+    if (typeof define === 'function' && define.amd) {
+        define(['exports', 'module'], factory);
+    } else if (typeof exports !== 'undefined' && typeof module !== 'undefined') {
+        factory(exports, module);
+    } else {
+        var mod = {
+            exports: {}
+        };
+        factory(mod.exports, mod);
+        global.index = mod.exports;
+    }
+})(this, function (exports, module) {
+    'use strict';
+
+    var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+    var React = require('react');
+    var ReactDOM = require('react-dom');
+
+    var isTouchDevice = !!(typeof window !== 'undefined' && typeof navigator !== 'undefined' && ('ontouchstart' in window || navigator.msMaxTouchPoints > 0));
+    var draggableEvents = {
+        touch: {
+            react: {
+                down: 'onTouchStart',
+                mouseDown: 'onMouseDown',
+                drag: 'onTouchMove',
+                drop: 'onTouchEnd',
+                move: 'onTouchMove',
+                mouseMove: 'onMouseMove',
+                up: 'onTouchEnd',
+                mouseUp: 'onMouseUp'
+            },
+            native: {
+                down: 'touchstart',
+                mouseDown: 'mousedown',
+                drag: 'touchmove',
+                drop: 'touchend',
+                move: 'touchmove',
+                mouseMove: 'mousemove',
+                up: 'touchend',
+                mouseUp: 'mouseup'
+            }
+        },
+        desktop: {
+            react: {
+                down: 'onMouseDown',
+                drag: 'onDragOver',
+                drop: 'onDrop',
+                move: 'onMouseMove',
+                up: 'onMouseUp'
+            },
+            native: {
+                down: 'mousedown',
+                drag: 'dragStart',
+                drop: 'drop',
+                move: 'mousemove',
+                up: 'mouseup'
+            }
+        }
+    };
+    var deviceEvents = isTouchDevice ? draggableEvents.touch : draggableEvents.desktop;
+
+    var AvatarEditor = React.createClass({
+        displayName: 'AvatarEditor',
+
+        propTypes: {
+            scale: React.PropTypes.number,
+            image: React.PropTypes.string,
+            border: React.PropTypes.number,
+            width: React.PropTypes.number,
+            height: React.PropTypes.number,
+            color: React.PropTypes.arrayOf(React.PropTypes.number),
+            style: React.PropTypes.object,
+
+            onDropFile: React.PropTypes.func,
+            onLoadFailure: React.PropTypes.func,
+            onLoadSuccess: React.PropTypes.func,
+            onImageReady: React.PropTypes.func
+        },
+
+        getDefaultProps: function getDefaultProps() {
+            return {
+                scale: 1,
+                border: 25,
+                width: 200,
+                height: 200,
+                color: [0, 0, 0, 0.5],
+                style: {},
+                onDropFile: function onDropFile() {},
+                onLoadFailure: function onLoadFailure() {},
+                onLoadSuccess: function onLoadSuccess() {},
+                onImageReady: function onImageReady() {}
+            };
+        },
+
+        getInitialState: function getInitialState() {
+            return {
+                drag: false,
+                my: null,
+                mx: null,
+                image: {
+                    x: 0,
+                    y: 0
+                }
+            };
+        },
+
+        getDimensions: function getDimensions() {
+            return {
+                width: this.props.width,
+                height: this.props.height,
+                border: this.props.border,
+                canvas: {
+                    width: this.props.width + this.props.border * 2,
+                    height: this.props.height + this.props.border * 2
+                }
+            };
+        },
+
+        getImage: function getImage(type, quality) {
+            var dom = document.createElement('canvas');
+            var context = dom.getContext('2d');
+            var dimensions = this.getDimensions();
+            var border = 0;
+
+            dom.width = dimensions.width;
+            dom.height = dimensions.height;
+
+            context.globalCompositeOperation = 'destination-over';
+
+            this.paintImage(context, this.state.image, border);
+
+            return dom.toDataURL(type, quality);
+        },
+
+        getCroppingRect: function getCroppingRect() {
+            var dim = this.getDimensions();
+            var frameRect = { x: dim.border, y: dim.border, width: dim.width, height: dim.height };
+            var imageRect = this.calculatePosition(this.state.image, dim.border);
+            return {
+                x: (frameRect.x - imageRect.x) / imageRect.width,
+                y: (frameRect.y - imageRect.y) / imageRect.height,
+                width: frameRect.width / imageRect.width,
+                height: frameRect.height / imageRect.height
+            };
+        },
+
+        isDataURL: function isDataURL(str) {
+            var regex = /^\s*data:([a-z]+\/[a-z]+(;[a-z\-]+\=[a-z\-]+)?)?(;base64)?,[a-z0-9\!\$\&\'\,\(\)\*\+\,\;\=\-\.\_\~\:\@\/\?\%\s]*\s*$/i;
+            return !!str.match(regex);
+        },
+
+        loadImage: function loadImage(imageURL) {
+            var imageObj = new Image();
+            imageObj.onload = this.handleImageReady.bind(this, imageObj);
+            imageObj.onerror = this.props.onLoadFailure;
+            if (!this.isDataURL(imageURL)) imageObj.crossOrigin = 'anonymous';
+            imageObj.src = imageURL;
+        },
+
+        componentDidMount: function componentDidMount() {
+            var context = ReactDOM.findDOMNode(this.refs.canvas).getContext('2d');
+            if (this.props.image) {
+                this.loadImage(this.props.image);
+            }
+            this.paint(context);
+            if (document) {
+                var nativeEvents = deviceEvents.native;
+                document.addEventListener(nativeEvents.move, this.handleMouseMove, false);
+                document.addEventListener(nativeEvents.up, this.handleMouseUp, false);
+                if (isTouchDevice) {
+                    document.addEventListener(nativeEvents.mouseMove, this.handleMouseMove, false);
+                    document.addEventListener(nativeEvents.mouseUp, this.handleMouseUp, false);
+                }
+            }
+
+            if (isTouchDevice && React.initializeTouchEvents) React.initializeTouchEvents(true);
+        },
+
+        componentWillUnmount: function componentWillUnmount() {
+            if (document) {
+                var nativeEvents = deviceEvents.native;
+                document.removeEventListener(nativeEvents.move, this.handleMouseMove, false);
+                document.removeEventListener(nativeEvents.up, this.handleMouseUp, false);
+                if (isTouchDevice) {
+                    document.removeEventListener(nativeEvents.mouseMove, this.handleMouseMove, false);
+                    document.removeEventListener(nativeEvents.mouseUp, this.handleMouseUp, false);
+                }
+            }
+        },
+
+        componentDidUpdate: function componentDidUpdate() {
+            var context = ReactDOM.findDOMNode(this.refs.canvas).getContext('2d');
+            context.clearRect(0, 0, this.getDimensions().canvas.width, this.getDimensions().canvas.height);
+            this.paint(context);
+            this.paintImage(context, this.state.image, this.props.border);
+        },
+
+        handleImageReady: function handleImageReady(image) {
+            var imageState = this.getInitialSize(image.width, image.height);
+            imageState.resource = image;
+            imageState.x = 0;
+            imageState.y = 0;
+            this.props.onLoadSuccess(imageState);
+            this.setState({ drag: false, image: imageState }, this.props.onImageReady);
+        },
+
+        getInitialSize: function getInitialSize(width, height) {
+            var newHeight, newWidth, dimensions, canvasRatio, imageRatio;
+
+            dimensions = this.getDimensions();
+
+            canvasRatio = dimensions.height / dimensions.width;
+            imageRatio = height / width;
+
+            if (canvasRatio > imageRatio) {
+                newHeight = this.getDimensions().height;
+                newWidth = width * (newHeight / height);
+            } else {
+                newWidth = this.getDimensions().width;
+                newHeight = height * (newWidth / width);
+            }
+
+            return {
+                height: newHeight,
+                width: newWidth
+            };
+        },
+
+        componentWillReceiveProps: function componentWillReceiveProps(newProps) {
+            if (this.props.image != newProps.image) {
+                this.loadImage(newProps.image);
+            }
+            if (this.props.scale != newProps.scale || this.props.height != newProps.height || this.props.width != newProps.width || this.props.border != newProps.border) {
+                this.squeeze(newProps);
+            }
+        },
+
+        paintImage: function paintImage(context, image, border) {
+            if (image.resource) {
+                var position = this.calculatePosition(image, border);
+                context.save();
+                context.globalCompositeOperation = 'destination-over';
+                context.drawImage(image.resource, position.x, position.y, position.width, position.height);
+
+                context.restore();
+            }
+        },
+
+        calculatePosition: function calculatePosition(image, border) {
+            image = image || this.state.image;
+            var x,
+                y,
+                width,
+                height,
+                dimensions = this.getDimensions();
+            width = image.width * this.props.scale;
+            height = image.height * this.props.scale;
+
+            var widthDiff = (width - dimensions.width) / 2;
+            var heightDiff = (height - dimensions.height) / 2;
+            x = image.x * this.props.scale - widthDiff + border;
+            y = image.y * this.props.scale - heightDiff + border;
+
+            return {
+                x: x,
+                y: y,
+                height: height,
+                width: width
+            };
+        },
+
+        paint: function paint(context) {
+            context.save();
+            context.translate(0, 0);
+            context.fillStyle = "rgba(" + this.props.color.slice(0, 4).join(",") + ")";
+
+            var dimensions = this.getDimensions();
+
+            var borderSize = dimensions.border;
+            var height = dimensions.canvas.height;
+            var width = dimensions.canvas.width;
+
+            context.fillRect(0, 0, width, borderSize); // top
+            context.fillRect(0, height - borderSize, width, borderSize); // bottom
+            context.fillRect(0, borderSize, borderSize, height - borderSize * 2); // left
+            context.fillRect(width - borderSize, borderSize, borderSize, height - borderSize * 2); // right
+
+            context.restore();
+        },
+
+        handleMouseDown: function handleMouseDown(e) {
+            var e = e || window.event;
+            // if e is a touch event, preventDefault keeps
+            // corresponding mouse events from also being fired
+            // later.
+            e.preventDefault();
+            this.setState({
+                drag: true,
+                mx: null,
+                my: null
+            });
+        },
+        handleMouseUp: function handleMouseUp() {
+            if (this.state.drag) {
+                this.setState({ drag: false });
+            }
+        },
+
+        handleMouseMove: function handleMouseMove(e) {
+            var e = e || window.event;
+            if (false == this.state.drag) {
+                return;
+            }
+
+            var imageState = this.state.image;
+            var lastX = imageState.x;
+            var lastY = imageState.y;
+
+            var mousePositionX = e.targetTouches ? e.targetTouches[0].pageX : e.clientX;
+            var mousePositionY = e.targetTouches ? e.targetTouches[0].pageY : e.clientY;
+
+            var newState = { mx: mousePositionX, my: mousePositionY, image: imageState };
+
+            if (this.state.mx && this.state.my) {
+                var xDiff = (this.state.mx - mousePositionX) / this.props.scale;
+                var yDiff = (this.state.my - mousePositionY) / this.props.scale;
+
+                imageState.y = this.getBoundedY(lastY - yDiff, this.props.scale);
+                imageState.x = this.getBoundedX(lastX - xDiff, this.props.scale);
+            }
+
+            this.setState(newState);
+        },
+
+        squeeze: function squeeze(props) {
+            var imageState = this.state.image;
+            imageState.y = this.getBoundedY(imageState.y, props.scale);
+            imageState.x = this.getBoundedX(imageState.x, props.scale);
+            this.setState({ image: imageState });
+        },
+
+        getBoundedX: function getBoundedX(x, scale) {
+            var image = this.state.image;
+            var dimensions = this.getDimensions();
+            var widthDiff = Math.floor((image.width - dimensions.width / scale) / 2);
+            return Math.max(-widthDiff, Math.min(x, widthDiff));
+        },
+
+        getBoundedY: function getBoundedY(y, scale) {
+            var image = this.state.image;
+            var dimensions = this.getDimensions();
+            var heightDiff = Math.floor((image.height - dimensions.height / scale) / 2);
+            return Math.max(-heightDiff, Math.min(y, heightDiff));
+        },
+
+        handleDragOver: function handleDragOver(e) {
+            var e = e || window.event;
+            e.preventDefault();
+        },
+
+        handleDrop: function handleDrop(e) {
+            var _this = this;
+
+            var e = e || window.event;
+            e.stopPropagation();
+            e.preventDefault();
+
+            if (e.dataTransfer && e.dataTransfer.files.length) {
+                this.props.onDropFile(e);
+                var reader = new FileReader();
+                var file = e.dataTransfer.files[0];
+                reader.onload = function (e) {
+                    return _this.loadImage(e.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        },
+
+        render: function render() {
+            var defaultStyle = {
+                cursor: this.state.drag ? 'grabbing' : 'grab'
+            };
+
+            var attributes = {
+                width: this.getDimensions().canvas.width,
+                height: this.getDimensions().canvas.height,
+                style: _extends({}, defaultStyle, this.props.style)
+            };
+
+            attributes[deviceEvents.react.down] = this.handleMouseDown;
+            attributes[deviceEvents.react.drag] = this.handleDragOver;
+            attributes[deviceEvents.react.drop] = this.handleDrop;
+            if (isTouchDevice) attributes[deviceEvents.react.mouseDown] = this.handleMouseDown;
+
+            return React.createElement('canvas', _extends({ ref: 'canvas' }, attributes));
+        }
+    });
+
+    module.exports = AvatarEditor;
+});
+
 },{"react":159,"react-dom":3}],2:[function(require,module,exports){
 var React = require('react');
 var Editor = require('../dist/index.js');
+
+// Used to display the cropping rect
+var ImageWithRect = React.createClass({displayName: "ImageWithRect",
+    componentDidMount: function() {
+        this.redraw();
+    },
+    componentDidUpdate: function() {
+        this.redraw();
+    },
+    
+    redraw: function() {
+        var img = new Image();
+        
+        img.onload = function (ctx, rect, width, height) {
+            ctx.drawImage(img, 0, 0, width, height);
+            
+            if (rect) {
+                ctx.strokeStyle = "red";
+                ctx.strokeRect (
+                    Math.round(rect.x * width) + 0.5,
+                    Math.round(rect.y * height) + 0.5,
+                    Math.round(rect.width * width),
+                    Math.round(rect.height * height)
+                );
+            }
+        }.bind(this, this.refs.root.getContext('2d'), this.props.rect, this.props.width, this.props.height);
+        
+        img.src = this.props.image;
+    },
+
+    render: function() {
+        return React.createElement("canvas", {
+          ref: "root", 
+          style: this.props.style, 
+          width: this.props.width, 
+          height: this.props.height});
+    }
+});
 
 var App = React.createClass({displayName: "App",
 
@@ -19,11 +459,12 @@ var App = React.createClass({displayName: "App",
 
     handleSave: function(data) {
         var img = this.refs.avatar.getImage();
-        this.setState({preview: img});
+        var rect = this.refs.avatar.getCroppingRect();
+        this.setState({preview: img, croppingRect: rect});
     },
 
     handleScale: function() {
-        var scale = this.refs.scale.getDOMNode().value;
+        var scale = this.refs.scale.value;
         this.setState({scale: scale})
     },
 
@@ -46,7 +487,17 @@ var App = React.createClass({displayName: "App",
                 React.createElement("br", null), 
                 React.createElement("input", {type: "button", onClick: this.handleSave, value: "Preview"}), 
                 React.createElement("br", null), 
-                React.createElement("img", {src: this.state.preview})
+                React.createElement("img", {src: this.state.preview}), 
+                
+                this.state.croppingRect? // display only if there is a cropping rect
+                    React.createElement(ImageWithRect, {
+                        width: 200 * 478 / 270, 
+                        height: 200, 
+                        image: "example/avatar.jpg", 
+                        rect: this.state.croppingRect, 
+                        style: {margin: '10px 24px 32px', padding: 5, border: '1px solid #CCC'}})
+                        :
+                        null
             )
     }
 
@@ -3293,6 +3744,7 @@ var HTMLDOMPropertyConfig = {
     icon: null,
     id: MUST_USE_PROPERTY,
     inputMode: MUST_USE_ATTRIBUTE,
+    integrity: null,
     is: MUST_USE_ATTRIBUTE,
     keyParams: MUST_USE_ATTRIBUTE,
     keyType: MUST_USE_ATTRIBUTE,
@@ -6368,6 +6820,7 @@ var registrationNameModules = ReactBrowserEventEmitter.registrationNameModules;
 // For quickly matching children type, to test if can be treated as content.
 var CONTENT_TYPES = { 'string': true, 'number': true };
 
+var CHILDREN = keyOf({ children: null });
 var STYLE = keyOf({ style: null });
 var HTML = keyOf({ __html: null });
 
@@ -6858,7 +7311,9 @@ ReactDOMComponent.Mixin = {
         }
         var markup = null;
         if (this._tag != null && isCustomComponent(this._tag, props)) {
-          markup = DOMPropertyOperations.createMarkupForCustomAttribute(propKey, propValue);
+          if (propKey !== CHILDREN) {
+            markup = DOMPropertyOperations.createMarkupForCustomAttribute(propKey, propValue);
+          }
         } else {
           markup = DOMPropertyOperations.createMarkupForProperty(propKey, propValue);
         }
@@ -7117,6 +7572,9 @@ ReactDOMComponent.Mixin = {
       } else if (isCustomComponent(this._tag, nextProps)) {
         if (!node) {
           node = ReactMount.getNode(this._rootNodeID);
+        }
+        if (propKey === CHILDREN) {
+          nextProp = null;
         }
         DOMPropertyOperations.setValueForAttribute(node, propKey, nextProp);
       } else if (DOMProperty.properties[propKey] || DOMProperty.isCustomAttribute(propKey)) {
@@ -9800,11 +10258,12 @@ if (process.env.NODE_ENV !== 'production') {
     var fakeNode = document.createElement('react');
     ReactErrorUtils.invokeGuardedCallback = function (name, func, a, b) {
       var boundFunc = func.bind(null, a, b);
-      fakeNode.addEventListener(name, boundFunc, false);
+      var evtType = 'react-' + name;
+      fakeNode.addEventListener(evtType, boundFunc, false);
       var evt = document.createEvent('Event');
-      evt.initEvent(name, false, false);
+      evt.initEvent(evtType, false, false);
       fakeNode.dispatchEvent(evt);
-      fakeNode.removeEventListener(name, boundFunc, false);
+      fakeNode.removeEventListener(evtType, boundFunc, false);
     };
   }
 }
@@ -13972,7 +14431,7 @@ module.exports = ReactUpdates;
 
 'use strict';
 
-module.exports = '0.14.1';
+module.exports = '0.14.2';
 },{}],88:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -16005,7 +16464,7 @@ module.exports = adler32;
 var canDefineProperty = false;
 if (process.env.NODE_ENV !== 'production') {
   try {
-    Object.defineProperty({}, 'x', {});
+    Object.defineProperty({}, 'x', { get: function () {} });
     canDefineProperty = true;
   } catch (x) {
     // IE will fail on defineProperty

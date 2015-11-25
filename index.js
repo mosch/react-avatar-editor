@@ -118,6 +118,18 @@ var AvatarEditor = React.createClass({
 
         return dom.toDataURL(type, quality);
     },
+    
+    getCroppingRect() {
+        var dim = this.getDimensions();
+        var frameRect = {x: dim.border, y: dim.border, width: dim.width, height: dim.height};
+        var imageRect = this.calculatePosition(this.state.image, dim.border);
+        return {
+            x: (frameRect.x - imageRect.x) / imageRect.width,
+            y: (frameRect.y - imageRect.y) / imageRect.height,
+            width: frameRect.width / imageRect.width,
+            height: frameRect.height / imageRect.height,
+        };
+    },
 
     isDataURL(str) {
         var regex = /^\s*data:([a-z]+\/[a-z]+(;[a-z\-]+\=[a-z\-]+)?)?(;base64)?,[a-z0-9\!\$\&\'\,\(\)\*\+\,\;\=\-\.\_\~\:\@\/\?\%\s]*\s*$/i;
