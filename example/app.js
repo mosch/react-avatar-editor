@@ -1,6 +1,44 @@
 var React = require('react');
 var Editor = require('../dist/index.js');
 
+// Used to display the cropping rect
+var ImageWithRect = React.createClass({
+    componentDidMount: function() {
+        this.redraw();
+    },
+    componentDidUpdate: function() {
+        this.redraw();
+    },
+    
+    redraw: function() {
+        var img = new Image();
+        
+        img.onload = function (ctx, rect, width, height) {
+            ctx.drawImage(img, 0, 0, width, height);
+            
+            if (rect) {
+                ctx.strokeStyle = "red";
+                ctx.strokeRect (
+                    Math.round(rect.x * width) + 0.5,
+                    Math.round(rect.y * height) + 0.5,
+                    Math.round(rect.width * width),
+                    Math.round(rect.height * height)
+                );
+            }
+        }.bind(this, this.refs.root.getContext('2d'), this.props.rect, this.props.width, this.props.height);
+        
+        img.src = this.props.image;
+    },
+
+    render: function() {
+        return <canvas
+          ref="root"
+          style={this.props.style}
+          width={this.props.width}
+          height={this.props.height} />;
+    }
+});
+
 var App = React.createClass({
 
     getInitialState: function() {
@@ -16,11 +54,12 @@ var App = React.createClass({
 
     handleSave: function(data) {
         var img = this.refs.avatar.getImage();
-        this.setState({preview: img});
+        var rect = this.refs.avatar.getCroppingRect();
+        this.setState({preview: img, croppingRect: rect});
     },
 
     handleScale: function() {
-        var scale = this.refs.scale.getDOMNode().value;
+        var scale = this.refs.scale.value;
         this.setState({scale: scale})
     },
 
@@ -44,6 +83,16 @@ var App = React.createClass({
                 <input type="button" onClick={this.handleSave} value="Preview" />
                 <br />
                 <img src={this.state.preview} />
+                
+                {this.state.croppingRect? // display only if there is a cropping rect
+                    <ImageWithRect
+                        width={200 * 478 / 270}
+                        height={200}
+                        image="example/avatar.jpg"
+                        rect={this.state.croppingRect}
+                        style={{margin: '10px 24px 32px', padding: 5, border: '1px solid #CCC'}} />
+                        :
+                        null}
             </div>
     }
 

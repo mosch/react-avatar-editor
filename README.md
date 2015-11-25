@@ -78,6 +78,16 @@ var MyEditor = React.createClass({
 module.exports = MyEditor;
 ```
 
+## Accessing the cropping rectangle
+
+Sometimes you will need to get the cropping rectangle (the coordinates of the area of the image to keep),
+for example in case you intend to perform the actual cropping server-side.
+
+``getCroppingRect()`` returns an object with four properties: ``x``, ``y``, ``width`` and ``height``;
+all relative to the image size (that is, comprised between 0 and 1). It is a method of AvatarEditor elements,
+like ``getImage()``.
+
+
 # Development
 
 For development you can use following build tools:
