@@ -1,4 +1,5 @@
 var React = require('react');
+var ReactDOM = require('react-dom');
 var Editor = require('../dist/index.js');
 
 // Used to display the cropping rect
@@ -98,4 +99,4 @@ var App = React.createClass({
 
 });
 
-React.render(<App />, document.getElementById('app'));
+ReactDOM.render(<App />, document.getElementById('app'));
