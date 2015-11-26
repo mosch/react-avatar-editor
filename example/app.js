@@ -39,11 +39,13 @@ var ImageWithRect = React.createClass({
     }
 });
 
+// Actual app
 var App = React.createClass({
 
     getInitialState: function() {
         return {
             scale: 1,
+            borderRadius: 0,
             preview: null
         };
     },
@@ -59,8 +61,13 @@ var App = React.createClass({
     },
 
     handleScale: function() {
-        var scale = this.refs.scale.value;
+        var scale = parseFloat(this.refs.scale.value);
         this.setState({scale: scale})
+    },
+
+    handleBorderRadius: function() {
+        var borderRadius = parseInt(this.refs.borderRadius.value);
+        this.setState({borderRadius: borderRadius})
     },
 
     logCallback: function(e) {
@@ -71,18 +78,22 @@ var App = React.createClass({
         return <div>
                 <Editor
                     ref="avatar"
-                    scale={parseFloat(this.state.scale)}
-                    onDropFile={this.logCallback.bind(this, 'onDropFile')}
-                    onLoadFailure={this.logCallback.bind(this, 'onLoadFailure')}
-                    onLoadSuccess={this.logCallback.bind(this, 'onLoadSuccess')}
-                    image="example/avatar.jpg" />
+                    scale={this.state.scale}
+                    borderRadius={this.state.borderRadius}
+                    onSave={this.handleSave}
+                    onLoadFailed={this.logCallback.bind(this, 'onLoadFailed')}
+                    onUpload={this.logCallback.bind(this, 'onUpload')}
+                    onImageLoad={this.logCallback.bind(this, 'onImageLoad')}
+                    image="example/avatar.jpg"/>
                 <br />
-                <input name="scale" type="range" ref="scale" onChange={this.handleScale} min="1" max="2" step="0.01" defaultValue="1" />
+                Zoom: <input name="scale" type="range" ref="scale" onChange={this.handleScale} min="1" max="2" step="0.01" defaultValue="1" />
+                <br />
+                Border radius: <input name="scale" type="range" ref="borderRadius" onChange={this.handleBorderRadius} min="0" max="100" step="1" defaultValue="0" />
                 <br />
                 <br />
                 <input type="button" onClick={this.handleSave} value="Preview" />
                 <br />
-                <img src={this.state.preview} />
+                <img src={this.state.preview} style={{borderRadius: this.state.borderRadius + 5 /* because of the 5px padding */}} />
                 
                 {this.state.croppingRect? // display only if there is a cropping rect
                     <ImageWithRect

@@ -68,6 +68,7 @@
             scale: React.PropTypes.number,
             image: React.PropTypes.string,
             border: React.PropTypes.number,
+            borderRadius: React.PropTypes.number,
             width: React.PropTypes.number,
             height: React.PropTypes.number,
             color: React.PropTypes.arrayOf(React.PropTypes.number),
@@ -83,6 +84,7 @@
             return {
                 scale: 1,
                 border: 25,
+                borderRadius: 0,
                 width: 200,
                 height: 200,
                 color: [0, 0, 0, 0.5],
@@ -279,13 +281,30 @@
             var dimensions = this.getDimensions();
 
             var borderSize = dimensions.border;
+            var borderRadius = this.props.borderRadius;
             var height = dimensions.canvas.height;
             var width = dimensions.canvas.width;
 
-            context.fillRect(0, 0, width, borderSize); // top
-            context.fillRect(0, height - borderSize, width, borderSize); // bottom
-            context.fillRect(0, borderSize, borderSize, height - borderSize * 2); // left
-            context.fillRect(width - borderSize, borderSize, borderSize, height - borderSize * 2); // right
+            // clamp border radius between zero (perfect rectangle) and half the size without borders (perfect circle or "pill")
+            borderRadius = Math.max(borderRadius, 0);
+            borderRadius = Math.min(borderRadius, width / 2 - borderSize, height / 2 - borderSize);
+
+            context.beginPath();
+            // if the radius is zero, gotta worry no mo' : spare some cpu sweat by just drawing a rect
+            if (borderRadius === 0) {
+                context.rect(borderSize, borderSize, width - borderSize * 2, height - borderSize * 2);
+            } else {
+                var sizePlusRad = borderSize + borderRadius;
+                context.arc(sizePlusRad, sizePlusRad, borderRadius, Math.PI, Math.PI * 1.5);
+                context.lineTo(width - sizePlusRad, borderSize);
+                context.arc(width - sizePlusRad, sizePlusRad, borderRadius, Math.PI * 1.5, Math.PI * 2);
+                context.lineTo(width - borderSize, height - sizePlusRad);
+                context.arc(width - sizePlusRad, height - sizePlusRad, borderRadius, Math.PI * 2, Math.PI * 0.5);
+                context.lineTo(sizePlusRad, height - borderSize);
+                context.arc(sizePlusRad, height - sizePlusRad, borderRadius, Math.PI * 0.5, Math.PI);
+            }
+            context.rect(width, 0, -width, height); // outer rect, drawn "counterclockwise"
+            context.fill();
 
             context.restore();
         },
