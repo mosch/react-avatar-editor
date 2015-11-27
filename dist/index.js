@@ -76,7 +76,8 @@
             onDropFile: React.PropTypes.func,
             onLoadFailure: React.PropTypes.func,
             onLoadSuccess: React.PropTypes.func,
-            onImageReady: React.PropTypes.func
+            onImageReady: React.PropTypes.func,
+            onMouseUp: React.PropTypes.func
         },
 
         getDefaultProps: function getDefaultProps() {
@@ -90,7 +91,8 @@
                 onDropFile: function onDropFile() {},
                 onLoadFailure: function onLoadFailure() {},
                 onLoadSuccess: function onLoadSuccess() {},
-                onImageReady: function onImageReady() {}
+                onImageReady: function onImageReady() {},
+                onMouseUp: function onMouseUp() {}
             };
         },
 
@@ -306,6 +308,7 @@
             if (this.state.drag) {
                 this.setState({ drag: false });
             }
+            this.props.onMouseUp();
         },
 
         handleMouseMove: function handleMouseMove(e) {
@@ -402,3 +405,4 @@
 
     module.exports = AvatarEditor;
 });
+
