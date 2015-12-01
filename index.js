@@ -62,6 +62,7 @@ var AvatarEditor = React.createClass({
         onLoadFailure: React.PropTypes.func,
         onLoadSuccess: React.PropTypes.func,
         onImageReady: React.PropTypes.func,
+        onMouseUp: React.PropTypes.func
     },
 
     getDefaultProps() {
@@ -76,6 +77,7 @@ var AvatarEditor = React.createClass({
             onLoadFailure() {},
             onLoadSuccess() {},
             onImageReady() {},
+            onMouseUp() {}
         }
     },
 
@@ -292,6 +294,7 @@ var AvatarEditor = React.createClass({
         if (this.state.drag) {
             this.setState({drag: false});
         }
+        this.props.onMouseUp();
     },
 
     handleMouseMove(e) {

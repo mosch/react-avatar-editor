@@ -47,6 +47,7 @@ module.exports = MyEditor;
 | onDropFile(event)      | function | Invoked when user drops a file (or more) onto the canvas. Does not perform any further check.
 | onLoadSuccess(imgInfo) | function | Invoked when an image (whether passed by props or dropped) load succeeds.
 | onLoadFailure(event)   | function | Invoked when an image (whether passed by props or dropped) load fails.
+| onMouseUp()            | function | Invoked when the user releases their mouse button after interacting with the editor.
 
 ## Accessing the resulting image
 
