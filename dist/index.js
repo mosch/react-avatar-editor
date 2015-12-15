@@ -61,6 +61,25 @@
     };
     var deviceEvents = isTouchDevice ? draggableEvents.touch : draggableEvents.desktop;
 
+    // Draws a rounded rectangle on a 2D context.
+    var drawRoundedRect = function drawRoundedRect(context, x, y, width, height, borderRadius) {
+        if (borderRadius === 0) {
+            context.rect(x, y, width, height);
+        } else {
+            var widthMinusRad = width - borderRadius;
+            var heightMinusRad = height - borderRadius;
+            context.translate(x, y);
+            context.arc(borderRadius, borderRadius, borderRadius, Math.PI, Math.PI * 1.5);
+            context.lineTo(widthMinusRad, 0);
+            context.arc(widthMinusRad, borderRadius, borderRadius, Math.PI * 1.5, Math.PI * 2);
+            context.lineTo(width, heightMinusRad);
+            context.arc(widthMinusRad, heightMinusRad, borderRadius, Math.PI * 2, Math.PI * 0.5);
+            context.lineTo(borderRadius, height);
+            context.arc(borderRadius, heightMinusRad, borderRadius, Math.PI * 0.5, Math.PI);
+            context.translate(-x, -y);
+        }
+    };
+
     var AvatarEditor = React.createClass({
         displayName: 'AvatarEditor',
 
@@ -290,19 +309,7 @@
             borderRadius = Math.min(borderRadius, width / 2 - borderSize, height / 2 - borderSize);
 
             context.beginPath();
-            // if the radius is zero, gotta worry no mo' : spare some cpu sweat by just drawing a rect
-            if (borderRadius === 0) {
-                context.rect(borderSize, borderSize, width - borderSize * 2, height - borderSize * 2);
-            } else {
-                var sizePlusRad = borderSize + borderRadius;
-                context.arc(sizePlusRad, sizePlusRad, borderRadius, Math.PI, Math.PI * 1.5);
-                context.lineTo(width - sizePlusRad, borderSize);
-                context.arc(width - sizePlusRad, sizePlusRad, borderRadius, Math.PI * 1.5, Math.PI * 2);
-                context.lineTo(width - borderSize, height - sizePlusRad);
-                context.arc(width - sizePlusRad, height - sizePlusRad, borderRadius, Math.PI * 2, Math.PI * 0.5);
-                context.lineTo(sizePlusRad, height - borderSize);
-                context.arc(sizePlusRad, height - sizePlusRad, borderRadius, Math.PI * 0.5, Math.PI);
-            }
+            drawRoundedRect(context, borderSize, borderSize, width - borderSize * 2, height - borderSize * 2, borderRadius); // inner rect, possibly rounded
             context.rect(width, 0, -width, height); // outer rect, drawn "counterclockwise"
             context.fill();
 
