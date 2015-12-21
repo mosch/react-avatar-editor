@@ -48,11 +48,31 @@ var draggableEvents = {
 };
 var deviceEvents = isTouchDevice ? draggableEvents.touch : draggableEvents.desktop;
 
+// Draws a rounded rectangle on a 2D context.
+var drawRoundedRect = function(context, x, y, width, height, borderRadius) {
+    if (borderRadius === 0) {
+        context.rect(x, y, width, height);
+    } else {
+        var widthMinusRad = width - borderRadius;
+        var heightMinusRad = height - borderRadius;
+        context.translate(x, y);
+        context.arc(borderRadius, borderRadius, borderRadius, Math.PI, Math.PI*1.5);
+        context.lineTo(widthMinusRad, 0);
+        context.arc(widthMinusRad, borderRadius, borderRadius, Math.PI*1.5, Math.PI*2);
+        context.lineTo(width, heightMinusRad);
+        context.arc(widthMinusRad, heightMinusRad, borderRadius, Math.PI*2, Math.PI*0.5);
+        context.lineTo(borderRadius, height);
+        context.arc(borderRadius, heightMinusRad, borderRadius, Math.PI*0.5, Math.PI);
+        context.translate(-x, -y);
+    }
+}
+
 var AvatarEditor = React.createClass({
     propTypes: {
         scale: React.PropTypes.number,
         image: React.PropTypes.string,
         border: React.PropTypes.number,
+        borderRadius: React.PropTypes.number,
         width: React.PropTypes.number,
         height: React.PropTypes.number,
         color: React.PropTypes.arrayOf(React.PropTypes.number),
@@ -69,6 +89,7 @@ var AvatarEditor = React.createClass({
         return {
             scale: 1,
             border: 25,
+            borderRadius: 0,
             width: 200,
             height: 200,
             color: [0, 0, 0, 0.5],
@@ -267,13 +288,18 @@ var AvatarEditor = React.createClass({
         var dimensions = this.getDimensions();
 
         var borderSize = dimensions.border;
+        var borderRadius = this.props.borderRadius;
         var height = dimensions.canvas.height;
         var width = dimensions.canvas.width;
-
-        context.fillRect(0, 0, width, borderSize); // top
-        context.fillRect(0, height - borderSize, width, borderSize); // bottom
-        context.fillRect(0, borderSize, borderSize, height - (borderSize * 2)); // left
-        context.fillRect(width - borderSize, borderSize, borderSize, height - (borderSize * 2)); // right
+        
+        // clamp border radius between zero (perfect rectangle) and half the size without borders (perfect circle or "pill")
+        borderRadius = Math.max(borderRadius, 0);
+        borderRadius = Math.min(borderRadius, width/2 - borderSize, height/2 - borderSize);
+        
+        context.beginPath();
+        drawRoundedRect(context, borderSize, borderSize, width - borderSize*2, height - borderSize*2, borderRadius); // inner rect, possibly rounded
+        context.rect(width, 0, -width, height); // outer rect, drawn "counterclockwise"
+        context.fill();
 
         context.restore();
     },
