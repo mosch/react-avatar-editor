@@ -97,7 +97,8 @@
             onDropFile: React.PropTypes.func,
             onLoadFailure: React.PropTypes.func,
             onLoadSuccess: React.PropTypes.func,
-            onImageReady: React.PropTypes.func
+            onImageReady: React.PropTypes.func,
+            onMouseUp: React.PropTypes.func
         },
 
         getDefaultProps: function getDefaultProps() {
@@ -112,7 +113,8 @@
                 onDropFile: function onDropFile() {},
                 onLoadFailure: function onLoadFailure() {},
                 onLoadSuccess: function onLoadSuccess() {},
-                onImageReady: function onImageReady() {}
+                onImageReady: function onImageReady() {},
+                onMouseUp: function onMouseUp() {}
             };
         },
 
@@ -333,6 +335,7 @@
             if (this.state.drag) {
                 this.setState({ drag: false });
             }
+            this.props.onMouseUp();
         },
 
         handleMouseMove: function handleMouseMove(e) {
@@ -429,6 +432,7 @@
 
     module.exports = AvatarEditor;
 });
+
 
 },{"react":159,"react-dom":3}],2:[function(require,module,exports){
 var React = require('react');
@@ -3807,6 +3811,7 @@ var HTMLDOMPropertyConfig = {
     multiple: MUST_USE_PROPERTY | HAS_BOOLEAN_VALUE,
     muted: MUST_USE_PROPERTY | HAS_BOOLEAN_VALUE,
     name: null,
+    nonce: MUST_USE_ATTRIBUTE,
     noValidate: HAS_BOOLEAN_VALUE,
     open: HAS_BOOLEAN_VALUE,
     optimum: null,
@@ -3818,6 +3823,7 @@ var HTMLDOMPropertyConfig = {
     readOnly: MUST_USE_PROPERTY | HAS_BOOLEAN_VALUE,
     rel: null,
     required: HAS_BOOLEAN_VALUE,
+    reversed: HAS_BOOLEAN_VALUE,
     role: MUST_USE_ATTRIBUTE,
     rows: MUST_USE_ATTRIBUTE | HAS_POSITIVE_NUMERIC_VALUE,
     rowSpan: null,
@@ -4263,6 +4269,7 @@ assign(React, {
 });
 
 React.__SECRET_DOM_DO_NOT_USE_OR_YOU_WILL_BE_FIRED = ReactDOM;
+React.__SECRET_DOM_SERVER_DO_NOT_USE_OR_YOU_WILL_BE_FIRED = ReactDOMServer;
 
 module.exports = React;
 },{"./Object.assign":25,"./ReactDOM":38,"./ReactDOMServer":48,"./ReactIsomorphic":66,"./deprecated":109}],28:[function(require,module,exports){
@@ -14471,7 +14478,7 @@ module.exports = ReactUpdates;
 
 'use strict';
 
-module.exports = '0.14.2';
+module.exports = '0.14.3';
 },{}],88:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
