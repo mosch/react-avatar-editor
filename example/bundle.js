@@ -131,13 +131,19 @@
         },
 
         getDimensions: function getDimensions() {
+            var zoom = arguments.length <= 0 || arguments[0] === undefined ? 1 : arguments[0];
+
+            var width = this.props.width * zoom;
+            var height = this.props.height * zoom;
+            var border = this.props.border * zoom;
+
             return {
-                width: this.props.width,
-                height: this.props.height,
-                border: this.props.border,
+                width: width,
+                height: height,
+                border: border,
                 canvas: {
-                    width: this.props.width + this.props.border * 2,
-                    height: this.props.height + this.props.border * 2
+                    width: width + border * 2,
+                    height: height + border * 2
                 }
             };
         },
@@ -145,7 +151,9 @@
         getImage: function getImage(type, quality) {
             var dom = document.createElement('canvas');
             var context = dom.getContext('2d');
-            var dimensions = this.getDimensions();
+            var image = this.state.image;
+            var zoom = image.resource.width / this.props.width;
+            var dimensions = this.getDimensions(zoom);
             var border = 0;
 
             dom.width = dimensions.width;
@@ -153,7 +161,7 @@
 
             context.globalCompositeOperation = 'destination-over';
 
-            this.paintImage(context, this.state.image, border);
+            this.paintImage(context, this.state.image, this.calculatePosition(image, border, zoom));
 
             return dom.toDataURL(type, quality);
         },
@@ -218,7 +226,7 @@
             var context = ReactDOM.findDOMNode(this.refs.canvas).getContext('2d');
             context.clearRect(0, 0, this.getDimensions().canvas.width, this.getDimensions().canvas.height);
             this.paint(context);
-            this.paintImage(context, this.state.image, this.props.border);
+            this.paintImage(context, this.state.image, this.calculatePosition(this.state.image, this.props.border, 1));
         },
 
         handleImageReady: function handleImageReady(image) {
@@ -261,9 +269,8 @@
             }
         },
 
-        paintImage: function paintImage(context, image, border) {
+        paintImage: function paintImage(context, image, position) {
             if (image.resource) {
-                var position = this.calculatePosition(image, border);
                 context.save();
                 context.globalCompositeOperation = 'destination-over';
                 context.drawImage(image.resource, position.x, position.y, position.width, position.height);
@@ -273,6 +280,8 @@
         },
 
         calculatePosition: function calculatePosition(image, border) {
+            var zoom = arguments.length <= 2 || arguments[2] === undefined ? 1 : arguments[2];
+
             image = image || this.state.image;
             var x,
                 y,
@@ -288,10 +297,10 @@
             y = image.y * this.props.scale - heightDiff + border;
 
             return {
-                x: x,
-                y: y,
-                height: height,
-                width: width
+                x: x * zoom,
+                y: y * zoom,
+                height: height * zoom,
+                width: width * zoom
             };
         },
 
@@ -432,7 +441,6 @@
 
     module.exports = AvatarEditor;
 });
-
 
 },{"react":159,"react-dom":3}],2:[function(require,module,exports){
 var React = require('react');
@@ -3874,8 +3882,8 @@ var HTMLDOMPropertyConfig = {
      */
     // autoCapitalize and autoCorrect are supported in Mobile Safari for
     // keyboard hints.
-    autoCapitalize: null,
-    autoCorrect: null,
+    autoCapitalize: MUST_USE_ATTRIBUTE,
+    autoCorrect: MUST_USE_ATTRIBUTE,
     // autoSave allows WebKit/Blink to persist values of input fields on page reloads
     autoSave: null,
     // color is for Safari mask-icon link
@@ -3906,9 +3914,7 @@ var HTMLDOMPropertyConfig = {
     httpEquiv: 'http-equiv'
   },
   DOMPropertyNames: {
-    autoCapitalize: 'autocapitalize',
     autoComplete: 'autocomplete',
-    autoCorrect: 'autocorrect',
     autoFocus: 'autofocus',
     autoPlay: 'autoplay',
     autoSave: 'autosave',
@@ -8351,7 +8357,7 @@ function updateOptionsIfPendingUpdateAndMounted() {
     var value = LinkedValueUtils.getValue(props);
 
     if (value != null) {
-      updateOptions(this, props, value);
+      updateOptions(this, Boolean(props.multiple), value);
     }
   }
 }
@@ -9430,7 +9436,9 @@ var DOM_OPERATION_TYPES = {
   'setValueForProperty': 'update attribute',
   'setValueForAttribute': 'update attribute',
   'deleteValueForProperty': 'remove attribute',
-  'dangerouslyReplaceNodeWithMarkupByID': 'replace'
+  'setValueForStyles': 'update styles',
+  'replaceNodeWithMarkup': 'replace',
+  'updateTextContent': 'set textContent'
 };
 
 function getTotalTime(measurements) {
@@ -14478,7 +14486,7 @@ module.exports = ReactUpdates;
 
 'use strict';
 
-module.exports = '0.14.3';
+module.exports = '0.14.6';
 },{}],88:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
@@ -18738,11 +18746,14 @@ module.exports = focusNode;
  * @typechecks
  */
 
+/* eslint-disable fb-www/typeof-undefined */
+
 /**
  * Same as document.activeElement but wraps in a try-catch block. In IE it is
  * not safe to call document.activeElement if there is nothing focused.
  *
- * The activeElement will be null only if the document or document body is not yet defined.
+ * The activeElement will be null only if the document or document body is not
+ * yet defined.
  */
 'use strict';
 
@@ -18750,7 +18761,6 @@ function getActiveElement() /*?DOMElement*/{
   if (typeof document === 'undefined') {
     return null;
   }
-
   try {
     return document.activeElement || document.body;
   } catch (e) {
@@ -18996,7 +19006,7 @@ module.exports = hyphenateStyleName;
  * will remain to ensure logic does not differ in production.
  */
 
-var invariant = function (condition, format, a, b, c, d, e, f) {
+function invariant(condition, format, a, b, c, d, e, f) {
   if (process.env.NODE_ENV !== 'production') {
     if (format === undefined) {
       throw new Error('invariant requires an error message argument');
@@ -19010,15 +19020,16 @@ var invariant = function (condition, format, a, b, c, d, e, f) {
     } else {
       var args = [a, b, c, d, e, f];
       var argIndex = 0;
-      error = new Error('Invariant Violation: ' + format.replace(/%s/g, function () {
+      error = new Error(format.replace(/%s/g, function () {
         return args[argIndex++];
       }));
+      error.name = 'Invariant Violation';
     }
 
     error.framesToPop = 1; // we don't care about invariant's own frame
     throw error;
   }
-};
+}
 
 module.exports = invariant;
 }).call(this,require('_process'))
@@ -19283,18 +19294,23 @@ module.exports = performance || {};
 'use strict';
 
 var performance = require('./performance');
-var curPerformance = performance;
+
+var performanceNow;
 
 /**
  * Detect if we can use `window.performance.now()` and gracefully fallback to
  * `Date.now()` if it doesn't exist. We need to support Firefox < 15 for now
  * because of Facebook's testing infrastructure.
  */
-if (!curPerformance || !curPerformance.now) {
-  curPerformance = Date;
+if (performance.now) {
+  performanceNow = function () {
+    return performance.now();
+  };
+} else {
+  performanceNow = function () {
+    return Date.now();
+  };
 }
-
-var performanceNow = curPerformance.now.bind(curPerformance);
 
 module.exports = performanceNow;
 },{"./performance":154}],156:[function(require,module,exports){

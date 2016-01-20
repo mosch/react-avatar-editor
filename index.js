@@ -114,14 +114,18 @@ var AvatarEditor = React.createClass({
         };
     },
 
-    getDimensions() {
+    getDimensions(zoom = 1) {
+        var width = this.props.width * zoom;
+        var height = this.props.height * zoom;
+        var border = this.props.border * zoom;
+
         return {
-            width: this.props.width,
-            height: this.props.height,
-            border: this.props.border,
+            width: width,
+            height: height,
+            border: border,
             canvas: {
-                width: this.props.width + (this.props.border * 2),
-                height: this.props.height + (this.props.border * 2)
+                width: width + (border * 2),
+                height: height + (border * 2)
             }
         }
     },
@@ -129,7 +133,9 @@ var AvatarEditor = React.createClass({
     getImage(type, quality) {
         var dom = document.createElement('canvas');
         var context = dom.getContext('2d');
-        var dimensions = this.getDimensions();
+        var image = this.state.image;
+        var zoom = image.resource.width / this.props.width;
+        var dimensions = this.getDimensions(zoom);
         var border = 0;
 
         dom.width = dimensions.width;
@@ -137,7 +143,7 @@ var AvatarEditor = React.createClass({
 
         context.globalCompositeOperation = 'destination-over';
 
-        this.paintImage(context, this.state.image, border);
+        this.paintImage(context, this.state.image, this.calculatePosition(image, border, zoom));
 
         return dom.toDataURL(type, quality);
     },
@@ -202,7 +208,7 @@ var AvatarEditor = React.createClass({
         var context = ReactDOM.findDOMNode(this.refs.canvas).getContext('2d');
         context.clearRect(0, 0, this.getDimensions().canvas.width, this.getDimensions().canvas.height);
         this.paint(context);
-        this.paintImage(context, this.state.image, this.props.border);
+        this.paintImage(context, this.state.image, this.calculatePosition(this.state.image, this.props.border, 1));
     },
 
     handleImageReady(image) {
@@ -250,9 +256,8 @@ var AvatarEditor = React.createClass({
         }
     },
 
-    paintImage(context, image, border) {
+    paintImage(context, image, position) {
         if (image.resource) {
-            var position = this.calculatePosition(image, border);
             context.save();
             context.globalCompositeOperation = 'destination-over';
             context.drawImage(image.resource, position.x, position.y, position.width, position.height);
@@ -261,7 +266,7 @@ var AvatarEditor = React.createClass({
         }
     },
 
-    calculatePosition(image, border) {
+    calculatePosition(image, border, zoom = 1) {
         image = image || this.state.image;
         var x, y, width, height, dimensions = this.getDimensions();
         width = image.width * this.props.scale;
@@ -273,10 +278,10 @@ var AvatarEditor = React.createClass({
         y = image.y * this.props.scale - heightDiff + border;
 
         return {
-            x: x,
-            y: y,
-            height: height,
-            width: width
+            x: x * zoom,
+            y: y * zoom,
+            height: height * zoom,
+            width: width * zoom
         }
     },
 
