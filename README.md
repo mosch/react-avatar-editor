@@ -38,6 +38,8 @@ module.exports = MyEditor;
 | ---------------------- | -------- | ---------------
 | width                  | Number   | The total width of the editor
 | height                 | Number   | The total width of the editor
+| x                      | Number   | The x position
+| y                      | Number   | The y position
 | border                 | Number   | The cropping border. Image will be visible through the border, but cut off in the resulting image.
 | color                  | Number[] | The color of the cropping border, in the form: [red (0-255), green (0-255), blue (0-255), alpha (0.0-1.0)]
 | style                  | Object   | Styles for the canvas element
@@ -67,6 +69,8 @@ var MyEditor = React.createClass({
           image="http://example.com/initialimage.jpg"
           width={250}
           height={250}
+          x={125}
+          y={125}
           border={50}
           scale={1.2} />
     );
