@@ -92,6 +92,8 @@ var AvatarEditor = React.createClass({
             borderRadius: 0,
             width: 200,
             height: 200,
+            x: 0,
+            y: 0,
             color: [0, 0, 0, 0.5],
             style: {},
             onDropFile() {},
@@ -141,7 +143,7 @@ var AvatarEditor = React.createClass({
 
         return dom.toDataURL(type, quality);
     },
-    
+
     getCroppingRect() {
         var dim = this.getDimensions();
         var frameRect = {x: dim.border, y: dim.border, width: dim.width, height: dim.height};
@@ -208,8 +210,8 @@ var AvatarEditor = React.createClass({
     handleImageReady(image) {
         var imageState = this.getInitialSize(image.width, image.height);
         imageState.resource = image;
-        imageState.x = 0;
-        imageState.y = 0;
+        imageState.x = this.props.x;
+        imageState.y = this.props.y;
         this.props.onLoadSuccess(imageState);
         this.setState({drag: false, image: imageState}, this.props.onImageReady);
     },
@@ -291,11 +293,11 @@ var AvatarEditor = React.createClass({
         var borderRadius = this.props.borderRadius;
         var height = dimensions.canvas.height;
         var width = dimensions.canvas.width;
-        
+
         // clamp border radius between zero (perfect rectangle) and half the size without borders (perfect circle or "pill")
         borderRadius = Math.max(borderRadius, 0);
         borderRadius = Math.min(borderRadius, width/2 - borderSize, height/2 - borderSize);
-        
+
         context.beginPath();
         drawRoundedRect(context, borderSize, borderSize, width - borderSize*2, height - borderSize*2, borderRadius); // inner rect, possibly rounded
         context.rect(width, 0, -width, height); // outer rect, drawn "counterclockwise"
@@ -381,7 +383,7 @@ var AvatarEditor = React.createClass({
         var e = e || window.event;
         e.stopPropagation();
         e.preventDefault();
-        
+
         if (e.dataTransfer && e.dataTransfer.files.length) {
             this.props.onDropFile(e);
             let reader = new FileReader();
