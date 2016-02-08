@@ -299,7 +299,7 @@ var AvatarEditor = React.createClass({
         context.beginPath();
         drawRoundedRect(context, borderSize, borderSize, width - borderSize*2, height - borderSize*2, borderRadius); // inner rect, possibly rounded
         context.rect(width, 0, -width, height); // outer rect, drawn "counterclockwise"
-        context.fill();
+        context.fill('evenodd');
 
         context.restore();
     },
