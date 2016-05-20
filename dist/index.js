@@ -227,8 +227,8 @@
             imageState.resource = image;
             imageState.x = 0;
             imageState.y = 0;
-            this.props.onLoadSuccess(imageState);
             this.setState({ drag: false, image: imageState }, this.props.onImageReady);
+            this.props.onLoadSuccess(imageState);
         },
 
         getInitialSize: function getInitialSize(width, height) {
