@@ -64,6 +64,7 @@ var MyEditor = React.createClass({
   render: function() {
     return (
         <AvatarEditor
+          ref="editor"
           image="http://example.com/initialimage.jpg"
           width={250}
           height={250}
