@@ -156,6 +156,26 @@
 
             return dom.toDataURL(type, quality);
         },
+        
+        getImageBlob: function getImageBlob(type, quality) {
+            var dom = document.createElement('canvas');
+            var context = dom.getContext('2d');
+            var dimensions = this.getDimensions();
+            var border = 0;
+
+            dom.width = dimensions.width;
+            dom.height = dimensions.height;
+
+            context.globalCompositeOperation = 'destination-over';
+
+            this.paintImage(context, this.state.image, border);
+
+            dom.toBlob(function(blob){
+                return blob;
+            },type, quality);
+            
+            
+        },
 
         getCroppingRect: function getCroppingRect() {
             var dim = this.getDimensions();
