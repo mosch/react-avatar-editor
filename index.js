@@ -125,21 +125,28 @@ var AvatarEditor = React.createClass({
             }
         }
     },
+    
+    getImage: function getImage(type, quality) {
+        // get relative coordinates (0 to 1)
+        var cropRect = this.getCroppingRect();
+        var image = this.state.image;
 
-    getImage(type, quality) {
-        var dom = document.createElement('canvas');
-        var context = dom.getContext('2d');
-        var dimensions = this.getDimensions();
-        var border = 0;
+        // get actual pixel coordinates
+        cropRect.x      *= image.resource.width;
+        cropRect.y      *= image.resource.height;
+        cropRect.width  *= image.resource.width;
+        cropRect.height *= image.resource.height;
 
-        dom.width = dimensions.width;
-        dom.height = dimensions.height;
+        // create a canvas with the correct dimensions
+        var canvas = document.createElement('canvas');
+        canvas.width  = cropRect.width;
+        canvas.height = cropRect.height;
 
-        context.globalCompositeOperation = 'destination-over';
+        // draw the full-size image at the correct position,
+        // the image gets truncated to the size of the canvas.
+        canvas.getContext('2d').drawImage(image.resource, -cropRect.x, -cropRect.y);
 
-        this.paintImage(context, this.state.image, border);
-
-        return dom.toDataURL(type, quality);
+        return canvas.toDataURL(type, quality);
     },
     
     getCroppingRect() {
