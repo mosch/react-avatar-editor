@@ -58,8 +58,8 @@ var React = require('react'),
 
 var MyEditor = React.createClass({
   onClickSave: function() {
-    var dataURL = this.refs.editor.getImage();
-    // now save it to the state and set it as <img src="…" /> or send it somewhere else
+    var canvas = this.refs.editor.getImage(); // This is a HTMLCanvasElement.
+    // It can be made into a data URL or a blob, drawn on another canvas, or added to the DOM.
   },
   render: function() {
     return (
