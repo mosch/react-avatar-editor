@@ -98,7 +98,8 @@
             onLoadFailure: React.PropTypes.func,
             onLoadSuccess: React.PropTypes.func,
             onImageReady: React.PropTypes.func,
-            onMouseUp: React.PropTypes.func
+            onMouseUp: React.PropTypes.func,
+            onMouseMove: React.PropTypes.func
         },
 
         getDefaultProps: function getDefaultProps() {
@@ -114,7 +115,8 @@
                 onLoadFailure: function onLoadFailure() {},
                 onLoadSuccess: function onLoadSuccess() {},
                 onImageReady: function onImageReady() {},
-                onMouseUp: function onMouseUp() {}
+                onMouseUp: function onMouseUp() {},
+                onMouseMove: function onMouseMove() {}
             };
         },
 
@@ -226,8 +228,8 @@
             imageState.resource = image;
             imageState.x = 0;
             imageState.y = 0;
-            this.props.onLoadSuccess(imageState);
             this.setState({ drag: false, image: imageState }, this.props.onImageReady);
+            this.props.onLoadSuccess(imageState);
         },
 
         getInitialSize: function getInitialSize(width, height) {
@@ -362,6 +364,7 @@
             }
 
             this.setState(newState);
+            this.props.onMouseMove();
         },
 
         squeeze: function squeeze(props) {
@@ -1824,6 +1827,9 @@ var currentQueue;
 var queueIndex = -1;
 
 function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
     draining = false;
     if (currentQueue.length) {
         queue = currentQueue.concat(queue);
@@ -11526,6 +11532,10 @@ var ReactEmptyComponentInjection = {
   }
 };
 
+function registerNullComponentID() {
+  ReactEmptyComponentRegistry.registerNullComponentID(this._rootNodeID);
+}
+
 var ReactEmptyComponent = function (instantiate) {
   this._currentElement = null;
   this._rootNodeID = null;
@@ -11534,7 +11544,7 @@ var ReactEmptyComponent = function (instantiate) {
 assign(ReactEmptyComponent.prototype, {
   construct: function (element) {},
   mountComponent: function (rootID, transaction, context) {
-    ReactEmptyComponentRegistry.registerNullComponentID(rootID);
+    transaction.getReactMountReady().enqueue(registerNullComponentID, this);
     this._rootNodeID = rootID;
     return ReactReconciler.mountComponent(this._renderedComponent, rootID, transaction, context);
   },
@@ -15840,7 +15850,7 @@ module.exports = ReactUpdates;
 
 'use strict';
 
-module.exports = '0.14.7';
+module.exports = '0.14.8';
 },{}],116:[function(require,module,exports){
 /**
  * Copyright 2013-2015, Facebook, Inc.
