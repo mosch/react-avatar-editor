@@ -50,7 +50,8 @@ module.exports = MyEditor;
 
 ## Accessing the resulting image
 
-The size of the resulting image will have the width and the height of the editor - minus the borders.
+The resulting image will have the same resolution as the original image (i.e. resizing is up to you), regardless of the editor's size.
+
 
 ```javascript
 
