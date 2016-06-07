@@ -126,7 +126,7 @@ var AvatarEditor = React.createClass({
         }
     },
     
-    getImage: function getImage(type, quality) {
+    getImage() {
         // get relative coordinates (0 to 1)
         var cropRect = this.getCroppingRect();
         var image = this.state.image;
@@ -146,7 +146,7 @@ var AvatarEditor = React.createClass({
         // the image gets truncated to the size of the canvas.
         canvas.getContext('2d').drawImage(image.resource, -cropRect.x, -cropRect.y);
 
-        return canvas.toDataURL(type, quality);
+        return canvas;
     },
     
     getCroppingRect() {
