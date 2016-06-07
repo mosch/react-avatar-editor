@@ -82,7 +82,8 @@ var AvatarEditor = React.createClass({
         onLoadFailure: React.PropTypes.func,
         onLoadSuccess: React.PropTypes.func,
         onImageReady: React.PropTypes.func,
-        onMouseUp: React.PropTypes.func
+        onMouseUp: React.PropTypes.func,
+        onMouseMove: React.PropTypes.func
     },
 
     getDefaultProps() {
@@ -98,7 +99,8 @@ var AvatarEditor = React.createClass({
             onLoadFailure() {},
             onLoadSuccess() {},
             onImageReady() {},
-            onMouseUp() {}
+            onMouseUp() {},
+            onMouseMove() {}
         }
     },
 
@@ -148,7 +150,7 @@ var AvatarEditor = React.createClass({
 
         return canvas.toDataURL(type, quality);
     },
-    
+
     getCroppingRect() {
         var dim = this.getDimensions();
         var frameRect = {x: dim.border, y: dim.border, width: dim.width, height: dim.height};
@@ -217,8 +219,8 @@ var AvatarEditor = React.createClass({
         imageState.resource = image;
         imageState.x = 0;
         imageState.y = 0;
-        this.props.onLoadSuccess(imageState);
         this.setState({drag: false, image: imageState}, this.props.onImageReady);
+        this.props.onLoadSuccess(imageState);
     },
 
     getInitialSize(width, height) {
@@ -298,11 +300,11 @@ var AvatarEditor = React.createClass({
         var borderRadius = this.props.borderRadius;
         var height = dimensions.canvas.height;
         var width = dimensions.canvas.width;
-        
+
         // clamp border radius between zero (perfect rectangle) and half the size without borders (perfect circle or "pill")
         borderRadius = Math.max(borderRadius, 0);
         borderRadius = Math.min(borderRadius, width/2 - borderSize, height/2 - borderSize);
-        
+
         context.beginPath();
         drawRoundedRect(context, borderSize, borderSize, width - borderSize*2, height - borderSize*2, borderRadius); // inner rect, possibly rounded
         context.rect(width, 0, -width, height); // outer rect, drawn "counterclockwise"
@@ -354,6 +356,7 @@ var AvatarEditor = React.createClass({
         }
 
         this.setState(newState);
+        this.props.onMouseMove();
     },
 
     squeeze(props) {
@@ -388,7 +391,7 @@ var AvatarEditor = React.createClass({
         var e = e || window.event;
         e.stopPropagation();
         e.preventDefault();
-        
+
         if (e.dataTransfer && e.dataTransfer.files.length) {
             this.props.onDropFile(e);
             let reader = new FileReader();
@@ -402,7 +405,7 @@ var AvatarEditor = React.createClass({
         var defaultStyle = {
             cursor: this.state.drag? 'grabbing' : 'grab'
         };
-    
+
         var attributes = {
             width: this.getDimensions().canvas.width,
             height: this.getDimensions().canvas.height,
