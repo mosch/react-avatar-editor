@@ -56,7 +56,7 @@ var App = React.createClass({
     },
 
     handleSave: function(data) {
-        var img = this.refs.avatar.getImage();
+        var img = this.refs.avatar.getImage().toDataURL();
         var rect = this.refs.avatar.getCroppingRect();
         this.setState({preview: img, croppingRect: rect});
     },
