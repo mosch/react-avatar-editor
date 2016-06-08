@@ -166,6 +166,26 @@
             return canvas;
         },
 
+        /**
+         * Get the image scaled to original canvas size.
+         * This was default in 4.x and is now kept as a legacy method.
+         */
+        getImageScaledToCanvas: function getImageScaledToCanvas() {
+            var _getDimensions = this.getDimensions();
+
+            var width = _getDimensions.width;
+            var height = _getDimensions.height;
+
+            var canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+
+            // don't paint a border here, as it is the resulting image
+            this.paintImage(canvas.getContext('2d'), this.state.image, 0);
+
+            return canvas;
+        },
+
         getCroppingRect: function getCroppingRect() {
             var dim = this.getDimensions();
             var frameRect = { x: dim.border, y: dim.border, width: dim.width, height: dim.height };
