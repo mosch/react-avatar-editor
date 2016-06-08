@@ -403,14 +403,17 @@ var AvatarEditor = React.createClass({
 
     render() {
         var defaultStyle = {
-            cursor: this.state.drag? 'grabbing' : 'grab'
-        };
+            cursor: this.state.drag ? 'grabbing' : 'grab'
+        }
 
         var attributes = {
             width: this.getDimensions().canvas.width,
             height: this.getDimensions().canvas.height,
-            style: {...defaultStyle, ...this.props.style}
-        };
+            style: {
+                ...defaultStyle,
+                ...this.props.style
+            }
+        }
 
         attributes[deviceEvents.react.down] = this.handleMouseDown;
         attributes[deviceEvents.react.drag] = this.handleDragOver;
