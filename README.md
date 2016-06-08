@@ -94,7 +94,6 @@ like ``getImage()``.
 
 For development you can use following build tools:
 
-* `npm run build`: Builds a minified dist file: `dist/index.js`
-* `npm run build-debug`: Builds an unminified dist file: `dist/index.js`
-* `npm run watch`: Watches for file changes and builds unminified into: `dist/index.js`
+* `npm run build`: Builds the dist file: `dist/index.js`
+* `npm run watch`: Watches for file changes and builds into: `dist/index.js`
 * `npm run demo`: Builds the demo based on the dist file `dist/index.js`
