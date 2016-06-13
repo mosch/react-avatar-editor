@@ -127,7 +127,7 @@ var AvatarEditor = React.createClass({
             }
         }
     },
-    
+
     getImage() {
         // get relative coordinates (0 to 1)
         var cropRect = this.getCroppingRect();
@@ -208,8 +208,6 @@ var AvatarEditor = React.createClass({
                 document.addEventListener(nativeEvents.mouseUp, this.handleMouseUp, false);
             }
         }
-
-        if (isTouchDevice && React.initializeTouchEvents) React.initializeTouchEvents(true);
     },
 
     componentWillUnmount() {
