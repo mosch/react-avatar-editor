@@ -1,12 +1,12 @@
 {
   "name": "react-avatar-editor",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "Facebook like avatar / profile picture component. Resize and crop your uploaded image using a intuitive user interface.",
   "main": "dist/package.umd.js",
   "jsnext:main": "dist/package.es2015.js",
   "scripts": {
     "demo": "watchify -t reactify example/app.js -o example/bundle.js -v",
-    "build": "babel --modules umd index.js > dist/index.js",
+    "build": "babel --plugins babel-plugin-transform-es2015-modules-umd  --modules umd --presets babel-preset-stage-0,react --minified index.js > dist/index.js",
     "watch": "babel --modules umd index.js -w -o dist/index.js"
   },
   "author": {
@@ -35,9 +35,11 @@
     "image"
   ],
   "devDependencies": {
+    "babel-plugin-transform-es2015-modules-umd": "^6.8.0",
     "babel-plugin-transform-object-rest-spread": "^6.8.0",
     "babel-preset-es2015": "^6.9.0",
     "babel-preset-react": "^6.5.0",
+    "babel-preset-stage-0": "^6.5.0",
     "babelify": "^7.3.0"
   },
   "dependencies": {
