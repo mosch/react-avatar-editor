@@ -151,6 +151,23 @@ var AvatarEditor = React.createClass({
         return canvas;
     },
 
+    /**
+     * Get the image scaled to original canvas size.
+     * This was default in 4.x and is now kept as a legacy method.
+     */
+    getImageScaledToCanvas() {
+        const { width, height } = this.getDimensions();
+
+        let canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+
+        // don't paint a border here, as it is the resulting image
+        this.paintImage(canvas.getContext('2d'), this.state.image, 0);
+
+        return canvas;
+    },
+
     getCroppingRect() {
         var dim = this.getDimensions();
         var frameRect = {x: dim.border, y: dim.border, width: dim.width, height: dim.height};

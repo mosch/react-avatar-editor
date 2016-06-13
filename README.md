@@ -50,7 +50,8 @@ module.exports = MyEditor;
 
 ## Accessing the resulting image
 
-The resulting image will have the same resolution as the original image (i.e. resizing is up to you), regardless of the editor's size.
+The resulting image will have the same resolution as the original image, regardless of the editor's size.
+If you want the image sized in the dimensions of the canvas you can use `getImageScaledToCanvas`.
 
 
 ```javascript
@@ -62,6 +63,9 @@ var MyEditor = React.createClass({
   onClickSave: function() {
     var canvas = this.refs.editor.getImage(); // This is a HTMLCanvasElement.
     // It can be made into a data URL or a blob, drawn on another canvas, or added to the DOM.
+    
+    // If you want the image resized to the canvas size (also a HTMLCanvasElement)
+    var canvasScaled = this.refs.editor.getImageScaledToCanvas();
   },
   render: function() {
     return (
