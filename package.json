@@ -6,8 +6,8 @@
   "jsnext:main": "dist/package.es2015.js",
   "scripts": {
     "demo": "watchify -t reactify example/app.js -o example/bundle.js -v",
-    "build": "babel --plugins babel-plugin-transform-es2015-modules-umd  --modules umd --presets babel-preset-stage-0,react --minified index.js > dist/index.js",
-    "watch": "babel --modules umd index.js -w -o dist/index.js"
+    "build": "babel --minified index.js > dist/index.js",
+    "watch": "babel index.js -w -o dist/index.js"
   },
   "author": {
     "name": "Moritz Schwoerer",
