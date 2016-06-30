@@ -94,10 +94,12 @@ all relative to the image size (that is, comprised between 0 and 1). It is a met
 like ``getImage()``.
 
 
-# Development
+# Contributing
 
 For development you can use following build tools:
 
-* `npm run build`: Builds the dist file: `dist/index.js`
-* `npm run watch`: Watches for file changes and builds into: `dist/index.js`
+* `npm run build`: Builds the *minified* dist file: `dist/index.js`
+* `npm run watch`: Watches for file changes and builds *unminified* into: `dist/index.js`
 * `npm run demo`: Builds the demo based on the dist file `dist/index.js`
+
+**Please always run `npm run build` in your pull request.**
