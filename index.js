@@ -351,8 +351,8 @@ const AvatarEditor = React.createClass({
   handleMouseUp () {
     if (this.state.drag) {
       this.setState({ drag: false })
+      this.props.onMouseUp()
     }
-    this.props.onMouseUp()
   },
 
   handleMouseMove (e) {
