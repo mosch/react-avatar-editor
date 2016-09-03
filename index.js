@@ -85,6 +85,7 @@ const AvatarEditor = React.createClass({
     onLoadFailure: React.PropTypes.func,
     onLoadSuccess: React.PropTypes.func,
     onImageReady: React.PropTypes.func,
+    onImageChange: React.PropTypes.func,
     onMouseUp: React.PropTypes.func,
     onMouseMove: React.PropTypes.func
   },
@@ -105,6 +106,8 @@ const AvatarEditor = React.createClass({
       onLoadSuccess () {
       },
       onImageReady () {
+      },
+      onImageChange () {
       },
       onMouseUp () {
       },
@@ -231,11 +234,20 @@ const AvatarEditor = React.createClass({
     }
   },
 
-  componentDidUpdate () {
+  componentDidUpdate (prevProps, prevState) {
     const context = ReactDOM.findDOMNode(this.refs.canvas).getContext('2d')
     context.clearRect(0, 0, this.getDimensions().canvas.width, this.getDimensions().canvas.height)
     this.paint(context)
     this.paintImage(context, this.state.image, this.props.border)
+
+    if (prevProps.image !== this.props.image ||
+        prevProps.scale !== this.props.scale ||
+        prevState.my !== this.state.my ||
+        prevState.mx !== this.state.mx ||
+        prevState.image.x !== this.state.image.x ||
+        prevState.image.y !== this.state.image.y) {
+      this.props.onImageChange()
+    }
   },
 
   handleImageReady (image) {
