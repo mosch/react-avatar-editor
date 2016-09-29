@@ -285,7 +285,7 @@ const AvatarEditor = React.createClass({
   },
 
   componentWillReceiveProps (newProps) {
-    if (this.props.image !== newProps.image) {
+    if (newProps.image && this.props.image !== newProps.image) {
       this.loadImage(newProps.image)
     }
     if (
