@@ -344,7 +344,8 @@ const AvatarEditor = React.createClass({
     borderRadius = Math.min(borderRadius, width / 2 - borderSize, height / 2 - borderSize)
 
     context.beginPath()
-    drawRoundedRect(context, borderSize, borderSize, width - borderSize * 2, height - borderSize * 2, borderRadius) // inner rect, possibly rounded
+    // inner rect, possibly rounded
+    drawRoundedRect(context, borderSize, borderSize, width - borderSize * 2, height - borderSize * 2, borderRadius)
     context.rect(width, 0, -width, height) // outer rect, drawn "counterclockwise"
     context.fill('evenodd')
 
