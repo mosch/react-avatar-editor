@@ -43,7 +43,7 @@ class App extends React.Component {
                     ref="avatar"
                     scale={this.state.scale}
                     borderRadius={this.state.borderRadius}
-                    onSave={this.handleSave}
+                    onImageChange={() => { this.logCallback.bind(this, 'onImageChange'); this.handleSave(); }}
                     onLoadFailed={this.logCallback.bind(this, 'onLoadFailed')}
                     onUpload={this.logCallback.bind(this, 'onUpload')}
                     onImageLoad={this.logCallback.bind(this, 'onImageLoad')}
