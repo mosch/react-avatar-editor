@@ -48,6 +48,7 @@ class App extends React.Component {
           onLoadSuccess={this.logCallback.bind(this, 'onLoadSuccess')}
           onImageReady={this.logCallback.bind(this, 'onImageReady')}
           onImageLoad={this.logCallback.bind(this, 'onImageLoad')}
+          onDropFile={this.logCallback.bind(this, 'onDropFile')}
           image="example/avatar.jpg"
         />
         <br />
