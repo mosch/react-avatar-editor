@@ -3,6 +3,9 @@ module.exports = {
   output: {
     filename: './example/bundle.js'
   },
+  devServer: { 
+    inline: true 
+  },
   module: {
     loaders: [
       {

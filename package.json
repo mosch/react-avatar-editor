@@ -7,7 +7,8 @@
   "scripts": {
     "demo": "webpack",
     "build": "standard index.js && babel --minified --no-comments index.js -o dist/index.js",
-    "watch": "babel index.js -w -o dist/index.js"
+    "watch": "babel index.js -w -o dist/index.js",
+    "dev": "webpack-dev-server"
   },
   "author": {
     "name": "Moritz Schwoerer",
@@ -42,7 +43,8 @@
     "babel-preset-react": "^6.5.0",
     "babel-preset-stage-0": "^6.5.0",
     "standard": "^7.1.2",
-    "webpack": "^1.13.1"
+    "webpack": "^1.13.1",
+    "webpack-dev-server": "^1.16.2"
   },
   "dependencies": {
     "react": "^15.3.2",
