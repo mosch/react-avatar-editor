@@ -21866,7 +21866,7 @@
 	      imageObj.src = imageURL;
 	    },
 	    componentDidMount: function componentDidMount() {
-	      var context = _reactDom2.default.findDOMNode(this.refs.canvas).getContext('2d');
+	      var context = _reactDom2.default.findDOMNode(this.canvas).getContext('2d');
 	      if (this.props.image) {
 	        this.loadImage(this.props.image);
 	      }
@@ -21893,7 +21893,7 @@
 	      }
 	    },
 	    componentDidUpdate: function componentDidUpdate(prevProps, prevState) {
-	      var context = _reactDom2.default.findDOMNode(this.refs.canvas).getContext('2d');
+	      var context = _reactDom2.default.findDOMNode(this.canvas).getContext('2d');
 	      context.clearRect(0, 0, this.getDimensions().canvas.width, this.getDimensions().canvas.height);
 	      this.paint(context);
 	      this.paintImage(context, this.state.image, this.props.border);
@@ -22077,6 +22077,9 @@
 	        reader.readAsDataURL(file);
 	      }
 	    },
+	    setCanvas: function setCanvas(canvas) {
+	      this.canvas = canvas;
+	    },
 	    render: function render() {
 	      var defaultStyle = {
 	        cursor: this.state.drag ? 'grabbing' : 'grab'
@@ -22093,7 +22096,7 @@
 	      attributes[deviceEvents.react.drop] = this.handleDrop;
 	      if (isTouchDevice) attributes[deviceEvents.react.mouseDown] = this.handleMouseDown;
 
-	      return _react2.default.createElement('canvas', _extends({ ref: 'canvas' }, attributes));
+	      return _react2.default.createElement('canvas', _extends({ ref: this.setCanvas }, attributes));
 	    }
 	  });
 

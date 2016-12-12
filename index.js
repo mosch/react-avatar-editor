@@ -209,7 +209,7 @@ const AvatarEditor = React.createClass({
   },
 
   componentDidMount () {
-    const context = ReactDOM.findDOMNode(this.refs.canvas).getContext('2d')
+    const context = ReactDOM.findDOMNode(this.canvas).getContext('2d')
     if (this.props.image) {
       this.loadImage(this.props.image)
     }
@@ -238,7 +238,7 @@ const AvatarEditor = React.createClass({
   },
 
   componentDidUpdate (prevProps, prevState) {
-    const context = ReactDOM.findDOMNode(this.refs.canvas).getContext('2d')
+    const context = ReactDOM.findDOMNode(this.canvas).getContext('2d')
     context.clearRect(0, 0, this.getDimensions().canvas.width, this.getDimensions().canvas.height)
     this.paint(context)
     this.paintImage(context, this.state.image, this.props.border)
@@ -442,6 +442,10 @@ const AvatarEditor = React.createClass({
     }
   },
 
+  setCanvas (canvas) {
+    this.canvas = canvas
+  },
+
   render () {
     const defaultStyle = {
       cursor: this.state.drag ? 'grabbing' : 'grab'
@@ -462,7 +466,7 @@ const AvatarEditor = React.createClass({
     if (isTouchDevice) attributes[deviceEvents.react.mouseDown] = this.handleMouseDown
 
     return (
-      <canvas ref='canvas' {...attributes} />
+      <canvas ref={this.setCanvas} {...attributes} />
     )
   }
 })
