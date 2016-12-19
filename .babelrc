@@ -1,10 +1,11 @@
 {
-  presets: [
-    'react',
-    'es2015',
-    'stage-0'
+  "presets": [
+    "react",
+    "es2015"
   ],
-  plugins: [
-      "babel-plugin-transform-es2015-modules-umd"
+  "plugins": [
+    "transform-class-properties",
+    "transform-object-rest-spread",
+    "transform-function-bind"
   ]
 }
