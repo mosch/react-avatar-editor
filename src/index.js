@@ -70,8 +70,8 @@ const drawRoundedRect = (context, x, y, width, height, borderRadius) => {
 
 // Define global variables for standard.js
 /* global Image, FileReader */
-const AvatarEditor = React.createClass({
-  propTypes: {
+class AvatarEditor extends React.Component {
+  static propTypes = {
     scale: React.PropTypes.number,
     image: React.PropTypes.string,
     border: React.PropTypes.number,
@@ -88,45 +88,46 @@ const AvatarEditor = React.createClass({
     onImageChange: React.PropTypes.func,
     onMouseUp: React.PropTypes.func,
     onMouseMove: React.PropTypes.func
-  },
+  }
 
-  getDefaultProps () {
-    return {
-      scale: 1,
-      border: 25,
-      borderRadius: 0,
-      width: 200,
-      height: 200,
-      color: [0, 0, 0, 0.5],
-      style: {},
-      onDropFile () {
-      },
-      onLoadFailure () {
-      },
-      onLoadSuccess () {
-      },
-      onImageReady () {
-      },
-      onImageChange () {
-      },
-      onMouseUp () {
-      },
-      onMouseMove () {
-      }
-    }
-  },
+  static defaultProps = {
+    scale: 1,
+    border: 25,
+    borderRadius: 0,
+    width: 200,
+    height: 200,
+    color: [0, 0, 0, 0.5],
+    style: {},
+    onDropFile () {},
+    onLoadFailure () {},
+    onLoadSuccess () {},
+    onImageReady () {},
+    onImageChange () {},
+    onMouseUp () {},
+    onMouseMove () {}
+  }
 
-  getInitialState () {
-    return {
-      drag: false,
-      my: null,
-      mx: null,
-      image: {
-        x: 0,
-        y: 0
-      }
+  constructor (props) {
+    super(props)
+
+    this.setCanvas = ::this.setCanvas
+    this.handleMouseMove = ::this.handleMouseMove
+    this.handleMouseDown = ::this.handleMouseDown
+    this.handleMouseUp = ::this.handleMouseUp
+    this.handleMouseMove = ::this.handleMouseMove
+    this.handleDragOver = ::this.handleDragOver
+    this.handleDrop = ::this.handleDrop
+  }
+
+  state = {
+    drag: false,
+    my: null,
+    mx: null,
+    image: {
+      x: 0,
+      y: 0
     }
-  },
+  }
 
   getDimensions () {
     return {
@@ -138,7 +139,7 @@ const AvatarEditor = React.createClass({
         height: this.props.height + (this.props.border * 2)
       }
     }
-  },
+  }
 
   getImage () {
     // get relative coordinates (0 to 1)
@@ -161,7 +162,7 @@ const AvatarEditor = React.createClass({
     canvas.getContext('2d').drawImage(image.resource, -cropRect.x, -cropRect.y)
 
     return canvas
-  },
+  }
 
   /**
    * Get the image scaled to original canvas size.
@@ -178,7 +179,7 @@ const AvatarEditor = React.createClass({
     this.paintImage(canvas.getContext('2d'), this.state.image, 0)
 
     return canvas
-  },
+  }
 
   getCroppingRect () {
     const dim = this.getDimensions()
@@ -190,7 +191,7 @@ const AvatarEditor = React.createClass({
       width: frameRect.width / imageRect.width,
       height: frameRect.height / imageRect.height
     }
-  },
+  }
 
   isDataURL (str) {
     if (str === null) {
@@ -198,7 +199,7 @@ const AvatarEditor = React.createClass({
     }
     const regex = /^\s*data:([a-z]+\/[a-z]+(;[a-z\-]+=[a-z\-]+)?)?(;base64)?,[a-z0-9!$&',()*+;=\-._~:@\/?%\s]*\s*$/i
     return !!str.match(regex)
-  },
+  }
 
   loadImage (imageURL) {
     const imageObj = new Image()
@@ -206,7 +207,7 @@ const AvatarEditor = React.createClass({
     imageObj.onerror = this.props.onLoadFailure
     if (!this.isDataURL(imageURL)) imageObj.crossOrigin = 'anonymous'
     imageObj.src = imageURL
-  },
+  }
 
   componentDidMount () {
     const context = ReactDOM.findDOMNode(this.canvas).getContext('2d')
@@ -223,7 +224,7 @@ const AvatarEditor = React.createClass({
         document.addEventListener(nativeEvents.mouseUp, this.handleMouseUp, false)
       }
     }
-  },
+  }
 
   componentWillUnmount () {
     if (document) {
@@ -235,7 +236,7 @@ const AvatarEditor = React.createClass({
         document.removeEventListener(nativeEvents.mouseUp, this.handleMouseUp, false)
       }
     }
-  },
+  }
 
   componentDidUpdate (prevProps, prevState) {
     const context = ReactDOM.findDOMNode(this.canvas).getContext('2d')
@@ -251,7 +252,7 @@ const AvatarEditor = React.createClass({
         prevState.image.y !== this.state.image.y) {
       this.props.onImageChange()
     }
-  },
+  }
 
   handleImageReady (image) {
     const imageState = this.getInitialSize(image.width, image.height)
@@ -260,7 +261,7 @@ const AvatarEditor = React.createClass({
     imageState.y = 0
     this.setState({ drag: false, image: imageState }, this.props.onImageReady)
     this.props.onLoadSuccess(imageState)
-  },
+  }
 
   getInitialSize (width, height) {
     let newHeight
@@ -282,7 +283,7 @@ const AvatarEditor = React.createClass({
       height: newHeight,
       width: newWidth
     }
-  },
+  }
 
   componentWillReceiveProps (newProps) {
     if (newProps.image && this.props.image !== newProps.image) {
@@ -296,7 +297,7 @@ const AvatarEditor = React.createClass({
     ) {
       this.squeeze(newProps)
     }
-  },
+  }
 
   paintImage (context, image, border) {
     if (image.resource) {
@@ -307,7 +308,7 @@ const AvatarEditor = React.createClass({
 
       context.restore()
     }
-  },
+  }
 
   calculatePosition (image, border) {
     image = image || this.state.image
@@ -326,7 +327,7 @@ const AvatarEditor = React.createClass({
       height,
       width
     }
-  },
+  }
 
   paint (context) {
     context.save()
@@ -350,7 +351,7 @@ const AvatarEditor = React.createClass({
     context.fill('evenodd')
 
     context.restore()
-  },
+  }
 
   handleMouseDown (e) {
     e = e || window.event
@@ -363,13 +364,13 @@ const AvatarEditor = React.createClass({
       mx: null,
       my: null
     })
-  },
+  }
   handleMouseUp () {
     if (this.state.drag) {
       this.setState({ drag: false })
       this.props.onMouseUp()
     }
-  },
+  }
 
   handleMouseMove (e) {
     e = e || window.event
@@ -396,14 +397,14 @@ const AvatarEditor = React.createClass({
 
     this.setState(newState)
     this.props.onMouseMove()
-  },
+  }
 
   squeeze (props) {
     let imageState = this.state.image
     imageState.y = this.getBoundedY(imageState.y, props.scale)
     imageState.x = this.getBoundedX(imageState.x, props.scale)
     this.setState({ image: imageState })
-  },
+  }
 
   getBoundedX (x, scale) {
     const image = this.state.image
@@ -412,7 +413,7 @@ const AvatarEditor = React.createClass({
     widthDiff = Math.max(0, widthDiff)
 
     return Math.max(-widthDiff, Math.min(x, widthDiff))
-  },
+  }
 
   getBoundedY (y, scale) {
     const image = this.state.image
@@ -421,12 +422,12 @@ const AvatarEditor = React.createClass({
     heightDiff = Math.max(0, heightDiff)
 
     return Math.max(-heightDiff, Math.min(y, heightDiff))
-  },
+  }
 
   handleDragOver (e) {
     e = e || window.event
     e.preventDefault()
-  },
+  }
 
   handleDrop (e) {
     e = e || window.event
@@ -440,11 +441,11 @@ const AvatarEditor = React.createClass({
       reader.onload = (e) => this.loadImage(e.target.result)
       reader.readAsDataURL(file)
     }
-  },
+  }
 
   setCanvas (canvas) {
     this.canvas = canvas
-  },
+  }
 
   render () {
     const defaultStyle = {
@@ -469,6 +470,6 @@ const AvatarEditor = React.createClass({
       <canvas ref={this.setCanvas} {...attributes} />
     )
   }
-})
+}
 
 export default AvatarEditor
