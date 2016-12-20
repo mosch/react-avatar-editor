@@ -3,44 +3,54 @@ import ReactDOM from 'react-dom'
 import ReactAvatarEditor from '../src/index'
 
 class App extends React.Component {
-  constructor (props) {
-    super(props);
-    this.state = {
-      scale: 1,
-      borderRadius: 0,
-      preview: null
-    }
+  state = {
+    scale: 1,
+    borderRadius: 0,
+    preview: null
+  }
 
-    this.handleSave = this.handleSave.bind(this);
-    this.handleScale = this.handleScale.bind(this);
-    this.handleBorderRadius = this.handleBorderRadius.bind(this);
+  constructor (props) {
+    super(props)
+
+    this.setEditorRef = ::this.setEditorRef
+    this.handleSave = ::this.handleSave.bind
+    this.handleScale = ::this.handleScale.bind
+    this.handleBorderRadius = ::this.handleBorderRadius.bind
   }
 
   handleSave (data) {
-    var img = this.refs.avatar.getImage().toDataURL();
-    var rect = this.refs.avatar.getCroppingRect();
-    this.setState({ preview: img, croppingRect: rect });
+    const img = this.editor.getImage().toDataURL()
+    const rect = this.editor.getCroppingRect()
+
+    this.setState({
+      preview: img,
+      croppingRect: rect
+    })
   }
 
   handleScale () {
-    var scale = parseFloat(this.refs.scale.value);
+    const scale = parseFloat(this.refs.scale.value)
     this.setState({ scale: scale })
   }
 
   handleBorderRadius () {
-    var borderRadius = parseInt(this.refs.borderRadius.value);
+    const borderRadius = parseInt(this.refs.borderRadius.value)
     this.setState({ borderRadius: borderRadius })
   }
 
   logCallback (e) {
-    console.log("callback", e);
+    console.log('callback', e)
+  }
+
+  setEditorRef (editor) {
+    if (editor) this.editor = editor
   }
 
   render () {
     return (
       <div>
         <ReactAvatarEditor
-          ref="avatar"
+          ref={this.setEditorRef}
           scale={parseFloat(this.state.scale)}
           borderRadius={this.state.borderRadius}
           onSave={this.handleSave}
@@ -81,31 +91,31 @@ class App extends React.Component {
 // Used to display the cropping rect
 class ImageWithRect extends React.Component {
   componentDidMount () {
-    this.redraw();
+    this.redraw()
   }
 
   componentDidUpdate () {
-    this.redraw();
+    this.redraw()
   }
 
   redraw () {
-    var img = new Image();
+    var img = new Image()
 
     img.onload = function (ctx, rect, width, height) {
-      ctx.drawImage(img, 0, 0, width, height);
+      ctx.drawImage(img, 0, 0, width, height)
 
       if (rect) {
-        ctx.strokeStyle = "red";
+        ctx.strokeStyle = "red"
         ctx.strokeRect(
           Math.round(rect.x * width) + 0.5,
           Math.round(rect.y * height) + 0.5,
           Math.round(rect.width * width),
           Math.round(rect.height * height)
-        );
+        )
       }
-    }.bind(this, this.refs.root.getContext('2d'), this.props.rect, this.props.width, this.props.height);
+    }.bind(this, this.refs.root.getContext('2d'), this.props.rect, this.props.width, this.props.height)
 
-    img.src = this.props.image;
+    img.src = this.props.image
   }
 
   render () {
@@ -113,8 +123,8 @@ class ImageWithRect extends React.Component {
       ref="root"
       style={this.props.style}
       width={this.props.width}
-      height={this.props.height} />;
+      height={this.props.height} />
   }
 }
 
-ReactDOM.render(<App />, document.getElementById('app'));
+ReactDOM.render(<App />, document.getElementById('app'))
