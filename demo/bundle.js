@@ -82,6 +82,8 @@
 	      preview: null
 	    };
 
+
+	    _this.setEditorRef = _this.setEditorRef.bind(_this);
 	    _this.handleSave = _this.handleSave.bind(_this);
 	    _this.handleScale = _this.handleScale.bind(_this);
 	    _this.handleBorderRadius = _this.handleBorderRadius.bind(_this);
@@ -91,26 +93,35 @@
 	  _createClass(App, [{
 	    key: 'handleSave',
 	    value: function handleSave(data) {
-	      var img = this.refs.avatar.getImage().toDataURL();
-	      var rect = this.refs.avatar.getCroppingRect();
-	      this.setState({ preview: img, croppingRect: rect });
+	      var img = this.editor.getImage().toDataURL();
+	      var rect = this.editor.getCroppingRect();
+
+	      this.setState({
+	        preview: img,
+	        croppingRect: rect
+	      });
 	    }
 	  }, {
 	    key: 'handleScale',
-	    value: function handleScale() {
-	      var scale = parseFloat(this.refs.scale.value);
+	    value: function handleScale(e) {
+	      var scale = parseFloat(e.target.value);
 	      this.setState({ scale: scale });
 	    }
 	  }, {
 	    key: 'handleBorderRadius',
-	    value: function handleBorderRadius() {
-	      var borderRadius = parseInt(this.refs.borderRadius.value);
+	    value: function handleBorderRadius(e) {
+	      var borderRadius = parseInt(e.target.value);
 	      this.setState({ borderRadius: borderRadius });
 	    }
 	  }, {
 	    key: 'logCallback',
 	    value: function logCallback(e) {
-	      console.log("callback", e);
+	      console.log('callback', e);
+	    }
+	  }, {
+	    key: 'setEditorRef',
+	    value: function setEditorRef(editor) {
+	      if (editor) this.editor = editor;
 	    }
 	  }, {
 	    key: 'render',
@@ -119,7 +130,7 @@
 	        'div',
 	        null,
 	        _react2.default.createElement(_index2.default, {
-	          ref: 'avatar',
+	          ref: this.setEditorRef,
 	          scale: parseFloat(this.state.scale),
 	          borderRadius: this.state.borderRadius,
 	          onSave: this.handleSave,
@@ -128,29 +139,46 @@
 	          onImageReady: this.logCallback.bind(this, 'onImageReady'),
 	          onImageLoad: this.logCallback.bind(this, 'onImageLoad'),
 	          onDropFile: this.logCallback.bind(this, 'onDropFile'),
-	          image: 'example/avatar.jpg'
+	          image: 'avatar.jpg'
 	        }),
 	        _react2.default.createElement('br', null),
-	        'Zoom: ',
-	        _react2.default.createElement('input', { name: 'scale', type: 'range', ref: 'scale', onChange: this.handleScale, min: '1', max: '2', step: '0.01',
-	          defaultValue: '1' }),
+	        'Zoom:',
+	        _react2.default.createElement('input', {
+	          name: 'scale',
+	          type: 'range',
+	          onChange: this.handleScale,
+	          min: '1',
+	          max: '2',
+	          step: '0.01',
+	          defaultValue: '1'
+	        }),
 	        _react2.default.createElement('br', null),
-	        'Border radius: ',
-	        _react2.default.createElement('input', { name: 'scale', type: 'range', ref: 'borderRadius', onChange: this.handleBorderRadius, min: '0',
-	          max: '100', step: '1', defaultValue: '0' }),
+	        'Border radius:',
+	        _react2.default.createElement('input', {
+	          name: 'scale',
+	          type: 'range',
+	          onChange: this.handleBorderRadius,
+	          min: '0',
+	          max: '100',
+	          step: '1',
+	          defaultValue: '0'
+	        }),
 	        _react2.default.createElement('br', null),
 	        _react2.default.createElement('br', null),
 	        _react2.default.createElement('input', { type: 'button', onClick: this.handleSave, value: 'Preview' }),
 	        _react2.default.createElement('br', null),
-	        _react2.default.createElement('img', { src: this.state.preview,
-	          style: { borderRadius: this.state.borderRadius + 5 /* because of the 5px padding */ } }),
+	        _react2.default.createElement('img', {
+	          src: this.state.preview,
+	          style: { borderRadius: this.state.borderRadius / 2 + '%' }
+	        }),
 	        this.state.croppingRect ? // display only if there is a cropping rect
 	        _react2.default.createElement(ImageWithRect, {
 	          width: 200 * 478 / 270,
 	          height: 200,
-	          image: 'example/avatar.jpg',
+	          image: 'avatar.jpg',
 	          rect: this.state.croppingRect,
-	          style: { margin: '10px 24px 32px', padding: 5, border: '1px solid #CCC' } }) : null
+	          style: { margin: '10px 24px 32px', padding: 5, border: '1px solid #CCC' }
+	        }) : null
 	      );
 	    }
 	  }]);
@@ -164,10 +192,14 @@
 	var ImageWithRect = function (_React$Component2) {
 	  _inherits(ImageWithRect, _React$Component2);
 
-	  function ImageWithRect() {
+	  function ImageWithRect(props) {
 	    _classCallCheck(this, ImageWithRect);
 
-	    return _possibleConstructorReturn(this, (ImageWithRect.__proto__ || Object.getPrototypeOf(ImageWithRect)).apply(this, arguments));
+	    var _this2 = _possibleConstructorReturn(this, (ImageWithRect.__proto__ || Object.getPrototypeOf(ImageWithRect)).call(this, props));
+
+	    _this2.setCanvas = _this2.setCanvas.bind(_this2);
+	    _this2.handleImageLoad = _this2.handleImageLoad.bind(_this2);
+	    return _this2;
 	  }
 
 	  _createClass(ImageWithRect, [{
@@ -181,29 +213,46 @@
 	      this.redraw();
 	    }
 	  }, {
+	    key: 'setCanvas',
+	    value: function setCanvas(canvas) {
+	      if (canvas) this.canvas = canvas;
+	    }
+	  }, {
+	    key: 'handleImageLoad',
+	    value: function handleImageLoad() {
+	      var ctx = this.canvas.getContext('2d');
+	      var _props = this.props,
+	          image = _props.image,
+	          rect = _props.rect,
+	          width = _props.width,
+	          height = _props.height;
+
+
+	      ctx.drawImage(this.imgElement, 0, 0, width, height);
+
+	      if (rect) {
+	        ctx.strokeStyle = 'red';
+	        ctx.strokeRect(Math.round(rect.x * width) + 0.5, Math.round(rect.y * height) + 0.5, Math.round(rect.width * width), Math.round(rect.height * height));
+	      }
+	    }
+	  }, {
 	    key: 'redraw',
 	    value: function redraw() {
 	      var img = new Image();
 
-	      img.onload = function (ctx, rect, width, height) {
-	        ctx.drawImage(img, 0, 0, width, height);
-
-	        if (rect) {
-	          ctx.strokeStyle = "red";
-	          ctx.strokeRect(Math.round(rect.x * width) + 0.5, Math.round(rect.y * height) + 0.5, Math.round(rect.width * width), Math.round(rect.height * height));
-	        }
-	      }.bind(this, this.refs.root.getContext('2d'), this.props.rect, this.props.width, this.props.height);
-
 	      img.src = this.props.image;
+	      img.onload = this.handleImageLoad;
+	      this.imgElement = img;
 	    }
 	  }, {
 	    key: 'render',
 	    value: function render() {
 	      return _react2.default.createElement('canvas', {
-	        ref: 'root',
+	        ref: this.setCanvas,
 	        style: this.props.style,
 	        width: this.props.width,
-	        height: this.props.height });
+	        height: this.props.height
+	      });
 	    }
 	  }]);
 
@@ -21643,8 +21692,6 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -21717,8 +21764,8 @@
 	// Define global variables for standard.js
 	/* global Image, FileReader */
 
-	var AvatarEditor = function (_Component) {
-	  _inherits(AvatarEditor, _Component);
+	var AvatarEditor = function (_React$Component) {
+	  _inherits(AvatarEditor, _React$Component);
 
 	  function AvatarEditor(props) {
 	    _classCallCheck(this, AvatarEditor);
@@ -21740,10 +21787,9 @@
 	    _this.handleMouseMove = _this.handleMouseMove.bind(_this);
 	    _this.handleMouseDown = _this.handleMouseDown.bind(_this);
 	    _this.handleMouseUp = _this.handleMouseUp.bind(_this);
+	    _this.handleMouseMove = _this.handleMouseMove.bind(_this);
 	    _this.handleDragOver = _this.handleDragOver.bind(_this);
-	    _this.handleImageReady = _this.handleImageReady.bind(_this);
 	    _this.handleDrop = _this.handleDrop.bind(_this);
-	    _this.setCanvas = _this.setCanvas.bind(_this);
 	    return _this;
 	  }
 
@@ -21832,7 +21878,7 @@
 	    key: 'loadImage',
 	    value: function loadImage(imageURL) {
 	      var imageObj = new Image();
-	      imageObj.onload = this.handleImageReady(imageObj);
+	      imageObj.onload = this.handleImageReady.bind(this, imageObj);
 	      imageObj.onerror = this.props.onLoadFailure;
 	      if (!this.isDataURL(imageURL)) imageObj.crossOrigin = 'anonymous';
 	      imageObj.src = imageURL;
@@ -22086,23 +22132,24 @@
 	  }, {
 	    key: 'setCanvas',
 	    value: function setCanvas(canvas) {
-	      if (canvas) this.canvas = canvas;
+	      this.canvas = canvas;
 	    }
 	  }, {
 	    key: 'render',
 	    value: function render() {
-	      var _attributes;
-
 	      var defaultStyle = {
 	        cursor: this.state.drag ? 'grabbing' : 'grab'
 	      };
 
-	      var attributes = (_attributes = {
+	      var attributes = {
 	        width: this.getDimensions().canvas.width,
 	        height: this.getDimensions().canvas.height,
 	        style: _extends({}, defaultStyle, this.props.style)
-	      }, _defineProperty(_attributes, deviceEvents.react.down, this.handleMouseDown), _defineProperty(_attributes, deviceEvents.react.drag, this.handleDragOver), _defineProperty(_attributes, deviceEvents.react.drop, this.handleDrop), _attributes);
+	      };
 
+	      attributes[deviceEvents.react.down] = this.handleMouseDown;
+	      attributes[deviceEvents.react.drag] = this.handleDragOver;
+	      attributes[deviceEvents.react.drop] = this.handleDrop;
 	      if (isTouchDevice) attributes[deviceEvents.react.mouseDown] = this.handleMouseDown;
 
 	      return _react2.default.createElement('canvas', _extends({ ref: this.setCanvas }, attributes));
@@ -22110,25 +22157,25 @@
 	  }]);
 
 	  return AvatarEditor;
-	}(_react.Component);
+	}(_react2.default.Component);
 
 	AvatarEditor.propTypes = {
-	  scale: _react.PropTypes.number,
-	  image: _react.PropTypes.string,
-	  border: _react.PropTypes.number,
-	  borderRadius: _react.PropTypes.number,
-	  width: _react.PropTypes.number,
-	  height: _react.PropTypes.number,
-	  color: _react.PropTypes.arrayOf(_react.PropTypes.number),
-	  style: _react.PropTypes.object,
+	  scale: _react2.default.PropTypes.number,
+	  image: _react2.default.PropTypes.string,
+	  border: _react2.default.PropTypes.number,
+	  borderRadius: _react2.default.PropTypes.number,
+	  width: _react2.default.PropTypes.number,
+	  height: _react2.default.PropTypes.number,
+	  color: _react2.default.PropTypes.arrayOf(_react2.default.PropTypes.number),
+	  style: _react2.default.PropTypes.object,
 
-	  onDropFile: _react.PropTypes.func,
-	  onLoadFailure: _react.PropTypes.func,
-	  onLoadSuccess: _react.PropTypes.func,
-	  onImageReady: _react.PropTypes.func,
-	  onImageChange: _react.PropTypes.func,
-	  onMouseUp: _react.PropTypes.func,
-	  onMouseMove: _react.PropTypes.func
+	  onDropFile: _react2.default.PropTypes.func,
+	  onLoadFailure: _react2.default.PropTypes.func,
+	  onLoadSuccess: _react2.default.PropTypes.func,
+	  onImageReady: _react2.default.PropTypes.func,
+	  onImageChange: _react2.default.PropTypes.func,
+	  onMouseUp: _react2.default.PropTypes.func,
+	  onMouseMove: _react2.default.PropTypes.func
 	};
 	AvatarEditor.defaultProps = {
 	  scale: 1,
@@ -22138,27 +22185,13 @@
 	  height: 200,
 	  color: [0, 0, 0, 0.5],
 	  style: {},
-	  onDropFile: function onDropFile(noop) {
-	    return noop;
-	  },
-	  onLoadFailure: function onLoadFailure(noop) {
-	    return noop;
-	  },
-	  onLoadSuccess: function onLoadSuccess(noop) {
-	    return noop;
-	  },
-	  onImageReady: function onImageReady(noop) {
-	    return noop;
-	  },
-	  onImageChange: function onImageChange(noop) {
-	    return noop;
-	  },
-	  onMouseUp: function onMouseUp(noop) {
-	    return noop;
-	  },
-	  onMouseMove: function onMouseMove(noop) {
-	    return noop;
-	  }
+	  onDropFile: function onDropFile() {},
+	  onLoadFailure: function onLoadFailure() {},
+	  onLoadSuccess: function onLoadSuccess() {},
+	  onImageReady: function onImageReady() {},
+	  onImageChange: function onImageChange() {},
+	  onMouseUp: function onMouseUp() {},
+	  onMouseMove: function onMouseMove() {}
 	};
 	exports.default = AvatarEditor;
 
