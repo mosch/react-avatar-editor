@@ -1,7 +1,7 @@
 module.exports = {
-  entry: './example/app.js',
+  entry: './demo/App.jsx',
   output: {
-    filename: './example/bundle.js'
+    filename: './demo/bundle.js'
   },
   devServer: { 
     inline: true 
@@ -9,7 +9,7 @@ module.exports = {
   module: {
     loaders: [
       {
-        test: /\.js$/,
+        test: /\.jsx?$/,
         exclude: /node_modules/,
         loader: 'babel',
         query: {
