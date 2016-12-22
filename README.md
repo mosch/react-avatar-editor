@@ -10,27 +10,25 @@ Resize and crop your uploaded image using a clear user interface.
 
 
 ```javascript
+import React from 'react'
+import AvatarEditor from 'react-avatar-editor'
 
-var React = require('react'),
-  AvatarEditor = require('react-avatar-editor');
-
-var MyEditor = React.createClass({
-
-  render: function() {
+class MyEditor extends React.Component {
+  render () {
     return (
-        <AvatarEditor
-          image="http://example.com/initialimage.jpg"
-          width={250}
-          height={250}
-          border={50}
-          color={[255, 255, 255, 0.6]} // RGBA
-          scale={1.2} />
-    );
+      <AvatarEditor
+        image="http://example.com/initialimage.jpg"
+        width={250}
+        height={250}
+        border={50}
+        color={[255, 255, 255, 0.6]} // RGBA
+        scale={1.2}
+      />
+    )
   }
+}
 
-});
-
-module.exports = MyEditor;
+export default MyEditor
 ```
 
 ## Props
@@ -57,33 +55,38 @@ If you want the image sized in the dimensions of the canvas you can use `getImag
 
 
 ```javascript
+import React from 'react'
+import AvatarEditor from 'react-avatar-editor'
 
-var React = require('react'),
-  AvatarEditor = require('react-avatar-editor');
+const MyEditor extends React.Component {
+  onClickSave () {
+    // This returns a HTMLCanvasElement, it can be made into a data URL or a blob,
+    // drawn on another canvas, or added to the DOM.
+    const canvas = this.editor.getImage()
 
-var MyEditor = React.createClass({
-  onClickSave: function() {
-    var canvas = this.refs.editor.getImage(); // This is a HTMLCanvasElement.
-    // It can be made into a data URL or a blob, drawn on another canvas, or added to the DOM.
-    
     // If you want the image resized to the canvas size (also a HTMLCanvasElement)
-    var canvasScaled = this.refs.editor.getImageScaledToCanvas();
-  },
-  render: function() {
+    const canvasScaled = this.editor.getImageScaledToCanvas()
+  }
+
+  setEditorRef (editor) {
+    if (editor) this.editor = editor
+  }
+
+  render () {
     return (
         <AvatarEditor
-          ref="editor"
+          ref={this.setEditorRef.bind(this)}
           image="http://example.com/initialimage.jpg"
           width={250}
           height={250}
           border={50}
-          scale={1.2} />
-    );
+          scale={1.2}
+        />
+    )
   }
+}
 
-});
-
-module.exports = MyEditor;
+export default MyEditor
 ```
 
 ## Accessing the cropping rectangle
