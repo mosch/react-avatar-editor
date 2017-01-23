@@ -36,7 +36,7 @@ class App extends React.Component {
   }
 
   handleAngle (e) {
-    const angle = parseFloat(e.target.value)
+    const angle = e.target.value
     this.setState({ angle })
   }
 
