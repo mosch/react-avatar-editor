@@ -420,8 +420,8 @@ class AvatarEditor extends React.Component {
     canvas.height = iHeight;
     // if 90 or 270 - switch width and height
     if ((angle % 180) !== 0) {
-        canvas.width = iHeight;
-        canvas.height = iWidth;
+      canvas.width = iHeight;
+      canvas.height = iWidth;
     }
     context.save();
     context.translate((canvas.width / 2), (canvas.height / 2));
