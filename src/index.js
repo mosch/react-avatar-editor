@@ -255,12 +255,17 @@ class AvatarEditor extends React.Component {
     }
   }
 
-  handleImageReady (image) {
+  updateImageState (image, imageReadyCallback = () => {}) {
     const imageState = this.getInitialSize(image.width, image.height)
     imageState.resource = image
     imageState.x = 0
     imageState.y = 0
-    this.setState({ drag: false, image: imageState }, this.props.onImageReady)
+    this.setState({ drag: false, image: imageState }, imageReadyCallback)
+    return imageState;
+  }
+
+  handleImageReady (image) {
+    const imageState = this.updateImageState(image, this.props.onImageReady)
     this.props.onLoadSuccess(imageState)
   }
 
@@ -429,7 +434,7 @@ class AvatarEditor extends React.Component {
     context.translate(-(iWidth / 2), -(iHeight / 2));
     context.drawImage(imageState.resource, 0, 0);
     context.restore();
-    this.handleImageReady(canvas);
+    this.updateImageState(canvas);
   }
 
   squeeze (props) {
