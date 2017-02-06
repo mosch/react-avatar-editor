@@ -5,21 +5,13 @@ import ReactAvatarEditor from '../src/index'
 class App extends React.Component {
   state = {
     scale: 1,
+    rotate: 0,
     borderRadius: 0,
     preview: null
   }
 
-  constructor (props) {
-    super(props)
-
-    this.setEditorRef = ::this.setEditorRef
-    this.handleSave = ::this.handleSave
-    this.handleScale = ::this.handleScale
-    this.handleBorderRadius = ::this.handleBorderRadius
-  }
-
-  handleSave (data) {
-    const img = this.editor.getImage().toDataURL()
+  handleSave = (data) => {
+    const img = this.editor.getImageScaledToCanvas().toDataURL()
     const rect = this.editor.getCroppingRect()
 
     this.setState({
@@ -28,12 +20,27 @@ class App extends React.Component {
     })
   }
 
-  handleScale (e) {
+  handleScale = (e) => {
     const scale = parseFloat(e.target.value)
     this.setState({ scale })
   }
 
-  handleBorderRadius (e) {
+  rotateLeft = (e) => {
+    e.preventDefault()
+
+    this.setState({
+      rotate: this.state.rotate - 90
+    })
+  }
+
+  rotateRight = (e) => {
+    e.preventDefault()
+    this.setState({
+      rotate: this.state.rotate + 90
+    })
+  }
+
+  handleBorderRadius = (e) => {
     const borderRadius = parseInt(e.target.value)
     this.setState({ borderRadius })
   }
@@ -42,7 +49,7 @@ class App extends React.Component {
     console.log('callback', e)
   }
 
-  setEditorRef (editor) {
+  setEditorRef = (editor) => {
     if (editor) this.editor = editor
   }
 
@@ -52,6 +59,7 @@ class App extends React.Component {
         <ReactAvatarEditor
           ref={this.setEditorRef}
           scale={parseFloat(this.state.scale)}
+          rotate={parseFloat(this.state.rotate)}
           borderRadius={this.state.borderRadius}
           onSave={this.handleSave}
           onLoadFailure={this.logCallback.bind(this, 'onLoadFailed')}
@@ -83,6 +91,10 @@ class App extends React.Component {
           step="1"
           defaultValue="0"
         />
+        <br />
+        Rotate:
+        <button onClick={this.rotateLeft}>Left</button>
+        <button onClick={this.rotateRight}>Right</button>
         <br />
         <br />
         <input type="button" onClick={this.handleSave} value="Preview" />
