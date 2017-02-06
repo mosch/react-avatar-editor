@@ -4,7 +4,13 @@
 <a href="https://npmjs.org/package/react-avatar-editor"><img alt="Downloads" src="http://img.shields.io/npm/dm/react-avatar-editor.svg"></a>
 
 Facebook like, avatar / profile picture component.
-Resize and crop your uploaded image using a clear user interface.
+Resize, crop and rotate your uploaded image using a clear user interface.
+
+# Demo
+
+![](https://thumbs.gfycat.com/FlawedBlushingGermanwirehairedpointer-size_restricted.gif)
+
+[Demo](http://mosch.github.io/react-avatar-editor/docs/)
 
 # Usage
 
@@ -23,6 +29,7 @@ class MyEditor extends React.Component {
         border={50}
         color={[255, 255, 255, 0.6]} // RGBA
         scale={1.2}
+        rotate={0}
       />
     )
   }
