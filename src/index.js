@@ -436,52 +436,36 @@ class AvatarEditor extends React.Component {
     rotate = (rotate < 0) ? rotate + 360 : rotate
     rotate -= rotate % 90
 
-    const isHorizontal = rotate % 180 === 0
     const isPortrait = imageState.height > imageState.width
 
     if (this.state.mx && this.state.my) {
       const mx = this.state.mx - mousePositionX
       const my = this.state.my - mousePositionY
 
-      const xDiff = (isHorizontal ? mx : my) / this.props.scale
-      const yDiff = (isHorizontal ? my : mx) / this.props.scale
-
-      const yPos = lastY + yDiff
-      const xPos = lastX + xDiff
-
-      const yNeg = lastY - yDiff
-      const xNeg = lastX - xDiff
+      const xDiff = (rotate === 0 || rotate === 180 ? mx : my) / this.props.scale
+      const yDiff = (rotate === 0 || rotate === 180 ? my : mx) / this.props.scale
 
       let y
       let x
 
+      if (rotate === 0) {
+        y = lastY - yDiff
+        x = lastX - xDiff
+      }
+
       if (rotate === 90) {
-        if (isPortrait) {
-          y = yPos
-          x = xPos
-        } else {
-          y = yNeg
-          x = xNeg
-        }
-      } else if (rotate === 180) {
-        if (isPortrait) {
-          y = yPos
-          x = xPos
-        } else {
-          y = yPos
-          x = xPos
-        }
-      } else if (rotate === 270) {
-        if (isPortrait) {
-          y = yNeg
-          x = xNeg
-        } else {
-          y = yPos
-          x = xPos
-        }
-      } else {
-        y = yNeg
-        x = xNeg
+        y = lastY + yDiff
+        x = lastX - xDiff
+      }
+
+      if (rotate === 180) {
+        y = lastY + yDiff
+        x = lastX + xDiff
+      }
+
+      if (rotate === 270) {
+        y = lastY - yDiff
+        x = lastX + xDiff
       }
 
       imageState.y = this.getBoundedY(y, this.props.scale)

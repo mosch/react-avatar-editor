@@ -27,6 +27,7 @@ class App extends React.Component {
 
   rotateLeft = (e) => {
     e.preventDefault()
+
     this.setState({
       rotate: this.state.rotate - 90
     })
