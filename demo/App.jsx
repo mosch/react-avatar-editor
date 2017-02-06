@@ -6,6 +6,7 @@ class App extends React.Component {
   state = {
     scale: 1,
     borderRadius: 0,
+    angle: 0,
     preview: null
   }
 
@@ -15,6 +16,7 @@ class App extends React.Component {
     this.setEditorRef = ::this.setEditorRef
     this.handleSave = ::this.handleSave
     this.handleScale = ::this.handleScale
+    this.handleAngle = ::this.handleAngle
     this.handleBorderRadius = ::this.handleBorderRadius
   }
 
@@ -31,6 +33,11 @@ class App extends React.Component {
   handleScale (e) {
     const scale = parseFloat(e.target.value)
     this.setState({ scale })
+  }
+
+  handleAngle (e) {
+    const angle = e.target.value
+    this.setState({ angle })
   }
 
   handleBorderRadius (e) {
@@ -52,6 +59,7 @@ class App extends React.Component {
         <ReactAvatarEditor
           ref={this.setEditorRef}
           scale={parseFloat(this.state.scale)}
+          angle={parseFloat(this.state.angle)}
           borderRadius={this.state.borderRadius}
           onSave={this.handleSave}
           onLoadFailure={this.logCallback.bind(this, 'onLoadFailed')}
@@ -83,6 +91,18 @@ class App extends React.Component {
           step="1"
           defaultValue="0"
         />
+        <br />
+        Angle:
+        <input
+          name="angle"
+          type="range"
+          onChange={this.handleAngle}
+          min="0"
+          max="270"
+          step="90"
+          defaultValue="0"
+        />
+
         <br />
         <br />
         <input type="button" onClick={this.handleSave} value="Preview" />
