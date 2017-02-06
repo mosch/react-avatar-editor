@@ -73,6 +73,7 @@ const drawRoundedRect = (context, x, y, width, height, borderRadius) => {
 class AvatarEditor extends React.Component {
   static propTypes = {
     scale: React.PropTypes.number,
+    rotate: React.PropTypes.number,
     image: React.PropTypes.string,
     border: React.PropTypes.number,
     borderRadius: React.PropTypes.number,
@@ -92,6 +93,7 @@ class AvatarEditor extends React.Component {
 
   static defaultProps = {
     scale: 1,
+    rotate: 0,
     border: 25,
     borderRadius: 0,
     width: 200,
@@ -130,14 +132,29 @@ class AvatarEditor extends React.Component {
   }
 
   getDimensions () {
+    const { width, height, rotate, border } = this.props
+
+    const canvas = {}
+
+    const canvasWidth = width + (border * 2);
+    const canvasHeight = height + (border * 2);
+
+    const vertical = rotate % 180 !== 0
+
+    if (vertical) {
+      canvas.width = canvasHeight;
+      canvas.height = canvasWidth;
+    } else {
+      canvas.width = canvasWidth;
+      canvas.height = canvasHeight;
+    }
+
     return {
-      width: this.props.width,
-      height: this.props.height,
-      border: this.props.border,
-      canvas: {
-        width: this.props.width + (this.props.border * 2),
-        height: this.props.height + (this.props.border * 2)
-      }
+      canvas,
+      rotate,
+      width,
+      height,
+      border
     }
   }
 
@@ -159,7 +176,13 @@ class AvatarEditor extends React.Component {
 
     // draw the full-size image at the correct position,
     // the image gets truncated to the size of the canvas.
-    canvas.getContext('2d').drawImage(image.resource, -cropRect.x, -cropRect.y)
+    const context = canvas.getContext('2d')
+
+    context.translate((canvas.width / 2), (canvas.height / 2));
+    context.rotate((this.props.rotate * Math.PI / 180))
+    context.translate(-(canvas.width / 2), -(canvas.height / 2));
+
+    context.drawImage(image.resource, -cropRect.x, -cropRect.y)
 
     return canvas
   }
@@ -183,7 +206,14 @@ class AvatarEditor extends React.Component {
 
   getCroppingRect () {
     const dim = this.getDimensions()
-    const frameRect = { x: dim.border, y: dim.border, width: dim.width, height: dim.height }
+
+    const frameRect = {
+      x: dim.border,
+      y: dim.border,
+      width: dim.width,
+      height: dim.height
+    }
+
     const imageRect = this.calculatePosition(this.state.image, dim.border)
     return {
       x: (frameRect.x - imageRect.x) / imageRect.width,
@@ -246,6 +276,7 @@ class AvatarEditor extends React.Component {
 
     if (prevProps.image !== this.props.image ||
         prevProps.scale !== this.props.scale ||
+        prevProps.rotate !== this.props.rotate ||
         prevState.my !== this.state.my ||
         prevState.mx !== this.state.mx ||
         prevState.image.x !== this.state.image.x ||
@@ -302,7 +333,13 @@ class AvatarEditor extends React.Component {
   paintImage (context, image, border) {
     if (image.resource) {
       const position = this.calculatePosition(image, border)
+
       context.save()
+
+      context.translate((context.canvas.width / 2), (context.canvas.height / 2));
+      context.rotate((this.props.rotate * Math.PI / 180))
+      context.translate(-(context.canvas.width / 2), -(context.canvas.height / 2));
+
       context.globalCompositeOperation = 'destination-over'
       context.drawImage(image.resource, position.x, position.y, position.width, position.height)
 
@@ -313,6 +350,7 @@ class AvatarEditor extends React.Component {
   calculatePosition (image, border) {
     image = image || this.state.image
     const dimensions = this.getDimensions()
+
     const width = image.width * this.props.scale
     const height = image.height * this.props.scale
 
@@ -378,21 +416,76 @@ class AvatarEditor extends React.Component {
       return
     }
 
-    let imageState = this.state.image
+    const imageState = this.state.image
+
     const lastX = imageState.x
     const lastY = imageState.y
 
     const mousePositionX = e.targetTouches ? e.targetTouches[0].pageX : e.clientX
     const mousePositionY = e.targetTouches ? e.targetTouches[0].pageY : e.clientY
 
-    const newState = { mx: mousePositionX, my: mousePositionY, image: imageState }
+    const newState = {
+      mx: mousePositionX,
+      my: mousePositionY,
+      image: imageState
+    }
+
+    let rotate = this.props.rotate
+
+    rotate %= 360
+    rotate = (rotate < 0) ? rotate + 360 : rotate
+    rotate -= rotate % 90
+
+    const isHorizontal = rotate % 180 === 0
+    const isPortrait = imageState.height > imageState.width
 
     if (this.state.mx && this.state.my) {
-      const xDiff = (this.state.mx - mousePositionX) / this.props.scale
-      const yDiff = (this.state.my - mousePositionY) / this.props.scale
+      const mx = this.state.mx - mousePositionX
+      const my = this.state.my - mousePositionY
 
-      imageState.y = this.getBoundedY(lastY - yDiff, this.props.scale)
-      imageState.x = this.getBoundedX(lastX - xDiff, this.props.scale)
+      const xDiff = (isHorizontal ? mx : my) / this.props.scale
+      const yDiff = (isHorizontal ? my : mx) / this.props.scale
+
+      const yPos = lastY + yDiff
+      const xPos = lastX + xDiff
+
+      const yNeg = lastY - yDiff
+      const xNeg = lastX - xDiff
+
+      let y
+      let x
+
+      if (rotate === 90) {
+        if (isPortrait) {
+          y = yPos
+          x = xPos
+        } else {
+          y = yNeg
+          x = xNeg
+        }
+      } else if (rotate === 180) {
+        if (isPortrait) {
+          y = yPos
+          x = xPos
+        } else {
+          y = yPos
+          x = xPos
+        }
+      } else if (rotate === 270) {
+        if (isPortrait) {
+          y = yNeg
+          x = xNeg
+        } else {
+          y = yPos
+          x = xPos
+        }
+      } else {
+        y = yNeg
+        x = xNeg
+      }
+
+      imageState.y = this.getBoundedY(y, this.props.scale)
+      imageState.x = this.getBoundedX(x, this.props.scale)
     }
 
     this.setState(newState)
@@ -408,6 +501,7 @@ class AvatarEditor extends React.Component {
 
   getBoundedX (x, scale) {
     const image = this.state.image
+
     const dimensions = this.getDimensions()
     let widthDiff = Math.floor((image.width - dimensions.width / scale) / 2)
     widthDiff = Math.max(0, widthDiff)
