@@ -81,6 +81,7 @@ class AvatarEditor extends React.Component {
     height: React.PropTypes.number,
     color: React.PropTypes.arrayOf(React.PropTypes.number),
     style: React.PropTypes.object,
+    crossOrigin: React.PropTypes.oneOf(['', 'anonymous', 'use-credentials']),
 
     onDropFile: React.PropTypes.func,
     onLoadFailure: React.PropTypes.func,
@@ -100,6 +101,7 @@ class AvatarEditor extends React.Component {
     height: 200,
     color: [0, 0, 0, 0.5],
     style: {},
+    crossOrigin: 'anonymous',
     onDropFile () {},
     onLoadFailure () {},
     onLoadSuccess () {},
@@ -235,7 +237,7 @@ class AvatarEditor extends React.Component {
     const imageObj = new Image()
     imageObj.onload = this.handleImageReady.bind(this, imageObj)
     imageObj.onerror = this.props.onLoadFailure
-    if (!this.isDataURL(imageURL)) imageObj.crossOrigin = 'anonymous'
+    if (!this.isDataURL(imageURL) && this.props.crossOrigin) imageObj.crossOrigin = this.props.crossOrigin
     imageObj.src = imageURL
   }
 
