@@ -21952,7 +21952,7 @@
 	      var imageObj = new Image();
 	      imageObj.onload = this.handleImageReady.bind(this, imageObj);
 	      imageObj.onerror = this.props.onLoadFailure;
-	      if (!this.isDataURL(imageURL)) imageObj.crossOrigin = 'anonymous';
+	      if (!this.isDataURL(imageURL) && this.props.crossOrigin) imageObj.crossOrigin = this.props.crossOrigin;
 	      imageObj.src = imageURL;
 	    }
 	  }, {
@@ -22288,6 +22288,7 @@
 	  height: _react2.default.PropTypes.number,
 	  color: _react2.default.PropTypes.arrayOf(_react2.default.PropTypes.number),
 	  style: _react2.default.PropTypes.object,
+	  crossOrigin: _react2.default.PropTypes.oneOf(['', 'anonymous', 'use-credentials']),
 
 	  onDropFile: _react2.default.PropTypes.func,
 	  onLoadFailure: _react2.default.PropTypes.func,
@@ -22306,6 +22307,7 @@
 	  height: 200,
 	  color: [0, 0, 0, 0.5],
 	  style: {},
+	  crossOrigin: 'anonymous',
 	  onDropFile: function onDropFile() {},
 	  onLoadFailure: function onLoadFailure() {},
 	  onLoadSuccess: function onLoadSuccess() {},
