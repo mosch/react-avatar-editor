@@ -29,7 +29,6 @@ class MyEditor extends React.Component {
         border={50}
         color={[255, 255, 255, 0.6]} // RGBA
         scale={1.2}
-        position={{x:0.5, y:0.25}}
         rotate={0}
       />
     )
