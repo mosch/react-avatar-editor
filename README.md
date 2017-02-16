@@ -29,6 +29,7 @@ class MyEditor extends React.Component {
         border={50}
         color={[255, 255, 255, 0.6]} // RGBA
         scale={1.2}
+        position={{x:0.5, y:0.25}}
         rotate={0}
       />
     )
@@ -47,6 +48,7 @@ export default MyEditor
 | color                  | Number[] | The color of the cropping border, in the form: [red (0-255), green (0-255), blue (0-255), alpha (0.0-1.0)]
 | style                  | Object   | Styles for the canvas element
 | scale                  | Number   | The scale of the image. You can use this to add your own resizing slider.
+| position               | Object   | The x and y co-ordinates (in the range 0 to 1) of the center of the cropping area of the image.  Note that if you set this prop, you will need to keep it up to date via onPositionChange in order for panning to continue working.
 | rotate                 | Number   | The rotation degree of the image. You can use this to rotate image (e.g 90, 270 degrees).
 | onDropFile(event)      | function | Invoked when user drops a file (or more) onto the canvas. Does not perform any further check.
 | onLoadFailure(event)   | function | Invoked when an image (whether passed by props or dropped) load fails.
@@ -55,6 +57,7 @@ export default MyEditor
 | onMouseUp()            | function | Invoked when the user releases their mouse button after interacting with the editor.
 | onMouseMove()          | function | Invoked when the user hold and moving the image.
 | onImageChange()        | function | Invoked when the user changed the image. Not invoked on the first render, and invoked multiple times during drag, etc.
+| onPositionChange()     | function | Invoked when the user pans the editor to change the selected area of the image.  Passed a position object in the form `{ x: 0.5, y: 0.5 }` where x and y are the relative x and y coordinates of the center of the selected area.
 
 ## Accessing the resulting image
 
