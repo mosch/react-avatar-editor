@@ -177,7 +177,7 @@ class App extends React.Component {
         <br />
         <img
           src={this.state.preview}
-          style={{ borderRadius: `${Math.min(this.state.height, this.state.width) * ((this.state.borderRadius / 2) / 100)}px` }}
+          style={{ borderRadius: `${(Math.min(this.state.height, this.state.width) + 10) * ((this.state.borderRadius / 2) / 100)}px` }}
         />
 
         {this.state.croppingRect ? // display only if there is a cropping rect
