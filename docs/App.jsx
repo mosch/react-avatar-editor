@@ -4,7 +4,7 @@ import ReactAvatarEditor from '../src/index'
 
 class App extends React.Component {
   state = {
-    position: { x: 0, y: 0 },
+    position: { x: 0.5, y: 0.5 },
     scale: 1,
     rotate: 0,
     borderRadius: 0,
@@ -46,6 +46,16 @@ class App extends React.Component {
   handleBorderRadius = (e) => {
     const borderRadius = parseInt(e.target.value)
     this.setState({ borderRadius })
+  }
+
+  handleXPosition = (e) => {
+    const x = parseFloat(e.target.value)
+    this.setState({ position: { ...this.state.position, x } })
+  }
+
+  handleYPosition = (e) => {
+    const y = parseFloat(e.target.value)
+    this.setState({ position: { ...this.state.position, y } })
   }
 
   handleWidth = (e) => {
@@ -134,6 +144,28 @@ class App extends React.Component {
           max="400"
           step="10"
           value={this.state.height}
+        />
+        <br />
+        X Position:
+        <input
+          name="scale"
+          type="range"
+          onChange={this.handleXPosition}
+          min="0"
+          max="1"
+          step="0.01"
+          value={this.state.position.x}
+        />
+        <br />
+        Y Position:
+        <input
+          name="scale"
+          type="range"
+          onChange={this.handleYPosition}
+          min="0"
+          max="1"
+          step="0.01"
+          value={this.state.position.y}
         />
         <br />
         Rotate:
