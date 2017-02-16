@@ -8,7 +8,9 @@ class App extends React.Component {
     scale: 1,
     rotate: 0,
     borderRadius: 0,
-    preview: null
+    preview: null,
+    width: 200,
+    height: 200
   }
 
   handleSave = (data) => {
@@ -46,6 +48,16 @@ class App extends React.Component {
     this.setState({ borderRadius })
   }
 
+  handleWidth = (e) => {
+    const width = parseInt(e.target.value)
+    this.setState({ width })
+  }
+
+  handleHeight = (e) => {
+    const height = parseInt(e.target.value)
+    this.setState({ height })
+  }
+
   logCallback (e) {
     console.log('callback', e)
   }
@@ -65,6 +77,8 @@ class App extends React.Component {
         <ReactAvatarEditor
           ref={this.setEditorRef}
           scale={parseFloat(this.state.scale)}
+          width={this.state.width}
+          height={this.state.height}
           position={this.state.position}
           onPositionChange={this.handlePositionChange}
           rotate={parseFloat(this.state.rotate)}
@@ -98,6 +112,28 @@ class App extends React.Component {
           max="100"
           step="1"
           defaultValue="0"
+        />
+        <br />
+        Avatar Width:
+        <input
+          name="width"
+          type="number"
+          onChange={this.handleWidth}
+          min="50"
+          max="400"
+          step="10"
+          value={this.state.width}
+        />
+        <br />
+        Avatar Height:
+        <input
+          name="height"
+          type="number"
+          onChange={this.handleHeight}
+          min="50"
+          max="400"
+          step="10"
+          value={this.state.height}
         />
         <br />
         Rotate:
