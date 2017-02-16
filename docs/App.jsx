@@ -4,6 +4,7 @@ import ReactAvatarEditor from '../src/index'
 
 class App extends React.Component {
   state = {
+    position: { x: 0, y: 0 },
     scale: 1,
     rotate: 0,
     borderRadius: 0,
@@ -53,12 +54,19 @@ class App extends React.Component {
     if (editor) this.editor = editor
   }
 
+  handlePositionChange = position => {
+    console.log('Position set to', position)
+    this.setState({ position })
+  }
+
   render () {
     return (
       <div>
         <ReactAvatarEditor
           ref={this.setEditorRef}
           scale={parseFloat(this.state.scale)}
+          position={this.state.position}
+          onPositionChange={this.handlePositionChange}
           rotate={parseFloat(this.state.rotate)}
           borderRadius={this.state.borderRadius}
           onSave={this.handleSave}
