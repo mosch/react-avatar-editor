@@ -118,7 +118,6 @@ class AvatarEditor extends React.Component {
     this.handleMouseMove = ::this.handleMouseMove
     this.handleMouseDown = ::this.handleMouseDown
     this.handleMouseUp = ::this.handleMouseUp
-    this.handleMouseMove = ::this.handleMouseMove
     this.handleDragOver = ::this.handleDragOver
     this.handleDrop = ::this.handleDrop
   }
