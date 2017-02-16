@@ -138,6 +138,10 @@ class AvatarEditor extends React.Component {
     }
   }
 
+  isVertical () {
+      return this.props.rotate % 180 !== 0
+  }
+
   getDimensions () {
     const { width, height, rotate, border } = this.props
 
@@ -146,9 +150,7 @@ class AvatarEditor extends React.Component {
     const canvasWidth = width + (border * 2);
     const canvasHeight = height + (border * 2);
 
-    const vertical = rotate % 180 !== 0
-
-    if (vertical) {
+    if (this.isVertical()) {
       canvas.width = canvasHeight;
       canvas.height = canvasWidth;
     } else {
@@ -178,8 +180,15 @@ class AvatarEditor extends React.Component {
 
     // create a canvas with the correct dimensions
     const canvas = document.createElement('canvas')
-    canvas.width = cropRect.width
-    canvas.height = cropRect.height
+
+    if (this.isVertical()) {
+      canvas.width = cropRect.height
+      canvas.height = cropRect.width
+    } else {
+      canvas.width = cropRect.width
+      canvas.height = cropRect.height
+    }
+
 
     // draw the full-size image at the correct position,
     // the image gets truncated to the size of the canvas.
@@ -188,6 +197,10 @@ class AvatarEditor extends React.Component {
     context.translate((canvas.width / 2), (canvas.height / 2));
     context.rotate((this.props.rotate * Math.PI / 180))
     context.translate(-(canvas.width / 2), -(canvas.height / 2));
+
+    if (this.isVertical()) {
+        context.translate((canvas.width - canvas.height) / 2, (canvas.height - canvas.width) / 2)
+    }
 
     context.drawImage(image.resource, -cropRect.x, -cropRect.y)
 
@@ -202,8 +215,14 @@ class AvatarEditor extends React.Component {
     const { width, height } = this.getDimensions()
 
     const canvas = document.createElement('canvas')
-    canvas.width = width
-    canvas.height = height
+
+    if (this.isVertical()) {
+      canvas.width = height
+      canvas.height = width
+    } else {
+      canvas.width = width
+      canvas.height = height
+    }
 
     // don't paint a border here, as it is the resulting image
     this.paintImage(canvas.getContext('2d'), this.state.image, 0)
@@ -296,6 +315,8 @@ class AvatarEditor extends React.Component {
     this.paintImage(context, this.state.image, this.props.border)
 
     if (prevProps.image !== this.props.image ||
+        prevProps.width !== this.props.width ||
+        prevProps.height !== this.props.height ||
         prevProps.position !== this.props.position ||
         prevProps.scale !== this.props.scale ||
         prevProps.rotate !== this.props.rotate ||
@@ -339,7 +360,9 @@ class AvatarEditor extends React.Component {
   }
 
   componentWillReceiveProps (newProps) {
-    if (newProps.image && this.props.image !== newProps.image) {
+    if ((newProps.image && this.props.image !== newProps.image) ||
+        this.props.width !== newProps.width ||
+        this.props.height !== newProps.height) {
       this.loadImage(newProps.image)
     }
   }
@@ -353,6 +376,10 @@ class AvatarEditor extends React.Component {
       context.translate((context.canvas.width / 2), (context.canvas.height / 2));
       context.rotate((this.props.rotate * Math.PI / 180))
       context.translate(-(context.canvas.width / 2), -(context.canvas.height / 2));
+
+      if (this.isVertical()) {
+          context.translate((context.canvas.width - context.canvas.height) / 2, (context.canvas.height - context.canvas.width) / 2)
+      }
 
       context.globalCompositeOperation = 'destination-over'
       context.drawImage(image.resource, position.x, position.y, position.width, position.height)
