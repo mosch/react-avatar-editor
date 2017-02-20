@@ -256,10 +256,27 @@ class AvatarEditor extends React.Component {
       height
     };
 
+    let xMin = 0,
+      xMax = 1 - croppingRect.width,
+      yMin = 0,
+      yMax = 1 - croppingRect.height
+
+    // If the cropping rect is larger than the image, then we need to change
+    // our maxima & minima for x & y to allow the image to appear anywhere up
+    // to the very edge of the cropping rect.
+    let isLargerThanImage = width > 1 || height > 1
+
+    if (isLargerThanImage) {
+      xMin = -croppingRect.width
+      xMax = 1
+      yMin = -croppingRect.height
+      yMax = 1
+    }
+
     return {
       ...croppingRect,
-      x: Math.max(0, Math.min(croppingRect.x, 1 - croppingRect.width)),
-      y: Math.max(0, Math.min(croppingRect.y, 1 - croppingRect.height))
+      x: Math.max(xMin, Math.min(croppingRect.x, xMax)),
+      y: Math.max(yMin, Math.min(croppingRect.y, yMax))
     }
   }
 
