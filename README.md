@@ -79,7 +79,7 @@ const MyEditor extends React.Component {
   }
 
   setEditorRef (editor) {
-    if (editor) this.editor = editor
+    this.editor = editor
   }
 
   render () {
