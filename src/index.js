@@ -106,7 +106,6 @@ class AvatarEditor extends React.Component {
     height: 200,
     color: [0, 0, 0, 0.5],
     style: {},
-    crossOrigin: 'anonymous',
     onDropFile () {},
     onLoadFailure () {},
     onLoadSuccess () {},
