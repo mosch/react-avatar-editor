@@ -468,7 +468,6 @@ class AvatarEditor extends React.Component {
 
     rotate %= 360
     rotate = (rotate < 0) ? rotate + 360 : rotate
-    rotate -= rotate % 90
 
     if (this.state.mx && this.state.my) {
       const mx = this.state.mx - mousePositionX
@@ -482,34 +481,13 @@ class AvatarEditor extends React.Component {
         y: lastY
       } = this.getCroppingRect()
 
-      lastX *= width
-      lastY *= height
+      // helpers to calculate vectors
+      const toRadians = degree => degree * (Math.PI / 180);
+      const cos = Math.cos(toRadians(rotate))
+      const sin = Math.sin(toRadians(rotate))
 
-      const xDiff = (rotate === 0 || rotate === 180 ? mx : my)
-      const yDiff = (rotate === 0 || rotate === 180 ? my : mx)
-
-      let y
-      let x
-
-      if (rotate === 0) {
-        y = lastY + yDiff
-        x = lastX + xDiff
-      }
-
-      if (rotate === 90) {
-        y = lastY - yDiff
-        x = lastX + xDiff
-      }
-
-      if (rotate === 180) {
-        y = lastY - yDiff
-        x = lastX - xDiff
-      }
-
-      if (rotate === 270) {
-        y = lastY + yDiff
-        x = lastX - xDiff
-      }
+      const x = lastX + (mx * cos) + (my * sin)
+      const y = lastY + (-mx * sin) + (my * cos)
 
       let relativeWidth = (1 / this.props.scale) * this.getXScale()
       let relativeHeight = (1 / this.props.scale) * this.getYScale()
