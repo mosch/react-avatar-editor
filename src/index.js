@@ -498,6 +498,9 @@ class AvatarEditor extends React.Component {
         y: lastY
       } = this.getCroppingRect()
 
+      lastX *= width;
+      lastY *= height;
+
       // helpers to calculate vectors
       const toRadians = degree => degree * (Math.PI / 180);
       const cos = Math.cos(toRadians(rotate))
