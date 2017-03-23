@@ -10,7 +10,7 @@ Resize, crop and rotate your uploaded image using a clear user interface.
 
 ![](https://thumbs.gfycat.com/FlawedBlushingGermanwirehairedpointer-size_restricted.gif)
 
-[Demo](http://mosch.github.io/react-avatar-editor/docs/)
+[Demo](https://react-avatar-editor.netlify.com/)
 
 # Usage
 
