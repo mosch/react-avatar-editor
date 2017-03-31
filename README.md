@@ -79,14 +79,14 @@ const MyEditor extends React.Component {
     const canvasScaled = this.editor.getImageScaledToCanvas()
   }
 
-  setEditorRef (editor) {
-    if (editor) this.editor = editor
+  setEditorRef = (editor) => {
+    this.editor = editor
   }
 
   render () {
     return (
         <AvatarEditor
-          ref={this.setEditorRef.bind(this)}
+          ref={this.setEditorRef}
           image="http://example.com/initialimage.jpg"
           width={250}
           height={250}
