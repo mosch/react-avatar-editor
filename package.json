@@ -47,10 +47,12 @@
     "rimraf": "^2.5.4",
     "webpack": "^1.13.1",
     "webpack-dev-server": "^1.16.2"
+    "react": "^15.5.4",
+    "react-dom": "^15.5.4",
   },
-  "dependencies": {
-    "react": "^15.3.2",
-    "react-dom": "^15.3.2"
+  "peerDependencies": {
+    "react": "^15.5.4",
+    "react-dom": "^15.5.4"
   },
   "files": [
     "dist",
