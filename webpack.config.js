@@ -3,8 +3,8 @@ module.exports = {
   output: {
     filename: './docs/bundle.js'
   },
-  devServer: { 
-    inline: true 
+  devServer: {
+    inline: true
   },
   module: {
     rules: [{
