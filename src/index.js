@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types'
 import React from 'react'
 import ReactDOM from 'react-dom'
 
@@ -68,33 +69,31 @@ const drawRoundedRect = (context, x, y, width, height, borderRadius) => {
   }
 }
 
-// Define global variables for standard.js
-/* global Image, FileReader */
 class AvatarEditor extends React.Component {
   static propTypes = {
-    scale: React.PropTypes.number,
-    rotate: React.PropTypes.number,
-    image: React.PropTypes.string,
-    border: React.PropTypes.number,
-    borderRadius: React.PropTypes.number,
-    width: React.PropTypes.number,
-    height: React.PropTypes.number,
-    position: React.PropTypes.shape({
-        x: React.PropTypes.number,
-        y: React.PropTypes.number
+    scale: PropTypes.number,
+    rotate: PropTypes.number,
+    image: PropTypes.string,
+    border: PropTypes.number,
+    borderRadius: PropTypes.number,
+    width: PropTypes.number,
+    height: PropTypes.number,
+    position: PropTypes.shape({
+      x: PropTypes.number,
+      y: PropTypes.number
     }),
-    color: React.PropTypes.arrayOf(React.PropTypes.number),
-    style: React.PropTypes.object,
-    crossOrigin: React.PropTypes.oneOf(['', 'anonymous', 'use-credentials']),
+    color: PropTypes.arrayOf(PropTypes.number),
+    style: PropTypes.object,
+    crossOrigin: PropTypes.oneOf(['', 'anonymous', 'use-credentials']),
 
-    onDropFile: React.PropTypes.func,
-    onLoadFailure: React.PropTypes.func,
-    onLoadSuccess: React.PropTypes.func,
-    onImageReady: React.PropTypes.func,
-    onImageChange: React.PropTypes.func,
-    onMouseUp: React.PropTypes.func,
-    onMouseMove: React.PropTypes.func,
-    onPositionChange: React.PropTypes.func
+    onDropFile: PropTypes.func,
+    onLoadFailure: PropTypes.func,
+    onLoadSuccess: PropTypes.func,
+    onImageReady: PropTypes.func,
+    onImageChange: PropTypes.func,
+    onMouseUp: PropTypes.func,
+    onMouseMove: PropTypes.func,
+    onPositionChange: PropTypes.func
   }
 
   static defaultProps = {
@@ -138,7 +137,7 @@ class AvatarEditor extends React.Component {
   }
 
   isVertical () {
-      return this.props.rotate % 180 !== 0
+    return this.props.rotate % 180 !== 0
   }
 
   getDimensions () {
@@ -146,15 +145,15 @@ class AvatarEditor extends React.Component {
 
     const canvas = {}
 
-    const canvasWidth = width + (border * 2);
-    const canvasHeight = height + (border * 2);
+    const canvasWidth = width + (border * 2)
+    const canvasHeight = height + (border * 2)
 
     if (this.isVertical()) {
-      canvas.width = canvasHeight;
-      canvas.height = canvasWidth;
+      canvas.width = canvasHeight
+      canvas.height = canvasWidth
     } else {
-      canvas.width = canvasWidth;
-      canvas.height = canvasHeight;
+      canvas.width = canvasWidth
+      canvas.height = canvasHeight
     }
 
     return {
@@ -188,17 +187,16 @@ class AvatarEditor extends React.Component {
       canvas.height = cropRect.height
     }
 
-
     // draw the full-size image at the correct position,
     // the image gets truncated to the size of the canvas.
     const context = canvas.getContext('2d')
 
-    context.translate((canvas.width / 2), (canvas.height / 2));
+    context.translate((canvas.width / 2), (canvas.height / 2))
     context.rotate((this.props.rotate * Math.PI / 180))
-    context.translate(-(canvas.width / 2), -(canvas.height / 2));
+    context.translate(-(canvas.width / 2), -(canvas.height / 2))
 
     if (this.isVertical()) {
-        context.translate((canvas.width - canvas.height) / 2, (canvas.height - canvas.width) / 2)
+      context.translate((canvas.width - canvas.height) / 2, (canvas.height - canvas.width) / 2)
     }
 
     context.drawImage(image.resource, -cropRect.x, -cropRect.y)
@@ -229,41 +227,41 @@ class AvatarEditor extends React.Component {
     return canvas
   }
 
-  getXScale() {
-    let canvasAspect = this.props.width / this.props.height
-    let imageAspect = this.state.image.width / this.state.image.height
+  getXScale () {
+    const canvasAspect = this.props.width / this.props.height
+    const imageAspect = this.state.image.width / this.state.image.height
 
     return Math.min(1, canvasAspect / imageAspect)
   }
 
-  getYScale() {
-    let canvasAspect = this.props.height / this.props.width
-    let imageAspect = this.state.image.height / this.state.image.width
+  getYScale () {
+    const canvasAspect = this.props.height / this.props.width
+    const imageAspect = this.state.image.height / this.state.image.width
 
     return Math.min(1, canvasAspect / imageAspect)
   }
 
   getCroppingRect () {
-    let position = this.props.position || { x: this.state.image.x, y: this.state.image.y },
-        width = (1 / this.props.scale) * this.getXScale(),
-        height = (1 / this.props.scale) * this.getYScale()
+    const position = this.props.position || { x: this.state.image.x, y: this.state.image.y }
+    const width = (1 / this.props.scale) * this.getXScale()
+    const height = (1 / this.props.scale) * this.getYScale()
 
-    let croppingRect = {
+    const croppingRect = {
       x: position.x - (width / 2),
       y: position.y - (height / 2),
       width,
       height
-    };
+    }
 
-    let xMin = 0,
-      xMax = 1 - croppingRect.width,
-      yMin = 0,
-      yMax = 1 - croppingRect.height
+    let xMin = 0
+    let xMax = 1 - croppingRect.width
+    let yMin = 0
+    let yMax = 1 - croppingRect.height
 
     // If the cropping rect is larger than the image, then we need to change
     // our maxima & minima for x & y to allow the image to appear anywhere up
     // to the very edge of the cropping rect.
-    let isLargerThanImage = width > 1 || height > 1
+    const isLargerThanImage = width > 1 || height > 1
 
     if (isLargerThanImage) {
       xMin = -croppingRect.width
@@ -283,7 +281,7 @@ class AvatarEditor extends React.Component {
     if (str === null) {
       return false
     }
-    const regex = /^\s*data:([a-z]+\/[a-z]+(;[a-z\-]+=[a-z\-]+)?)?(;base64)?,[a-z0-9!$&',()*+;=\-._~:@\/?%\s]*\s*$/i
+    const regex = /^\s*data:([a-z]+\/[a-z]+(;[a-z-]+=[a-z-]+)?)?(;base64)?,[a-z0-9!$&',()*+;=\-._~:@/?%\s]*\s*$/i
     return !!str.match(regex)
   }
 
@@ -347,8 +345,8 @@ class AvatarEditor extends React.Component {
   handleImageReady (image) {
     const imageState = this.getInitialSize(image.width, image.height)
     imageState.resource = image
-    imageState.x = 0.5;
-    imageState.y = 0.5;
+    imageState.x = 0.5
+    imageState.y = 0.5
     this.setState({ drag: false, image: imageState }, this.props.onImageReady)
     this.props.onLoadSuccess(imageState)
   }
@@ -389,12 +387,12 @@ class AvatarEditor extends React.Component {
 
       context.save()
 
-      context.translate((context.canvas.width / 2), (context.canvas.height / 2));
+      context.translate((context.canvas.width / 2), (context.canvas.height / 2))
       context.rotate((this.props.rotate * Math.PI / 180))
-      context.translate(-(context.canvas.width / 2), -(context.canvas.height / 2));
+      context.translate(-(context.canvas.width / 2), -(context.canvas.height / 2))
 
       if (this.isVertical()) {
-          context.translate((context.canvas.width - context.canvas.height) / 2, (context.canvas.height - context.canvas.width) / 2)
+        context.translate((context.canvas.width - context.canvas.height) / 2, (context.canvas.height - context.canvas.width) / 2)
       }
 
       context.globalCompositeOperation = 'destination-over'
@@ -509,12 +507,12 @@ class AvatarEditor extends React.Component {
       const x = lastX + (mx * cos) + (my * sin)
       const y = lastY + (-mx * sin) + (my * cos)
 
-      let relativeWidth = (1 / this.props.scale) * this.getXScale()
-      let relativeHeight = (1 / this.props.scale) * this.getYScale()
+      const relativeWidth = (1 / this.props.scale) * this.getXScale()
+      const relativeHeight = (1 / this.props.scale) * this.getYScale()
 
       const position = {
-          x: (x / width) + (relativeWidth / 2),
-          y: (y / height) + (relativeHeight / 2)
+        x: (x / width) + (relativeWidth / 2),
+        y: (y / height) + (relativeHeight / 2)
       }
 
       this.props.onPositionChange(position)
