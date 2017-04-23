@@ -482,7 +482,6 @@ class AvatarEditor extends React.Component {
 
     rotate %= 360
     rotate = (rotate < 0) ? rotate + 360 : rotate
-    rotate -= rotate % 90
 
     if (this.state.mx && this.state.my) {
       const mx = this.state.mx - mousePositionX
