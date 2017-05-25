@@ -294,11 +294,14 @@ class AvatarEditor extends React.Component {
   }
 
   componentDidMount () {
-    const context = ReactDOM.findDOMNode(this.canvas).getContext('2d')
+    const canvasNode = ReactDOM.findDOMNode(this.canvas);
     if (this.props.image) {
       this.loadImage(this.props.image)
     }
-    this.paint(context)
+    if (this.canvas && canvasNode) {
+      const context = canvasNode.getContext('2d')
+      this.paint(context)
+    }
     if (document) {
       const nativeEvents = deviceEvents.native
       document.addEventListener(nativeEvents.move, this.handleMouseMove, false)
