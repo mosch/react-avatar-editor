@@ -294,11 +294,14 @@ class AvatarEditor extends React.Component {
   }
 
   componentDidMount () {
-    const context = ReactDOM.findDOMNode(this.canvas).getContext('2d')
+    const canvasNode = ReactDOM.findDOMNode(this.canvas);
     if (this.props.image) {
       this.loadImage(this.props.image)
     }
-    this.paint(context)
+    if (this.canvas && canvasNode) {
+      const context = canvasNode.getContext('2d')
+      this.paint(context)
+    }
     if (document) {
       const nativeEvents = deviceEvents.native
       document.addEventListener(nativeEvents.move, this.handleMouseMove, false)
@@ -323,10 +326,13 @@ class AvatarEditor extends React.Component {
   }
 
   componentDidUpdate (prevProps, prevState) {
-    const context = ReactDOM.findDOMNode(this.canvas).getContext('2d')
-    context.clearRect(0, 0, this.getDimensions().canvas.width, this.getDimensions().canvas.height)
-    this.paint(context)
-    this.paintImage(context, this.state.image, this.props.border)
+    const canvasNode = ReactDOM.findDOMNode(this.canvas);
+    if (this.canvas && canvasNode) {
+      const context = canvasNode.getContext('2d')
+      context.clearRect(0, 0, this.getDimensions().canvas.width, this.getDimensions().canvas.height)
+      this.paint(context)
+      this.paintImage(context, this.state.image, this.props.border)
+    }
 
     if (prevProps.image !== this.props.image ||
         prevProps.width !== this.props.width ||
