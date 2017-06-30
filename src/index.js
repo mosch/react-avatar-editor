@@ -50,6 +50,8 @@ const draggableEvents = {
 }
 const deviceEvents = isTouchDevice ? draggableEvents.touch : draggableEvents.desktop
 
+const pixelRatio = typeof window !== 'undefined' && window.devicePixelRatio || 1;
+
 // Draws a rounded rectangle on a 2D context.
 const drawRoundedRect = (context, x, y, width, height, borderRadius) => {
   if (borderRadius === 0) {
@@ -295,10 +297,13 @@ class AvatarEditor extends React.Component {
 
   componentDidMount () {
     const context = ReactDOM.findDOMNode(this.canvas).getContext('2d')
+    context.save()
+    context.scale(pixelRatio, pixelRatio)
     if (this.props.image) {
       this.loadImage(this.props.image)
     }
     this.paint(context)
+    context.restore()
     if (document) {
       const nativeEvents = deviceEvents.native
       document.addEventListener(nativeEvents.move, this.handleMouseMove, false)
@@ -324,9 +329,12 @@ class AvatarEditor extends React.Component {
 
   componentDidUpdate (prevProps, prevState) {
     const context = ReactDOM.findDOMNode(this.canvas).getContext('2d')
+    context.save()
+    context.scale(pixelRatio, pixelRatio)
     context.clearRect(0, 0, this.getDimensions().canvas.width, this.getDimensions().canvas.height)
     this.paint(context)
     this.paintImage(context, this.state.image, this.props.border)
+    context.restore()
 
     if (prevProps.image !== this.props.image ||
         prevProps.width !== this.props.width ||
@@ -552,13 +560,16 @@ class AvatarEditor extends React.Component {
   }
 
   render () {
+    const dimensions = this.getDimensions()
     const defaultStyle = {
+      width: dimensions.canvas.width,
+      height: dimensions.canvas.height,
       cursor: this.state.drag ? 'grabbing' : 'grab'
     }
 
     const attributes = {
-      width: this.getDimensions().canvas.width,
-      height: this.getDimensions().canvas.height,
+      width: dimensions.canvas.width * pixelRatio,
+      height: dimensions.canvas.height * pixelRatio,
       style: {
         ...defaultStyle,
         ...this.props.style
