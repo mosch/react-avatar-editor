@@ -10,7 +10,7 @@ Resize, crop and rotate your uploaded image using a clear user interface.
 
 ![](https://thumbs.gfycat.com/FlawedBlushingGermanwirehairedpointer-size_restricted.gif)
 
-[Demo](http://mosch.github.io/react-avatar-editor/docs/)
+[Demo](https://react-avatar-editor.netlify.com/)
 
 # Usage
 
@@ -44,11 +44,13 @@ export default MyEditor
 | width                  | Number   | The total width of the editor
 | height                 | Number   | The total width of the editor
 | border                 | Number   | The cropping border. Image will be visible through the border, but cut off in the resulting image.
+| borderRadius           | Number   | The cropping area border radius.
 | color                  | Number[] | The color of the cropping border, in the form: [red (0-255), green (0-255), blue (0-255), alpha (0.0-1.0)]
 | style                  | Object   | Styles for the canvas element
 | scale                  | Number   | The scale of the image. You can use this to add your own resizing slider.
 | position               | Object   | The x and y co-ordinates (in the range 0 to 1) of the center of the cropping area of the image.  Note that if you set this prop, you will need to keep it up to date via onPositionChange in order for panning to continue working.
 | rotate                 | Number   | The rotation degree of the image. You can use this to rotate image (e.g 90, 270 degrees).
+| crossOrigin            | String   | The value to use for the crossOrigin property of the image, if loaded from a non-data URL.  Valid values are `"anonymous"` and `"use-credentials"`.  See [this page](https://developer.mozilla.org/en-US/docs/Web/HTML/CORS_settings_attributes) for more information.
 | onDropFile(event)      | function | Invoked when user drops a file (or more) onto the canvas. Does not perform any further check.
 | onLoadFailure(event)   | function | Invoked when an image (whether passed by props or dropped) load fails.
 | onLoadSuccess(imgInfo) | function | Invoked when an image (whether passed by props or dropped) load succeeds.
@@ -78,14 +80,14 @@ const MyEditor extends React.Component {
     const canvasScaled = this.editor.getImageScaledToCanvas()
   }
 
-  setEditorRef (editor) {
+  setEditorRef = (editor) => {
     this.editor = editor
   }
 
   render () {
     return (
         <AvatarEditor
-          ref={this.setEditorRef.bind(this)}
+          ref={this.setEditorRef}
           image="http://example.com/initialimage.jpg"
           width={250}
           height={250}
