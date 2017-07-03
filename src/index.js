@@ -50,7 +50,7 @@ const draggableEvents = {
 }
 const deviceEvents = isTouchDevice ? draggableEvents.touch : draggableEvents.desktop
 
-const pixelRatio = typeof window !== 'undefined' && window.devicePixelRatio || 1;
+const pixelRatio = typeof window !== 'undefined' && window.devicePixelRatio ? window.devicePixelRatio : 1
 
 // Draws a rounded rectangle on a 2D context.
 const drawRoundedRect = (context, x, y, width, height, borderRadius) => {
