@@ -156,8 +156,8 @@ class AvatarEditor extends React.Component {
 
     const [borderX, borderY] = this.getBorders(border)
 
-    const canvasWidth = width + (borderX * 2);
-    const canvasHeight = height + (borderY * 2);
+    const canvasWidth = width
+    const canvasHeight = height
 
     if (this.isVertical()) {
       canvas.width = canvasHeight
@@ -166,6 +166,9 @@ class AvatarEditor extends React.Component {
       canvas.width = canvasWidth
       canvas.height = canvasHeight
     }
+
+    canvas.width += (borderX * 2)
+    canvas.height += (borderY * 2)
 
     return {
       canvas,
@@ -429,8 +432,16 @@ class AvatarEditor extends React.Component {
     const width = image.width * this.props.scale
     const height = image.height * this.props.scale
 
-    const x = borderX - (croppingRect.x * width)
-    const y = borderY - (croppingRect.y * height)
+    let x = - (croppingRect.x * width)
+    let y = - (croppingRect.y * height)
+
+    if (this.isVertical()) {
+      x += borderY
+      y += borderX
+    } else {
+      x += borderX
+      y += borderY
+    }
 
     return {
       x,
