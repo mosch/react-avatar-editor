@@ -76,7 +76,10 @@ class AvatarEditor extends React.Component {
     scale: PropTypes.number,
     rotate: PropTypes.number,
     image: PropTypes.string,
-    border: PropTypes.number,
+    border: PropTypes.oneOfType([
+      PropTypes.number,
+      PropTypes.arrayOf(PropTypes.number),
+    ]),
     borderRadius: PropTypes.number,
     width: PropTypes.number,
     height: PropTypes.number,
@@ -147,8 +150,11 @@ class AvatarEditor extends React.Component {
 
     const canvas = {}
 
-    const canvasWidth = width + (border * 2)
-    const canvasHeight = height + (border * 2)
+    const borderX = Array.isArray(border) ? border[0] : border
+    const borderY = Array.isArray(border) ? border[1] : border
+
+    const canvasWidth = width + (borderX * 2);
+    const canvasHeight = height + (borderY * 2);
 
     if (this.isVertical()) {
       canvas.width = canvasHeight
@@ -413,13 +419,16 @@ class AvatarEditor extends React.Component {
   calculatePosition (image, border) {
     image = image || this.state.image
 
+    let borderX = Array.isArray(border) ? border[0] : border
+    let borderY = Array.isArray(border) ? border[1] : border
+
     const croppingRect = this.getCroppingRect()
 
     const width = image.width * this.props.scale
     const height = image.height * this.props.scale
 
-    const x = border - (croppingRect.x * width)
-    const y = border - (croppingRect.y * height)
+    const x = borderX - (croppingRect.x * width)
+    const y = borderY - (croppingRect.y * height)
 
     return {
       x,
@@ -436,17 +445,18 @@ class AvatarEditor extends React.Component {
 
     let borderRadius = this.props.borderRadius
     const dimensions = this.getDimensions()
-    const borderSize = dimensions.border
+    const borderSizeX = Array.isArray(dimensions.border) ? dimensions.border[0] : dimensions.border
+    const borderSizeY = Array.isArray(dimensions.border) ? dimensions.border[1] : dimensions.border
     const height = dimensions.canvas.height
     const width = dimensions.canvas.width
 
     // clamp border radius between zero (perfect rectangle) and half the size without borders (perfect circle or "pill")
     borderRadius = Math.max(borderRadius, 0)
-    borderRadius = Math.min(borderRadius, width / 2 - borderSize, height / 2 - borderSize)
+    borderRadius = Math.min(borderRadius, width / 2 - borderSizeX, height / 2 - borderSizeY)
 
     context.beginPath()
     // inner rect, possibly rounded
-    drawRoundedRect(context, borderSize, borderSize, width - borderSize * 2, height - borderSize * 2, borderRadius)
+    drawRoundedRect(context, borderSizeX, borderSizeY, width - borderSizeX * 2, height - borderSizeY * 2, borderRadius)
     context.rect(width, 0, -width, height) // outer rect, drawn "counterclockwise"
     context.fill('evenodd')
 
