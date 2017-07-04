@@ -145,13 +145,16 @@ class AvatarEditor extends React.Component {
     return this.props.rotate % 180 !== 0
   }
 
+  getBorders (border = this.props.border) {
+    return Array.isArray(border) ? border : [border, border]
+  }
+
   getDimensions () {
     const { width, height, rotate, border } = this.props
 
     const canvas = {}
 
-    const borderX = Array.isArray(border) ? border[0] : border
-    const borderY = Array.isArray(border) ? border[1] : border
+    const [borderX, borderY] = this.getBorders(border)
 
     const canvasWidth = width + (borderX * 2);
     const canvasHeight = height + (borderY * 2);
@@ -419,8 +422,7 @@ class AvatarEditor extends React.Component {
   calculatePosition (image, border) {
     image = image || this.state.image
 
-    let borderX = Array.isArray(border) ? border[0] : border
-    let borderY = Array.isArray(border) ? border[1] : border
+    const [borderX, borderY] = this.getBorders(border)
 
     const croppingRect = this.getCroppingRect()
 
@@ -445,8 +447,7 @@ class AvatarEditor extends React.Component {
 
     let borderRadius = this.props.borderRadius
     const dimensions = this.getDimensions()
-    const borderSizeX = Array.isArray(dimensions.border) ? dimensions.border[0] : dimensions.border
-    const borderSizeY = Array.isArray(dimensions.border) ? dimensions.border[1] : dimensions.border
+    const [borderSizeX, borderSizeY] = this.getBorders(dimensions.border)
     const height = dimensions.canvas.height
     const width = dimensions.canvas.width
 
