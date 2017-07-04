@@ -78,7 +78,7 @@ class AvatarEditor extends React.Component {
     image: PropTypes.string,
     border: PropTypes.oneOfType([
       PropTypes.number,
-      PropTypes.arrayOf(PropTypes.number),
+      PropTypes.arrayOf(PropTypes.number)
     ]),
     borderRadius: PropTypes.number,
     width: PropTypes.number,
@@ -432,8 +432,8 @@ class AvatarEditor extends React.Component {
     const width = image.width * this.props.scale
     const height = image.height * this.props.scale
 
-    let x = - (croppingRect.x * width)
-    let y = - (croppingRect.y * height)
+    let x = -croppingRect.x * width
+    let y = -croppingRect.y * height
 
     if (this.isVertical()) {
       x += borderY
