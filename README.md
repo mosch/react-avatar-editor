@@ -43,7 +43,7 @@ export default MyEditor
 | ---------------------- | -------- | ---------------
 | width                  | Number   | The total width of the editor
 | height                 | Number   | The total width of the editor
-| border                 | Number   | The cropping border. Image will be visible through the border, but cut off in the resulting image.
+| border                 | Number|Number[]   | The cropping border. Image will be visible through the border, but cut off in the resulting image. Treated as horizonal and vertical borders when passed an array
 | borderRadius           | Number   | The cropping area border radius.
 | color                  | Number[] | The color of the cropping border, in the form: [red (0-255), green (0-255), blue (0-255), alpha (0.0-1.0)]
 | style                  | Object   | Styles for the canvas element

@@ -76,7 +76,10 @@ class AvatarEditor extends React.Component {
     scale: PropTypes.number,
     rotate: PropTypes.number,
     image: PropTypes.string,
-    border: PropTypes.number,
+    border: PropTypes.oneOfType([
+      PropTypes.number,
+      PropTypes.arrayOf(PropTypes.number)
+    ]),
     borderRadius: PropTypes.number,
     width: PropTypes.number,
     height: PropTypes.number,
@@ -142,13 +145,19 @@ class AvatarEditor extends React.Component {
     return this.props.rotate % 180 !== 0
   }
 
+  getBorders (border = this.props.border) {
+    return Array.isArray(border) ? border : [border, border]
+  }
+
   getDimensions () {
     const { width, height, rotate, border } = this.props
 
     const canvas = {}
 
-    const canvasWidth = width + (border * 2)
-    const canvasHeight = height + (border * 2)
+    const [borderX, borderY] = this.getBorders(border)
+
+    const canvasWidth = width
+    const canvasHeight = height
 
     if (this.isVertical()) {
       canvas.width = canvasHeight
@@ -157,6 +166,9 @@ class AvatarEditor extends React.Component {
       canvas.width = canvasWidth
       canvas.height = canvasHeight
     }
+
+    canvas.width += (borderX * 2)
+    canvas.height += (borderY * 2)
 
     return {
       canvas,
@@ -413,13 +425,23 @@ class AvatarEditor extends React.Component {
   calculatePosition (image, border) {
     image = image || this.state.image
 
+    const [borderX, borderY] = this.getBorders(border)
+
     const croppingRect = this.getCroppingRect()
 
     const width = image.width * this.props.scale
     const height = image.height * this.props.scale
 
-    const x = border - (croppingRect.x * width)
-    const y = border - (croppingRect.y * height)
+    let x = -croppingRect.x * width
+    let y = -croppingRect.y * height
+
+    if (this.isVertical()) {
+      x += borderY
+      y += borderX
+    } else {
+      x += borderX
+      y += borderY
+    }
 
     return {
       x,
@@ -436,17 +458,17 @@ class AvatarEditor extends React.Component {
 
     let borderRadius = this.props.borderRadius
     const dimensions = this.getDimensions()
-    const borderSize = dimensions.border
+    const [borderSizeX, borderSizeY] = this.getBorders(dimensions.border)
     const height = dimensions.canvas.height
     const width = dimensions.canvas.width
 
     // clamp border radius between zero (perfect rectangle) and half the size without borders (perfect circle or "pill")
     borderRadius = Math.max(borderRadius, 0)
-    borderRadius = Math.min(borderRadius, width / 2 - borderSize, height / 2 - borderSize)
+    borderRadius = Math.min(borderRadius, width / 2 - borderSizeX, height / 2 - borderSizeY)
 
     context.beginPath()
     // inner rect, possibly rounded
-    drawRoundedRect(context, borderSize, borderSize, width - borderSize * 2, height - borderSize * 2, borderRadius)
+    drawRoundedRect(context, borderSizeX, borderSizeY, width - borderSizeX * 2, height - borderSizeY * 2, borderRadius)
     context.rect(width, 0, -width, height) // outer rect, drawn "counterclockwise"
     context.fill('evenodd')
 
