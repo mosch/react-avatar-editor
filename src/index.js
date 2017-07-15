@@ -241,6 +241,84 @@ class AvatarEditor extends React.Component {
     return canvas
   }
 
+
+  getImageData () {
+    // get relative coordinates (0 to 1)
+    const cropRect = this.getCroppingRect()
+    const image = this.state.image
+
+    // get actual pixel coordinates
+    cropRect.x *= image.resource.width
+    cropRect.y *= image.resource.height
+    cropRect.width *= image.resource.width
+    cropRect.height *= image.resource.height
+
+    // create a canvas with the correct dimensions
+    const canvas = document.createElement('canvas')
+
+    if (this.isVertical()) {
+      canvas.width = cropRect.height
+      canvas.height = cropRect.width
+    } else {
+      canvas.width = cropRect.width
+      canvas.height = cropRect.height
+    }
+
+    // draw the full-size image at the correct position,
+    // the image gets truncated to the size of the canvas.
+    const context = canvas.getContext('2d')
+
+    context.translate((canvas.width / 2), (canvas.height / 2))
+    context.rotate((this.props.rotate * Math.PI / 180))
+    context.translate(-(canvas.width / 2), -(canvas.height / 2))
+
+    if (this.isVertical()) {
+      context.translate((canvas.width - canvas.height) / 2, (canvas.height - canvas.width) / 2)
+    }
+
+    context.drawImage(image.resource, -cropRect.x, -cropRect.y)
+
+    return context.getImageData(-cropRect.x, -cropRect.y, image.resource.width, image.resource.height)
+  }
+
+
+  /**
+   * Get the image data scaled to original canvas size.
+   * This was default in 4.x and is now kept as a legacy method.
+   */
+  getImageDataScaledToCanvas () {
+    const { width, height } = this.getDimensions()
+
+    const canvas = document.createElement('canvas')
+    const image = this.state.image
+
+    if (this.isVertical()) {
+      canvas.width = height
+      canvas.height = width
+    } else {
+      canvas.width = width
+      canvas.height = height
+    }
+
+
+    const context = canvas.getContext('2d')
+    const position = this.calculatePosition(image, 0)
+
+    context.translate((context.canvas.width / 2), (context.canvas.height / 2))
+    context.rotate((this.props.rotate * Math.PI / 180))
+    context.translate(-(context.canvas.width / 2), -(context.canvas.height / 2))
+
+    if (this.isVertical()) {
+      context.translate((context.canvas.width - context.canvas.height) / 2, (context.canvas.height - context.canvas.width) / 2)
+    }
+
+    context.globalCompositeOperation = 'destination-over'
+    context.drawImage(image.resource, position.x, position.y, position.width, position.height)
+
+    return context.getImageData(position.x, position.y, image.resource.width, image.resource.height)
+
+  }
+
   getXScale () {
     const canvasAspect = this.props.width / this.props.height
     const imageAspect = this.state.image.width / this.state.image.height
