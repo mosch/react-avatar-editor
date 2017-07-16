@@ -12,7 +12,7 @@
     "watch": "babel src/index.js -w -o dist/index.js",
     "demo:build": "webpack",
     "demo:watch": "webpack-dev-server",
-    "prepublish": "npm run lint && npm run clean && npm run build"
+    "prepublish": "npm run lint && npm run test && npm run clean && npm run build"
   },
   "author": {
     "name": "Moritz Schwoerer",
