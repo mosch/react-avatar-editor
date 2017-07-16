@@ -2,6 +2,8 @@ import PropTypes from 'prop-types'
 import React from 'react'
 import ReactDOM from 'react-dom'
 
+import retrieveImageUrl from './utils/retrieve-image-url'
+
 const isTouchDevice = !!(
   typeof window !== 'undefined' &&
   typeof navigator !== 'undefined' &&
@@ -579,14 +581,17 @@ class AvatarEditor extends React.Component {
     e.preventDefault()
   }
 
-  handleDrop (e) {
-    e = e || window.event
+  handleDrop (e = window.event) {
     e.stopPropagation()
     e.preventDefault()
 
-    if (e.dataTransfer && e.dataTransfer.files.length) {
+    const { files, items } = e.dataTransfer
+
+    if (files && files.length) {
       this.props.onDropFile(e)
-      this.loadImageFile(e.dataTransfer.files[0])
+      this.loadImageFile(files[0])
+    } else if (items && items.length) {
+      retrieveImageUrl(items, src => this.loadImage(src))
     }
   }
 
