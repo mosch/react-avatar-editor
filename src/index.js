@@ -75,7 +75,10 @@ class AvatarEditor extends React.Component {
   static propTypes = {
     scale: PropTypes.number,
     rotate: PropTypes.number,
-    image: PropTypes.string,
+    image: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.instanceOf(File)
+    ]),
     border: PropTypes.oneOfType([
       PropTypes.number,
       PropTypes.arrayOf(PropTypes.number)
@@ -299,12 +302,26 @@ class AvatarEditor extends React.Component {
     return !!str.match(regex)
   }
 
-  loadImage (imageURL) {
+  loadImage (image) {
+    if (image instanceof File) {
+      this.loadImageFile(image)
+    } else {
+      this.loadImageURL(image)
+    }
+  }
+
+  loadImageURL (imageURL) {
     const imageObj = new Image()
     imageObj.onload = this.handleImageReady.bind(this, imageObj)
     imageObj.onerror = this.props.onLoadFailure
     if (!this.isDataURL(imageURL) && this.props.crossOrigin) imageObj.crossOrigin = this.props.crossOrigin
     imageObj.src = imageURL
+  }
+
+  loadImageFile (imageFile) {
+    const reader = new FileReader()
+    reader.onload = (e) => this.loadImageURL(e.target.result)
+    reader.readAsDataURL(imageFile)
   }
 
   componentDidMount () {
@@ -569,10 +586,7 @@ class AvatarEditor extends React.Component {
 
     if (e.dataTransfer && e.dataTransfer.files.length) {
       this.props.onDropFile(e)
-      const reader = new FileReader()
-      const file = e.dataTransfer.files[0]
-      reader.onload = (e) => this.loadImage(e.target.result)
-      reader.readAsDataURL(file)
+      this.loadImageFile(e.dataTransfer.files[0])
     }
   }
 

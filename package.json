@@ -68,6 +68,7 @@
   ],
   "standard": {
     "global": [
+      "File",
       "FileReader",
       "Image"
     ],
