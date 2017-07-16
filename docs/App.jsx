@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import ReactAvatarEditor from '../src/index'
+import ReactAvatarEditor from '../dist/index'
 
 class App extends React.Component {
   state = {
