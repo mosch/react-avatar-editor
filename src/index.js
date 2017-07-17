@@ -8,6 +8,8 @@ const isTouchDevice = !!(
   ('ontouchstart' in window || navigator.msMaxTouchPoints > 0)
 )
 
+const isFileAPISupported = typeof File !== 'undefined'
+
 const draggableEvents = {
   touch: {
     react: {
@@ -77,7 +79,7 @@ class AvatarEditor extends React.Component {
     rotate: PropTypes.number,
     image: PropTypes.oneOfType([
       PropTypes.string,
-      PropTypes.instanceOf(File)
+      ...(isFileAPISupported ? [PropTypes.instanceOf(File)] : [])
     ]),
     border: PropTypes.oneOfType([
       PropTypes.number,
@@ -303,9 +305,9 @@ class AvatarEditor extends React.Component {
   }
 
   loadImage (image) {
-    if (image instanceof File) {
+    if (isFileAPISupported && image instanceof File) {
       this.loadImageFile(image)
-    } else {
+    } else if (typeof image === 'string') {
       this.loadImageURL(image)
     }
   }
