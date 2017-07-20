@@ -12,7 +12,8 @@
     "test:watch": "jest --watch",
     "demo:build": "webpack",
     "demo:watch": "webpack-dev-server",
-    "prepublish": "yarn run lint && yarn run test && yarn run clean && yarn run build"
+    "prepublish": "yarn run lint && yarn run test && yarn run clean && yarn run build",
+    "postversion": "git push --tags origin HEAD"
   },
   "author": {
     "name": "Moritz Schwoerer",
