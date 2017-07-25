@@ -573,7 +573,7 @@ class AvatarEditor extends React.Component {
 
     this.setState(newState)
 
-    this.props.onMouseMove()
+    this.props.onMouseMove(e)
   }
 
   handleDragOver (e) {
