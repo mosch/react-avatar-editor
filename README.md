@@ -39,27 +39,28 @@ export default MyEditor
 ```
 
 ## Props
-| Prop                   | Type     | Description
-| ---------------------- | -------- | ---------------
-| width                  | Number   | The total width of the editor
-| height                 | Number   | The total width of the editor
-| border                 | Number\|Number[]   | The cropping border. Image will be visible through the border, but cut off in the resulting image. Treated as horizonal and vertical borders when passed an array
-| borderRadius           | Number   | The cropping area border radius.
-| color                  | Number[] | The color of the cropping border, in the form: [red (0-255), green (0-255), blue (0-255), alpha (0.0-1.0)]
-| style                  | Object   | Styles for the canvas element
-| scale                  | Number   | The scale of the image. You can use this to add your own resizing slider.
-| position               | Object   | The x and y co-ordinates (in the range 0 to 1) of the center of the cropping area of the image.  Note that if you set this prop, you will need to keep it up to date via onPositionChange in order for panning to continue working.
-| rotate                 | Number   | The rotation degree of the image. You can use this to rotate image (e.g 90, 270 degrees).
-| crossOrigin            | String   | The value to use for the crossOrigin property of the image, if loaded from a non-data URL.  Valid values are `"anonymous"` and `"use-credentials"`.  See [this page](https://developer.mozilla.org/en-US/docs/Web/HTML/CORS_settings_attributes) for more information.
-| disableDrop            | Boolean  | Disables drop handling behavior (defaults to `false`)      
-| onDropFile(event)      | function | Invoked when user drops a file (or more) onto the canvas. Does not perform any further check.
-| onLoadFailure(event)   | function | Invoked when an image (whether passed by props or dropped) load fails.
-| onLoadSuccess(imgInfo) | function | Invoked when an image (whether passed by props or dropped) load succeeds.
-| onImageReady(event)    | function | Invoked when the image is painted on the canvas the first time
-| onMouseUp()            | function | Invoked when the user releases their mouse button after interacting with the editor.
-| onMouseMove()          | function | Invoked when the user hold and moving the image.
-| onImageChange()        | function | Invoked when the user changed the image. Not invoked on the first render, and invoked multiple times during drag, etc.
-| onPositionChange()     | function | Invoked when the user pans the editor to change the selected area of the image.  Passed a position object in the form `{ x: 0.5, y: 0.5 }` where x and y are the relative x and y coordinates of the center of the selected area.
+| Prop                   | Type             | Description
+| ---------------------- | ---------------- | ---------------
+| image                  | String\|File     | The URL of the image to use, or a File (e.g. from a file input).
+| width                  | Number           | The total width of the editor.
+| height                 | Number           | The total height of the editor.
+| border                 | Number\|Number[] | The cropping border. Image will be visible through the border, but cut off in the resulting image. Treated as horizontal and vertical borders when passed an array.
+| borderRadius           | Number           | The cropping area border radius.
+| color                  | Number[]         | The color of the cropping border, in the form: [red (0-255), green (0-255), blue (0-255), alpha (0.0-1.0)].
+| style                  | Object           | Styles for the canvas element.
+| scale                  | Number           | The scale of the image. You can use this to add your own resizing slider.
+| position               | Object           | The x and y co-ordinates (in the range 0 to 1) of the center of the cropping area of the image.  Note that if you set this prop, you will need to keep it up to date via onPositionChange in order for panning to continue working.
+| rotate                 | Number           | The rotation degree of the image. You can use this to rotate image (e.g 90, 270 degrees).
+| crossOrigin            | String           | The value to use for the crossOrigin property of the image, if loaded from a non-data URL.  Valid values are `"anonymous"` and `"use-credentials"`.  See [this page](https://developer.mozilla.org/en-US/docs/Web/HTML/CORS_settings_attributes) for more information.
+| disableDrop            | Boolean  | Disables drop handling behavior (defaults to `false`)
+| onDropFile(event)      | function         | Invoked when user drops a file (or more) onto the canvas. Does not perform any further check.
+| onLoadFailure(event)   | function         | Invoked when an image (whether passed by props or dropped) load fails.
+| onLoadSuccess(imgInfo) | function         | Invoked when an image (whether passed by props or dropped) load succeeds.
+| onImageReady(event)    | function         | Invoked when the image is painted on the canvas the first time.
+| onMouseUp()            | function         | Invoked when the user releases their mouse button after interacting with the editor.
+| onMouseMove(event)     | function         | Invoked when the user hold and moving the image.
+| onImageChange()        | function         | Invoked when the user changed the image. Not invoked on the first render, and invoked multiple times during drag, etc.
+| onPositionChange()     | function         | Invoked when the user pans the editor to change the selected area of the image.  Passed a position object in the form `{ x: 0.5, y: 0.5 }` where x and y are the relative x and y coordinates of the center of the selected area.
 
 ## Accessing the resulting image
 

@@ -2,11 +2,15 @@ import PropTypes from 'prop-types'
 import React from 'react'
 import ReactDOM from 'react-dom'
 
+import retrieveImageUrl from './utils/retrieve-image-url'
+
 const isTouchDevice = !!(
   typeof window !== 'undefined' &&
   typeof navigator !== 'undefined' &&
   ('ontouchstart' in window || navigator.msMaxTouchPoints > 0)
 )
+
+const isFileAPISupported = typeof File !== 'undefined'
 
 const draggableEvents = {
   touch: {
@@ -75,7 +79,10 @@ class AvatarEditor extends React.Component {
   static propTypes = {
     scale: PropTypes.number,
     rotate: PropTypes.number,
-    image: PropTypes.string,
+    image: PropTypes.oneOfType([
+      PropTypes.string,
+      ...(isFileAPISupported ? [PropTypes.instanceOf(File)] : [])
+    ]),
     border: PropTypes.oneOfType([
       PropTypes.number,
       PropTypes.arrayOf(PropTypes.number)
@@ -239,7 +246,7 @@ class AvatarEditor extends React.Component {
     }
 
     // don't paint a border here, as it is the resulting image
-    this.paintImage(canvas.getContext('2d'), this.state.image, 0)
+    this.paintImage(canvas.getContext('2d'), this.state.image, 0, 1)
 
     return canvas
   }
@@ -302,7 +309,15 @@ class AvatarEditor extends React.Component {
     return !!str.match(regex)
   }
 
-  loadImage (imageURL) {
+  loadImage (image) {
+    if (isFileAPISupported && image instanceof File) {
+      this.loadImageFile(image)
+    } else if (typeof image === 'string') {
+      this.loadImageURL(image)
+    }
+  }
+
+  loadImageURL (imageURL) {
     const imageObj = new Image()
     imageObj.onload = this.handleImageReady.bind(this, imageObj)
     imageObj.onerror = this.props.onLoadFailure
@@ -310,15 +325,18 @@ class AvatarEditor extends React.Component {
     imageObj.src = imageURL
   }
 
+  loadImageFile (imageFile) {
+    const reader = new FileReader()
+    reader.onload = (e) => this.loadImageURL(e.target.result)
+    reader.readAsDataURL(imageFile)
+  }
+
   componentDidMount () {
     const context = ReactDOM.findDOMNode(this.canvas).getContext('2d')
-    context.save()
-    context.scale(pixelRatio, pixelRatio)
     if (this.props.image) {
       this.loadImage(this.props.image)
     }
     this.paint(context)
-    context.restore()
     if (document) {
       const nativeEvents = deviceEvents.native
       document.addEventListener(nativeEvents.move, this.handleMouseMove, false)
@@ -343,13 +361,11 @@ class AvatarEditor extends React.Component {
   }
 
   componentDidUpdate (prevProps, prevState) {
-    const context = ReactDOM.findDOMNode(this.canvas).getContext('2d')
-    context.save()
-    context.scale(pixelRatio, pixelRatio)
-    context.clearRect(0, 0, this.getDimensions().canvas.width, this.getDimensions().canvas.height)
+    const canvas = ReactDOM.findDOMNode(this.canvas)
+    const context = canvas.getContext('2d')
+    context.clearRect(0, 0, canvas.width, canvas.height)
     this.paint(context)
     this.paintImage(context, this.state.image, this.props.border)
-    context.restore()
 
     if (prevProps.image !== this.props.image ||
         prevProps.width !== this.props.width ||
@@ -404,7 +420,7 @@ class AvatarEditor extends React.Component {
     }
   }
 
-  paintImage (context, image, border) {
+  paintImage (context, image, border, scaleFactor = pixelRatio) {
     if (image.resource) {
       const position = this.calculatePosition(image, border)
 
@@ -417,6 +433,8 @@ class AvatarEditor extends React.Component {
       if (this.isVertical()) {
         context.translate((context.canvas.width - context.canvas.height) / 2, (context.canvas.height - context.canvas.width) / 2)
       }
+
+      context.scale(scaleFactor, scaleFactor)
 
       context.globalCompositeOperation = 'destination-over'
       context.drawImage(image.resource, position.x, position.y, position.width, position.height)
@@ -456,6 +474,7 @@ class AvatarEditor extends React.Component {
 
   paint (context) {
     context.save()
+    context.scale(pixelRatio, pixelRatio)
     context.translate(0, 0)
     context.fillStyle = 'rgba(' + this.props.color.slice(0, 4).join(',') + ')'
 
@@ -557,7 +576,7 @@ class AvatarEditor extends React.Component {
 
     this.setState(newState)
 
-    this.props.onMouseMove()
+    this.props.onMouseMove(e)
   }
 
   handleDragOver (e) {
@@ -565,17 +584,17 @@ class AvatarEditor extends React.Component {
     e.preventDefault()
   }
 
-  handleDrop (e) {
-    e = e || window.event
+  handleDrop (e = window.event) {
     e.stopPropagation()
     e.preventDefault()
 
-    if (e.dataTransfer && e.dataTransfer.files.length) {
+    const { files, items } = e.dataTransfer
+
+    if (files && files.length) {
       this.props.onDropFile(e)
-      const reader = new FileReader()
-      const file = e.dataTransfer.files[0]
-      reader.onload = (e) => this.loadImage(e.target.result)
-      reader.readAsDataURL(file)
+      this.loadImageFile(files[0])
+    } else if (items && items.length) {
+      retrieveImageUrl(items, src => this.loadImage(src))
     }
   }
 

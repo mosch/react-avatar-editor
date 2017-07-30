@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import ReactAvatarEditor from '../src/index'
+import ReactAvatarEditor from '../dist/index'
 
 class App extends React.Component {
   state = {
@@ -12,6 +12,10 @@ class App extends React.Component {
     width: 200,
     height: 200
   }
+
+  handleNewImage = (e) => {
+    this.setState({ image: e.target.files[0] })
+  };
 
   handleSave = (data) => {
     const img = this.editor.getImageScaledToCanvas().toDataURL()
@@ -105,7 +109,14 @@ class App extends React.Component {
           onImageReady={this.logCallback.bind(this, 'onImageReady')}
           onImageLoad={this.logCallback.bind(this, 'onImageLoad')}
           onDropFile={this.logCallback.bind(this, 'onDropFile')}
-          image='avatar.jpg'
+          image={this.state.image || 'avatar.jpg'}
+        />
+        <br />
+        New File:
+        <input
+          name='newImage'
+          type='file'
+          onChange={this.handleNewImage}
         />
         <br />
         Zoom:
