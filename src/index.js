@@ -105,10 +105,13 @@ class AvatarEditor extends React.Component {
     onImageChange: PropTypes.func,
     onMouseUp: PropTypes.func,
     onMouseMove: PropTypes.func,
-    onPositionChange: PropTypes.func
+    onPositionChange: PropTypes.func,
+
+    disableDrop: PropTypes.bool
   }
 
   static defaultProps = {
+    disableDrop: false,
     scale: 1,
     rotate: 0,
     border: 25,
@@ -618,7 +621,7 @@ class AvatarEditor extends React.Component {
 
     attributes[deviceEvents.react.down] = this.handleMouseDown
     attributes[deviceEvents.react.drag] = this.handleDragOver
-    attributes[deviceEvents.react.drop] = this.handleDrop
+    if (!this.props.disableDrop) attributes[deviceEvents.react.drop] = this.handleDrop
     if (isTouchDevice) attributes[deviceEvents.react.mouseDown] = this.handleMouseDown
 
     return (
