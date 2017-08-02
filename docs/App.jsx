@@ -4,6 +4,7 @@ import ReactAvatarEditor from '../dist/index'
 
 class App extends React.Component {
   state = {
+    allowZoomOut: false,
     position: { x: 0.5, y: 0.5 },
     scale: 1,
     rotate: 0,
@@ -36,6 +37,10 @@ class App extends React.Component {
   handleScale = (e) => {
     const scale = parseFloat(e.target.value)
     this.setState({ scale })
+  }
+
+  handleAllowZoomOut = ({ target: { checked: allowZoomOut } }) => {
+    this.setState({ allowZoomOut })
   }
 
   rotateLeft = (e) => {
@@ -124,10 +129,18 @@ class App extends React.Component {
           name='scale'
           type='range'
           onChange={this.handleScale}
-          min='1'
+          min={this.state.allowZoomOut ? '0.1' : '1'}
           max='2'
           step='0.01'
           defaultValue='1'
+        />
+        <br />
+        {'Allow Scale < 1'}
+        <input
+          name='allowZoomOut'
+          type='checkbox'
+          onChange={this.handleAllowZoomOut}
+          checked={this.state.allowZoomOut}
         />
         <br />
         Border radius:
