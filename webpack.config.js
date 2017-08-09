@@ -1,10 +1,13 @@
+const path = require('path')
+
 module.exports = {
   entry: './docs/App.jsx',
   output: {
     filename: './docs/bundle.js'
   },
   devServer: {
-    inline: true
+    inline: true,
+    contentBase: path.join(__dirname, 'docs'),
   },
   module: {
     rules: [{
