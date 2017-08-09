@@ -7,7 +7,7 @@ module.exports = {
   },
   devServer: {
     inline: true,
-    contentBase: path.join(__dirname, 'docs'),
+    contentBase: path.join(__dirname, 'docs')
   },
   module: {
     rules: [{
