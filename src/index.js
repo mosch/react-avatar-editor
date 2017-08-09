@@ -52,9 +52,14 @@ const draggableEvents = {
     }
   }
 }
-const deviceEvents = isTouchDevice ? draggableEvents.touch : draggableEvents.desktop
+const deviceEvents = isTouchDevice
+  ? draggableEvents.touch
+  : draggableEvents.desktop
 
-const pixelRatio = typeof window !== 'undefined' && window.devicePixelRatio ? window.devicePixelRatio : 1
+const pixelRatio =
+  typeof window !== 'undefined' && window.devicePixelRatio
+    ? window.devicePixelRatio
+    : 1
 
 // Draws a rounded rectangle on a 2D context.
 const drawRoundedRect = (context, x, y, width, height, borderRadius) => {
@@ -64,13 +69,37 @@ const drawRoundedRect = (context, x, y, width, height, borderRadius) => {
     const widthMinusRad = width - borderRadius
     const heightMinusRad = height - borderRadius
     context.translate(x, y)
-    context.arc(borderRadius, borderRadius, borderRadius, Math.PI, Math.PI * 1.5)
+    context.arc(
+      borderRadius,
+      borderRadius,
+      borderRadius,
+      Math.PI,
+      Math.PI * 1.5
+    )
     context.lineTo(widthMinusRad, 0)
-    context.arc(widthMinusRad, borderRadius, borderRadius, Math.PI * 1.5, Math.PI * 2)
+    context.arc(
+      widthMinusRad,
+      borderRadius,
+      borderRadius,
+      Math.PI * 1.5,
+      Math.PI * 2
+    )
     context.lineTo(width, heightMinusRad)
-    context.arc(widthMinusRad, heightMinusRad, borderRadius, Math.PI * 2, Math.PI * 0.5)
+    context.arc(
+      widthMinusRad,
+      heightMinusRad,
+      borderRadius,
+      Math.PI * 2,
+      Math.PI * 0.5
+    )
     context.lineTo(borderRadius, height)
-    context.arc(borderRadius, heightMinusRad, borderRadius, Math.PI * 0.5, Math.PI)
+    context.arc(
+      borderRadius,
+      heightMinusRad,
+      borderRadius,
+      Math.PI * 0.5,
+      Math.PI
+    )
     context.translate(-x, -y)
   }
 }
@@ -177,8 +206,8 @@ class AvatarEditor extends React.Component {
       canvas.height = canvasHeight
     }
 
-    canvas.width += (borderX * 2)
-    canvas.height += (borderY * 2)
+    canvas.width += borderX * 2
+    canvas.height += borderY * 2
 
     return {
       canvas,
@@ -215,12 +244,15 @@ class AvatarEditor extends React.Component {
     // the image gets truncated to the size of the canvas.
     const context = canvas.getContext('2d')
 
-    context.translate((canvas.width / 2), (canvas.height / 2))
-    context.rotate((this.props.rotate * Math.PI / 180))
+    context.translate(canvas.width / 2, canvas.height / 2)
+    context.rotate(this.props.rotate * Math.PI / 180)
     context.translate(-(canvas.width / 2), -(canvas.height / 2))
 
     if (this.isVertical()) {
-      context.translate((canvas.width - canvas.height) / 2, (canvas.height - canvas.width) / 2)
+      context.translate(
+        (canvas.width - canvas.height) / 2,
+        (canvas.height - canvas.width) / 2
+      )
     }
 
     context.drawImage(image.resource, -cropRect.x, -cropRect.y)
@@ -266,13 +298,16 @@ class AvatarEditor extends React.Component {
   }
 
   getCroppingRect () {
-    const position = this.props.position || { x: this.state.image.x, y: this.state.image.y }
-    const width = (1 / this.props.scale) * this.getXScale()
-    const height = (1 / this.props.scale) * this.getYScale()
+    const position = this.props.position || {
+      x: this.state.image.x,
+      y: this.state.image.y
+    }
+    const width = 1 / this.props.scale * this.getXScale()
+    const height = 1 / this.props.scale * this.getYScale()
 
     const croppingRect = {
-      x: position.x - (width / 2),
-      y: position.y - (height / 2),
+      x: position.x - width / 2,
+      y: position.y - height / 2,
       width,
       height
     }
@@ -321,13 +356,13 @@ class AvatarEditor extends React.Component {
     const imageObj = new Image()
     imageObj.onload = this.handleImageReady.bind(this, imageObj)
     imageObj.onerror = this.props.onLoadFailure
-    if (!this.isDataURL(imageURL) && this.props.crossOrigin) imageObj.crossOrigin = this.props.crossOrigin
+    if (!this.isDataURL(imageURL) && this.props.crossOrigin) { imageObj.crossOrigin = this.props.crossOrigin }
     imageObj.src = imageURL
   }
 
   loadImageFile (imageFile) {
     const reader = new FileReader()
-    reader.onload = (e) => this.loadImageURL(e.target.result)
+    reader.onload = e => this.loadImageURL(e.target.result)
     reader.readAsDataURL(imageFile)
   }
 
@@ -342,8 +377,16 @@ class AvatarEditor extends React.Component {
       document.addEventListener(nativeEvents.move, this.handleMouseMove, false)
       document.addEventListener(nativeEvents.up, this.handleMouseUp, false)
       if (isTouchDevice) {
-        document.addEventListener(nativeEvents.mouseMove, this.handleMouseMove, false)
-        document.addEventListener(nativeEvents.mouseUp, this.handleMouseUp, false)
+        document.addEventListener(
+          nativeEvents.mouseMove,
+          this.handleMouseMove,
+          false
+        )
+        document.addEventListener(
+          nativeEvents.mouseUp,
+          this.handleMouseUp,
+          false
+        )
       }
     }
   }
@@ -351,11 +394,23 @@ class AvatarEditor extends React.Component {
   componentWillUnmount () {
     if (document) {
       const nativeEvents = deviceEvents.native
-      document.removeEventListener(nativeEvents.move, this.handleMouseMove, false)
+      document.removeEventListener(
+        nativeEvents.move,
+        this.handleMouseMove,
+        false
+      )
       document.removeEventListener(nativeEvents.up, this.handleMouseUp, false)
       if (isTouchDevice) {
-        document.removeEventListener(nativeEvents.mouseMove, this.handleMouseMove, false)
-        document.removeEventListener(nativeEvents.mouseUp, this.handleMouseUp, false)
+        document.removeEventListener(
+          nativeEvents.mouseMove,
+          this.handleMouseMove,
+          false
+        )
+        document.removeEventListener(
+          nativeEvents.mouseUp,
+          this.handleMouseUp,
+          false
+        )
       }
     }
   }
@@ -367,16 +422,18 @@ class AvatarEditor extends React.Component {
     this.paint(context)
     this.paintImage(context, this.state.image, this.props.border)
 
-    if (prevProps.image !== this.props.image ||
-        prevProps.width !== this.props.width ||
-        prevProps.height !== this.props.height ||
-        prevProps.position !== this.props.position ||
-        prevProps.scale !== this.props.scale ||
-        prevProps.rotate !== this.props.rotate ||
-        prevState.my !== this.state.my ||
-        prevState.mx !== this.state.mx ||
-        prevState.image.x !== this.state.image.x ||
-        prevState.image.y !== this.state.image.y) {
+    if (
+      prevProps.image !== this.props.image ||
+      prevProps.width !== this.props.width ||
+      prevProps.height !== this.props.height ||
+      prevProps.position !== this.props.position ||
+      prevProps.scale !== this.props.scale ||
+      prevProps.rotate !== this.props.rotate ||
+      prevState.my !== this.state.my ||
+      prevState.mx !== this.state.mx ||
+      prevState.image.x !== this.state.image.x ||
+      prevState.image.y !== this.state.image.y
+    ) {
       this.props.onImageChange()
     }
   }
@@ -399,11 +456,11 @@ class AvatarEditor extends React.Component {
     const imageRatio = height / width
 
     if (canvasRatio > imageRatio) {
-      newHeight = (this.getDimensions().height)
-      newWidth = (width * (newHeight / height))
+      newHeight = this.getDimensions().height
+      newWidth = width * (newHeight / height)
     } else {
-      newWidth = (this.getDimensions().width)
-      newHeight = (height * (newWidth / width))
+      newWidth = this.getDimensions().width
+      newHeight = height * (newWidth / width)
     }
 
     return {
@@ -413,9 +470,11 @@ class AvatarEditor extends React.Component {
   }
 
   componentWillReceiveProps (newProps) {
-    if ((newProps.image && this.props.image !== newProps.image) ||
-        this.props.width !== newProps.width ||
-        this.props.height !== newProps.height) {
+    if (
+      (newProps.image && this.props.image !== newProps.image) ||
+      this.props.width !== newProps.width ||
+      this.props.height !== newProps.height
+    ) {
       this.loadImage(newProps.image)
     }
   }
@@ -426,18 +485,30 @@ class AvatarEditor extends React.Component {
 
       context.save()
 
-      context.translate((context.canvas.width / 2), (context.canvas.height / 2))
-      context.rotate((this.props.rotate * Math.PI / 180))
-      context.translate(-(context.canvas.width / 2), -(context.canvas.height / 2))
+      context.translate(context.canvas.width / 2, context.canvas.height / 2)
+      context.rotate(this.props.rotate * Math.PI / 180)
+      context.translate(
+        -(context.canvas.width / 2),
+        -(context.canvas.height / 2)
+      )
 
       if (this.isVertical()) {
-        context.translate((context.canvas.width - context.canvas.height) / 2, (context.canvas.height - context.canvas.width) / 2)
+        context.translate(
+          (context.canvas.width - context.canvas.height) / 2,
+          (context.canvas.height - context.canvas.width) / 2
+        )
       }
 
       context.scale(scaleFactor, scaleFactor)
 
       context.globalCompositeOperation = 'destination-over'
-      context.drawImage(image.resource, position.x, position.y, position.width, position.height)
+      context.drawImage(
+        image.resource,
+        position.x,
+        position.y,
+        position.width,
+        position.height
+      )
 
       context.restore()
     }
@@ -486,11 +557,22 @@ class AvatarEditor extends React.Component {
 
     // clamp border radius between zero (perfect rectangle) and half the size without borders (perfect circle or "pill")
     borderRadius = Math.max(borderRadius, 0)
-    borderRadius = Math.min(borderRadius, width / 2 - borderSizeX, height / 2 - borderSizeY)
+    borderRadius = Math.min(
+      borderRadius,
+      width / 2 - borderSizeX,
+      height / 2 - borderSizeY
+    )
 
     context.beginPath()
     // inner rect, possibly rounded
-    drawRoundedRect(context, borderSizeX, borderSizeY, width - borderSizeX * 2, height - borderSizeY * 2, borderRadius)
+    drawRoundedRect(
+      context,
+      borderSizeX,
+      borderSizeY,
+      width - borderSizeX * 2,
+      height - borderSizeY * 2,
+      borderRadius
+    )
     context.rect(width, 0, -width, height) // outer rect, drawn "counterclockwise"
     context.fill('evenodd')
 
@@ -522,8 +604,12 @@ class AvatarEditor extends React.Component {
       return
     }
 
-    const mousePositionX = e.targetTouches ? e.targetTouches[0].pageX : e.clientX
-    const mousePositionY = e.targetTouches ? e.targetTouches[0].pageY : e.clientY
+    const mousePositionX = e.targetTouches
+      ? e.targetTouches[0].pageX
+      : e.clientX
+    const mousePositionY = e.targetTouches
+      ? e.targetTouches[0].pageY
+      : e.clientY
 
     const newState = {
       mx: mousePositionX,
@@ -533,7 +619,7 @@ class AvatarEditor extends React.Component {
     let rotate = this.props.rotate
 
     rotate %= 360
-    rotate = (rotate < 0) ? rotate + 360 : rotate
+    rotate = rotate < 0 ? rotate + 360 : rotate
 
     if (this.state.mx && this.state.my) {
       const mx = this.state.mx - mousePositionX
@@ -542,10 +628,7 @@ class AvatarEditor extends React.Component {
       const width = this.state.image.width * this.props.scale
       const height = this.state.image.height * this.props.scale
 
-      let {
-        x: lastX,
-        y: lastY
-      } = this.getCroppingRect()
+      let { x: lastX, y: lastY } = this.getCroppingRect()
 
       lastX *= width
       lastY *= height
@@ -555,15 +638,15 @@ class AvatarEditor extends React.Component {
       const cos = Math.cos(toRadians(rotate))
       const sin = Math.sin(toRadians(rotate))
 
-      const x = lastX + (mx * cos) + (my * sin)
-      const y = lastY + (-mx * sin) + (my * cos)
+      const x = lastX + mx * cos + my * sin
+      const y = lastY + -mx * sin + my * cos
 
-      const relativeWidth = (1 / this.props.scale) * this.getXScale()
-      const relativeHeight = (1 / this.props.scale) * this.getYScale()
+      const relativeWidth = 1 / this.props.scale * this.getXScale()
+      const relativeHeight = 1 / this.props.scale * this.getYScale()
 
       const position = {
-        x: (x / width) + (relativeWidth / 2),
-        y: (y / height) + (relativeHeight / 2)
+        x: x / width + relativeWidth / 2,
+        y: y / height + relativeHeight / 2
       }
 
       this.props.onPositionChange(position)
@@ -588,13 +671,15 @@ class AvatarEditor extends React.Component {
     e.stopPropagation()
     e.preventDefault()
 
-    const { files, items } = e.dataTransfer
+    if (e.dataTransfer) {
+      const { files, items } = e.dataTransfer
 
-    if (files && files.length) {
-      this.props.onDropFile(e)
-      this.loadImageFile(files[0])
-    } else if (items && items.length) {
-      retrieveImageUrl(items, src => this.loadImage(src))
+      if (files && files.length) {
+        this.props.onDropFile(e)
+        this.loadImageFile(files[0])
+      } else if (items && items.length) {
+        retrieveImageUrl(items, src => this.loadImage(src))
+      }
     }
   }
 
@@ -621,12 +706,10 @@ class AvatarEditor extends React.Component {
 
     attributes[deviceEvents.react.down] = this.handleMouseDown
     attributes[deviceEvents.react.drag] = this.handleDragOver
-    if (!this.props.disableDrop) attributes[deviceEvents.react.drop] = this.handleDrop
-    if (isTouchDevice) attributes[deviceEvents.react.mouseDown] = this.handleMouseDown
+    if (!this.props.disableDrop) { attributes[deviceEvents.react.drop] = this.handleDrop }
+    if (isTouchDevice) { attributes[deviceEvents.react.mouseDown] = this.handleMouseDown }
 
-    return (
-      <canvas ref={this.setCanvas} {...attributes} />
-    )
+    return <canvas ref={this.setCanvas} {...attributes} />
   }
 }
 
