@@ -14,11 +14,11 @@ class App extends React.Component {
     height: 200
   }
 
-  handleNewImage = (e) => {
+  handleNewImage = e => {
     this.setState({ image: e.target.files[0] })
-  };
+  }
 
-  handleSave = (data) => {
+  handleSave = data => {
     const img = this.editor.getImageScaledToCanvas().toDataURL()
     const rect = this.editor.getCroppingRect()
 
@@ -34,7 +34,7 @@ class App extends React.Component {
     })
   }
 
-  handleScale = (e) => {
+  handleScale = e => {
     const scale = parseFloat(e.target.value)
     this.setState({ scale })
   }
@@ -43,7 +43,7 @@ class App extends React.Component {
     this.setState({ allowZoomOut })
   }
 
-  rotateLeft = (e) => {
+  rotateLeft = e => {
     e.preventDefault()
 
     this.setState({
@@ -51,34 +51,34 @@ class App extends React.Component {
     })
   }
 
-  rotateRight = (e) => {
+  rotateRight = e => {
     e.preventDefault()
     this.setState({
       rotate: this.state.rotate + 90
     })
   }
 
-  handleBorderRadius = (e) => {
+  handleBorderRadius = e => {
     const borderRadius = parseInt(e.target.value)
     this.setState({ borderRadius })
   }
 
-  handleXPosition = (e) => {
+  handleXPosition = e => {
     const x = parseFloat(e.target.value)
     this.setState({ position: { ...this.state.position, x } })
   }
 
-  handleYPosition = (e) => {
+  handleYPosition = e => {
     const y = parseFloat(e.target.value)
     this.setState({ position: { ...this.state.position, y } })
   }
 
-  handleWidth = (e) => {
+  handleWidth = e => {
     const width = parseInt(e.target.value)
     this.setState({ width })
   }
 
-  handleHeight = (e) => {
+  handleHeight = e => {
     const height = parseInt(e.target.value)
     this.setState({ height })
   }
@@ -87,7 +87,7 @@ class App extends React.Component {
     console.log('callback', e)
   }
 
-  setEditorRef = (editor) => {
+  setEditorRef = editor => {
     if (editor) this.editor = editor
   }
 
@@ -118,11 +118,7 @@ class App extends React.Component {
         />
         <br />
         New File:
-        <input
-          name='newImage'
-          type='file'
-          onChange={this.handleNewImage}
-        />
+        <input name='newImage' type='file' onChange={this.handleNewImage} />
         <br />
         Zoom:
         <input
@@ -205,22 +201,34 @@ class App extends React.Component {
         <br />
         <input type='button' onClick={this.handleSave} value='Preview' />
         <br />
-        { !!this.state.preview &&
+        {!!this.state.preview &&
           <img
             src={this.state.preview.img}
-            style={{ borderRadius: `${(Math.min(this.state.preview.height, this.state.preview.width) + 10) * ((this.state.preview.borderRadius / 2) / 100)}px` }}
-          />
-        }
-
-        { !!this.state.preview &&
+            style={{
+              borderRadius: `${(Math.min(
+                this.state.preview.height,
+                this.state.preview.width
+              ) +
+                10) *
+                (this.state.preview.borderRadius / 2 / 100)}px`
+            }}
+          />}
+        {!!this.state.preview &&
           <ImageWithRect
-            width={this.state.preview.scale < 1 ? this.state.preview.width : (this.state.preview.height * 478 / 270)}
+            width={
+              this.state.preview.scale < 1
+                ? this.state.preview.width
+                : this.state.preview.height * 478 / 270
+            }
             height={this.state.preview.height}
             image='avatar.jpg'
             rect={this.state.preview.rect}
-            style={{margin: '10px 24px 32px', padding: 5, border: '1px solid #CCC'}}
-          />
-        }
+            style={{
+              margin: '10px 24px 32px',
+              padding: 5,
+              border: '1px solid #CCC'
+            }}
+          />}
       </div>
     )
   }
@@ -265,12 +273,7 @@ class ImageWithRect extends React.Component {
       )
 
       if (rect) {
-        ctx.strokeRect(
-          1,
-          1,
-          Math.round(width) - 2,
-          Math.round(height) - 2
-        )
+        ctx.strokeRect(1, 1, Math.round(width) - 2, Math.round(height) - 2)
       }
     } else {
       ctx.drawImage(this.imgElement, 0, 0, width, height)
@@ -306,7 +309,4 @@ class ImageWithRect extends React.Component {
   }
 }
 
-ReactDOM.render(
-  <App />,
-  document.getElementById('app')
-)
+ReactDOM.render(<App />, document.getElementById('app'))
