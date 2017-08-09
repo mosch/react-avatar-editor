@@ -159,17 +159,6 @@ class AvatarEditor extends React.Component {
     onPositionChange () {}
   }
 
-  constructor (props) {
-    super(props)
-
-    this.setCanvas = ::this.setCanvas
-    this.handleMouseMove = ::this.handleMouseMove
-    this.handleMouseDown = ::this.handleMouseDown
-    this.handleMouseUp = ::this.handleMouseUp
-    this.handleDragOver = ::this.handleDragOver
-    this.handleDrop = ::this.handleDrop
-  }
-
   state = {
     drag: false,
     my: null,
@@ -579,7 +568,7 @@ class AvatarEditor extends React.Component {
     context.restore()
   }
 
-  handleMouseDown (e) {
+  handleMouseDown = (e) => {
     e = e || window.event
     // if e is a touch event, preventDefault keeps
     // corresponding mouse events from also being fired
@@ -591,14 +580,14 @@ class AvatarEditor extends React.Component {
       my: null
     })
   }
-  handleMouseUp () {
+  handleMouseUp = () => {
     if (this.state.drag) {
       this.setState({ drag: false })
       this.props.onMouseUp()
     }
   }
 
-  handleMouseMove (e) {
+  handleMouseMove = (e) => {
     e = e || window.event
     if (this.state.drag === false) {
       return
@@ -662,12 +651,12 @@ class AvatarEditor extends React.Component {
     this.props.onMouseMove(e)
   }
 
-  handleDragOver (e) {
+  handleDragOver = (e) => {
     e = e || window.event
     e.preventDefault()
   }
 
-  handleDrop (e = window.event) {
+  handleDrop = (e = window.event) => {
     e.stopPropagation()
     e.preventDefault()
 
@@ -683,7 +672,7 @@ class AvatarEditor extends React.Component {
     }
   }
 
-  setCanvas (canvas) {
+  setCanvas = (canvas) => {
     this.canvas = canvas
   }
 
