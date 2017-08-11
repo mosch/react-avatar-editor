@@ -236,13 +236,6 @@ class App extends React.Component {
 
 // Used to display the cropping rect
 class ImageWithRect extends React.Component {
-  constructor (props) {
-    super(props)
-
-    this.setCanvas = ::this.setCanvas
-    this.handleImageLoad = ::this.handleImageLoad
-  }
-
   componentDidMount () {
     this.redraw()
   }
@@ -251,11 +244,11 @@ class ImageWithRect extends React.Component {
     this.redraw()
   }
 
-  setCanvas (canvas) {
+  setCanvas = (canvas) => {
     if (canvas) this.canvas = canvas
   }
 
-  handleImageLoad () {
+  handleImageLoad = () => {
     const ctx = this.canvas.getContext('2d')
     const { rect, width, height } = this.props
 
