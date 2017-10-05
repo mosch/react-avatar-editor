@@ -68,8 +68,8 @@
     "webpack-dev-server": "^2.4.2"
   },
   "peerDependencies": {
-    "react": ">=0.14.0 <16.0.0",
-    "react-dom": ">=0.14.0 <16.0.0"
+    "react": ">=0.14.0 <17.0.0",
+    "react-dom": ">=0.14.0 <17.0.0"
   },
   "files": [
     "dist",
