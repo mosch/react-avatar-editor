@@ -1,9 +1,11 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import ReactAvatarEditor from '../dist/index'
+import ReactAvatarEditor from '../src/index'
+import Dropzone from 'react-dropzone'
 
 class App extends React.Component {
   state = {
+    image: 'avatar.jpg',
     allowZoomOut: false,
     position: { x: 0.5, y: 0.5 },
     scale: 1,
@@ -92,30 +94,36 @@ class App extends React.Component {
   }
 
   handlePositionChange = position => {
-    console.log('Position set to', position)
     this.setState({ position })
+  }
+
+  handleDrop = acceptedFiles => {
+    this.setState({image: acceptedFiles[0]})
   }
 
   render () {
     return (
       <div>
-        <ReactAvatarEditor
-          ref={this.setEditorRef}
-          scale={parseFloat(this.state.scale)}
-          width={this.state.width}
-          height={this.state.height}
-          position={this.state.position}
-          onPositionChange={this.handlePositionChange}
-          rotate={parseFloat(this.state.rotate)}
-          borderRadius={this.state.borderRadius}
-          onSave={this.handleSave}
-          onLoadFailure={this.logCallback.bind(this, 'onLoadFailed')}
-          onLoadSuccess={this.logCallback.bind(this, 'onLoadSuccess')}
-          onImageReady={this.logCallback.bind(this, 'onImageReady')}
-          onImageLoad={this.logCallback.bind(this, 'onImageLoad')}
-          onDropFile={this.logCallback.bind(this, 'onDropFile')}
-          image={this.state.image || 'avatar.jpg'}
-        />
+        <Dropzone onDrop={this.handleDrop} disableClick style={{width: '250px', height: '250px'}}>
+          <div>
+          <ReactAvatarEditor
+            ref={this.setEditorRef}
+            scale={parseFloat(this.state.scale)}
+            width={this.state.width}
+            height={this.state.height}
+            position={this.state.position}
+            onPositionChange={this.handlePositionChange}
+            rotate={parseFloat(this.state.rotate)}
+            borderRadius={this.state.borderRadius}
+            onSave={this.handleSave}
+            onLoadFailure={this.logCallback.bind(this, 'onLoadFailed')}
+            onLoadSuccess={this.logCallback.bind(this, 'onLoadSuccess')}
+            onImageReady={this.logCallback.bind(this, 'onImageReady')}
+            onImageLoad={this.logCallback.bind(this, 'onImageLoad')}
+            image={this.state.image}
+          />
+          </div>
+        </Dropzone>
         <br />
         New File:
         <input name='newImage' type='file' onChange={this.handleNewImage} />

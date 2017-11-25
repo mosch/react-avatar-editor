@@ -1,7 +1,7 @@
 {
   "name": "react-avatar-editor",
   "version": "10.3.0",
-  "description": "Facebook like avatar / profile picture component. Resize and crop your uploaded image using a intuitive user interface.",
+  "description": "Avatar / profile picture component. Resize and crop your uploaded image using a intuitive user interface.",
   "main": "dist/index.js",
   "scripts": {
     "clean": "rimraf dist",
@@ -10,7 +10,7 @@
     "lint": "standard --verbose | snazzy",
     "test": "jest",
     "test:watch": "jest --watch",
-    "demo:build": "webpack",
+    "demo:build": "NODE_ENV=production webpack",
     "demo:watch": "webpack-dev-server",
     "prepublish": "yarn run lint && yarn run test && yarn run clean && yarn run build",
     "postversion": "git push --tags origin HEAD"
@@ -57,6 +57,7 @@
     "prop-types": "^15.5.8",
     "react": "^15.5.4",
     "react-dom": "^15.5.4",
+    "react-dropzone": "^4.2.3",
     "rimraf": "^2.6.1",
     "rollup": "^0.45.2",
     "rollup-plugin-babel": "^2.7.1",
