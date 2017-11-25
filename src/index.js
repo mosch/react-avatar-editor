@@ -465,7 +465,15 @@ class AvatarEditor extends React.Component {
       this.props.height !== newProps.height
     ) {
       this.loadImage(newProps.image)
+    } else if (!newProps.image) {
+      this.clearImage()
     }
+  }
+
+  clearImage = () => {
+    const canvas = this.canvas
+    const context = canvas.getContext('2d')
+    context.clearRect(0, 0, canvas.width, canvas.height)
   }
 
   paintImage (context, image, border, scaleFactor = pixelRatio) {
