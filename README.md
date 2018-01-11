@@ -1,11 +1,25 @@
 # react-avatar-editor
 
-<a href="http://badge.fury.io/js/react-avatar-editor"><img alt="npm version" src="https://badge.fury.io/js/react-avatar-editor.svg"></a>
+<a href="https://www.npmjs.com/package/react-avatar-editor"><img alt="npm version" src="https://badge.fury.io/js/react-avatar-editor.svg"></a>
 <a href="https://npmjs.org/package/react-avatar-editor"><img alt="Downloads" src="http://img.shields.io/npm/dm/react-avatar-editor.svg"></a>
 [![Build Status](https://travis-ci.org/mosch/react-avatar-editor.svg?branch=master)](https://travis-ci.org/mosch/react-avatar-editor)
 
 Facebook like, avatar / profile picture component.
 Resize, crop and rotate your uploaded image using a clear user interface.
+
+# Install
+
+Just use yarn or npm to add it to your project:
+
+```
+yarn add react-avatar-editor
+```
+
+respective
+
+```
+npm install --save react-avatar-editor
+```
 
 # Demo
 
