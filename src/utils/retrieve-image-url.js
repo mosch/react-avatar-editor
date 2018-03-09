@@ -9,7 +9,7 @@ import parseDOM from './parse-dom'
  */
 const retrieveImageURL = (dataTransferItems, callback) => {
   for (let i = 0; i < dataTransferItems.length; i++) {
-    let item = dataTransferItems[i]
+    const item = dataTransferItems[i]
 
     if (item.type === 'text/html') {
       item.getAsString(value => {

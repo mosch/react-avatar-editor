@@ -24,14 +24,14 @@ export default {
   globals: {
     react: 'React',
     'react-dom': 'ReactDOM',
-    'prop-types': 'PropTypes'
+    'prop-types': 'PropTypes',
   },
   targets: [
     {
       dest: pkg.main,
       format: 'umd',
       moduleName: 'AvatarEditor',
-      sourceMap: true
-    }
-  ]
+      sourceMap: false,
+    },
+  ],
 }
