@@ -414,7 +414,73 @@ class AvatarEditor extends React.Component {
     this.handleImageReady(newImage)
   }
 
-  handleImageReady(image) {
+  componentDidMount () {
+    const context = ReactDOM.findDOMNode(this.canvas).getContext('2d')
+    if (this.props.image) {
+      this.loadImage(this.props.image)
+    }
+    this.paint(context)
+    if (document) {
+      const nativeEvents = deviceEvents.native
+      document.addEventListener(nativeEvents.move, this.handleMouseMove, false)
+      document.addEventListener(nativeEvents.up, this.handleMouseUp, false)
+      if (isTouchDevice) {
+        document.addEventListener(
+          nativeEvents.mouseMove,
+          this.handleMouseMove,
+          false
+        )
+        document.addEventListener(
+          nativeEvents.mouseUp,
+          this.handleMouseUp,
+          false
+        )
+      }
+    }
+  }
+
+  componentWillUnmount () {
+    if (document) {
+      const nativeEvents = deviceEvents.native
+      document.removeEventListener(
+        nativeEvents.move,
+        this.handleMouseMove,
+        false
+      )
+      document.removeEventListener(nativeEvents.up, this.handleMouseUp, false)
+      if (isTouchDevice) {
+        document.removeEventListener(
+          nativeEvents.mouseMove,
+          this.handleMouseMove,
+          false
+        )
+        document.removeEventListener(
+          nativeEvents.mouseUp,
+          this.handleMouseUp,
+          false
+        )
+      }
+    }
+  }
+
+  componentDidUpdate (prevProps, prevState) {
+    const canvas = ReactDOM.findDOMNode(this.canvas)
+    const context = canvas.getContext('2d')
+    context.clearRect(0, 0, canvas.width, canvas.height)
+    this.paint(context)
+    this.paintImage(context, this.state.image, this.props.border)
+
+    if (
+      prevState.my !== this.state.my ||
+      prevState.mx !== this.state.mx ||
+      prevState.image.x !== this.state.image.x ||
+      prevState.image.y !== this.state.image.y
+    ) {
+      this.props.onImageChange()
+    }
+  }
+
+  handleImageReady (image) {
     const imageState = this.getInitialSize(image.width, image.height)
     imageState.resource = image
     imageState.x = 0.5

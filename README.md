@@ -1,11 +1,25 @@
 # react-avatar-editor
 
-<a href="http://badge.fury.io/js/react-avatar-editor"><img alt="npm version" src="https://badge.fury.io/js/react-avatar-editor.svg"></a>
+<a href="https://www.npmjs.com/package/react-avatar-editor"><img alt="npm version" src="https://badge.fury.io/js/react-avatar-editor.svg"></a>
 <a href="https://npmjs.org/package/react-avatar-editor"><img alt="Downloads" src="http://img.shields.io/npm/dm/react-avatar-editor.svg"></a>
 [![Build Status](https://travis-ci.org/mosch/react-avatar-editor.svg?branch=master)](https://travis-ci.org/mosch/react-avatar-editor)
 
 Facebook like, avatar / profile picture component.
 Resize, crop and rotate your uploaded image using a clear user interface.
+
+# Install
+
+Just use yarn or npm to add it to your project:
+
+```
+yarn add react-avatar-editor
+```
+
+respective
+
+```
+npm install --save react-avatar-editor
+```
 
 # Demo
 
@@ -53,8 +67,6 @@ export default MyEditor
 | position               | Object           | The x and y co-ordinates (in the range 0 to 1) of the center of the cropping area of the image. Note that if you set this prop, you will need to keep it up to date via onPositionChange in order for panning to continue working.                                   |
 | rotate                 | Number           | The rotation degree of the image. You can use this to rotate image (e.g 90, 270 degrees).                                                                                                                                                                            |
 | crossOrigin            | String           | The value to use for the crossOrigin property of the image, if loaded from a non-data URL. Valid values are `"anonymous"` and `"use-credentials"`. See [this page](https://developer.mozilla.org/en-US/docs/Web/HTML/CORS_settings_attributes) for more information. |
-| disableDrop            | Boolean          | Disables drop handling behavior (defaults to `false`)                                                                                                                                                                                                                |
-| onDropFile(event)      | function         | Invoked when user drops a file (or more) onto the canvas. Does not perform any further check.                                                                                                                                                                        |
 | onLoadFailure(event)   | function         | Invoked when an image (whether passed by props or dropped) load fails.                                                                                                                                                                                               |
 | onLoadSuccess(imgInfo) | function         | Invoked when an image (whether passed by props or dropped) load succeeds.                                                                                                                                                                                            |
 | onImageReady(event)    | function         | Invoked when the image is painted on the canvas the first time.                                                                                                                                                                                                      |
