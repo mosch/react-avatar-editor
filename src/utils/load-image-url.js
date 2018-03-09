@@ -1,4 +1,6 @@
-function isDataURL (str) {
+/* eslint-env browser, node */
+
+function isDataURL(str) {
   if (str === null) {
     return false
   }
@@ -6,7 +8,7 @@ function isDataURL (str) {
   return !!str.match(regex)
 }
 
-export default function loadImageURL (imageURL, crossOrigin) {
+export default function loadImageURL(imageURL, crossOrigin) {
   return new Promise((resolve, reject) => {
     const image = new Image()
     image.onload = () => resolve(image)

@@ -1,6 +1,7 @@
+/* eslint-env browser, node */
 import loadImageURL from './load-image-url'
 
-export default function loadImageFile (imageFile) {
+export default function loadImageFile(imageFile) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
     reader.onload = async e => {
