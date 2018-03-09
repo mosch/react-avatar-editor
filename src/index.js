@@ -14,46 +14,6 @@ const isTouchDevice = !!(
 
 const isFileAPISupported = typeof File !== 'undefined'
 
-const draggableEvents = {
-  touch: {
-    react: {
-      down: 'onTouchStart',
-      mouseDown: 'onMouseDown',
-      drag: 'onTouchMove',
-      move: 'onTouchMove',
-      mouseMove: 'onMouseMove',
-      up: 'onTouchEnd',
-      mouseUp: 'onMouseUp',
-    },
-    native: {
-      down: 'touchstart',
-      mouseDown: 'mousedown',
-      drag: 'touchmove',
-      move: 'touchmove',
-      mouseMove: 'mousemove',
-      up: 'touchend',
-      mouseUp: 'mouseup',
-    },
-  },
-  desktop: {
-    react: {
-      down: 'onMouseDown',
-      drag: 'onDragOver',
-      move: 'onMouseMove',
-      up: 'onMouseUp',
-    },
-    native: {
-      down: 'mousedown',
-      drag: 'dragStart',
-      move: 'mousemove',
-      up: 'mouseup',
-    },
-  },
-}
-const deviceEvents = isTouchDevice
-  ? draggableEvents.touch
-  : draggableEvents.desktop
-
 const pixelRatio =
   typeof window !== 'undefined' && window.devicePixelRatio
     ? window.devicePixelRatio
@@ -170,17 +130,16 @@ class AvatarEditor extends React.Component {
     }
     this.paint(context)
     if (document) {
-      const nativeEvents = deviceEvents.native
-      document.addEventListener(nativeEvents.move, this.handleMouseMove, false)
-      document.addEventListener(nativeEvents.up, this.handleMouseUp, false)
+      document.addEventListener('mousemove', this.handleMouseMove, false)
+      document.addEventListener('mouseup', this.handleMouseUp, false)
       if (isTouchDevice) {
         document.addEventListener(
-          nativeEvents.mouseMove,
+          'touchmove',
           this.handleMouseMove,
           false
         )
         document.addEventListener(
-          nativeEvents.mouseUp,
+          'touchend',
           this.handleMouseUp,
           false
         )
@@ -209,12 +168,6 @@ class AvatarEditor extends React.Component {
     this.paintImage(context, this.state.image, this.props.border)
 
     if (
-      prevProps.image !== this.props.image ||
-      prevProps.width !== this.props.width ||
-      prevProps.height !== this.props.height ||
-      prevProps.position !== this.props.position ||
-      prevProps.scale !== this.props.scale ||
-      prevProps.rotate !== this.props.rotate ||
       prevState.my !== this.state.my ||
       prevState.mx !== this.state.mx ||
       prevState.image.x !== this.state.image.x ||
@@ -226,21 +179,20 @@ class AvatarEditor extends React.Component {
 
   componentWillUnmount() {
     if (document) {
-      const nativeEvents = deviceEvents.native
       document.removeEventListener(
-        nativeEvents.move,
+        'mousemove',
         this.handleMouseMove,
         false
       )
-      document.removeEventListener(nativeEvents.up, this.handleMouseUp, false)
+      document.removeEventListener('mouseup', this.handleMouseUp, false)
       if (isTouchDevice) {
         document.removeEventListener(
-          nativeEvents.mouseMove,
+          'touchmove',
           this.handleMouseMove,
           false
         )
         document.removeEventListener(
-          nativeEvents.mouseUp,
+          'touchend',
           this.handleMouseUp,
           false
         )
@@ -651,13 +603,10 @@ class AvatarEditor extends React.Component {
       height: dimensions.canvas.height * pixelRatio,
       style: {
         ...defaultStyle,
-        ...this.props.style,
+        ...this.props.style
       },
-    }
-
-    attributes[deviceEvents.react.down] = this.handleMouseDown
-    if (isTouchDevice) {
-      attributes[deviceEvents.react.mouseDown] = this.handleMouseDown
+      onTouchStart: this.handleMouseDown,
+      onMouseDown: this.handleMouseDown,
     }
 
     return <canvas ref={this.setCanvas} {...attributes} />

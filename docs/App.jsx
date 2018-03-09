@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import ReactAvatarEditor from '../src/index'
 import Dropzone from 'react-dropzone'
+import ReactAvatarEditor from '../src/index'
 import Preview from './Preview.jsx'
 class App extends React.Component {
   state = {
