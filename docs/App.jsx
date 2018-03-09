@@ -2,7 +2,6 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import ReactAvatarEditor from '../src/index'
 import Dropzone from 'react-dropzone'
-
 class App extends React.Component {
   state = {
     image: 'avatar.jpg',
@@ -98,30 +97,34 @@ class App extends React.Component {
   }
 
   handleDrop = acceptedFiles => {
-    this.setState({image: acceptedFiles[0]})
+    this.setState({ image: acceptedFiles[0] })
   }
 
   render () {
     return (
       <div>
-        <Dropzone onDrop={this.handleDrop} disableClick style={{width: '250px', height: '250px'}}>
+        <Dropzone
+          onDrop={this.handleDrop}
+          disableClick
+          style={{ width: '250px', height: '250px' }}
+        >
           <div>
-          <ReactAvatarEditor
-            ref={this.setEditorRef}
-            scale={parseFloat(this.state.scale)}
-            width={this.state.width}
-            height={this.state.height}
-            position={this.state.position}
-            onPositionChange={this.handlePositionChange}
-            rotate={parseFloat(this.state.rotate)}
-            borderRadius={this.state.borderRadius}
-            onSave={this.handleSave}
-            onLoadFailure={this.logCallback.bind(this, 'onLoadFailed')}
-            onLoadSuccess={this.logCallback.bind(this, 'onLoadSuccess')}
-            onImageReady={this.logCallback.bind(this, 'onImageReady')}
-            onImageLoad={this.logCallback.bind(this, 'onImageLoad')}
-            image={this.state.image}
-          />
+            <ReactAvatarEditor
+              ref={this.setEditorRef}
+              scale={parseFloat(this.state.scale)}
+              width={this.state.width}
+              height={this.state.height}
+              position={this.state.position}
+              onPositionChange={this.handlePositionChange}
+              rotate={parseFloat(this.state.rotate)}
+              borderRadius={this.state.borderRadius}
+              onSave={this.handleSave}
+              onLoadFailure={this.logCallback.bind(this, 'onLoadFailed')}
+              onLoadSuccess={this.logCallback.bind(this, 'onLoadSuccess')}
+              onImageReady={this.logCallback.bind(this, 'onImageReady')}
+              onImageLoad={this.logCallback.bind(this, 'onImageLoad')}
+              image={this.state.image}
+            />
           </div>
         </Dropzone>
         <br />
@@ -209,7 +212,7 @@ class App extends React.Component {
         <br />
         <input type='button' onClick={this.handleSave} value='Preview' />
         <br />
-        {!!this.state.preview &&
+        {!!this.state.preview && (
           <img
             src={this.state.preview.img}
             style={{
@@ -220,8 +223,9 @@ class App extends React.Component {
                 10) *
                 (this.state.preview.borderRadius / 2 / 100)}px`
             }}
-          />}
-        {!!this.state.preview &&
+          />
+        )}
+        {!!this.state.preview && (
           <ImageWithRect
             width={
               this.state.preview.scale < 1
@@ -236,7 +240,8 @@ class App extends React.Component {
               padding: 5,
               border: '1px solid #CCC'
             }}
-          />}
+          />
+        )}
       </div>
     )
   }
@@ -252,7 +257,7 @@ class ImageWithRect extends React.Component {
     this.redraw()
   }
 
-  setCanvas = (canvas) => {
+  setCanvas = canvas => {
     if (canvas) this.canvas = canvas
   }
 

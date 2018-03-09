@@ -130,13 +130,10 @@ class AvatarEditor extends React.Component {
     onImageChange: PropTypes.func,
     onMouseUp: PropTypes.func,
     onMouseMove: PropTypes.func,
-    onPositionChange: PropTypes.func,
-
-    disableDrop: PropTypes.bool
+    onPositionChange: PropTypes.func
   }
 
   static defaultProps = {
-    disableDrop: false,
     scale: 1,
     rotate: 0,
     border: 25,
@@ -551,7 +548,7 @@ class AvatarEditor extends React.Component {
     context.restore()
   }
 
-  handleMouseDown = (e) => {
+  handleMouseDown = e => {
     e = e || window.event
     // if e is a touch event, preventDefault keeps
     // corresponding mouse events from also being fired
@@ -570,7 +567,7 @@ class AvatarEditor extends React.Component {
     }
   }
 
-  handleMouseMove = (e) => {
+  handleMouseMove = e => {
     e = e || window.event
     if (this.state.drag === false) {
       return
@@ -634,7 +631,7 @@ class AvatarEditor extends React.Component {
     this.props.onMouseMove(e)
   }
 
-  setCanvas = (canvas) => {
+  setCanvas = canvas => {
     this.canvas = canvas
   }
 
@@ -656,7 +653,9 @@ class AvatarEditor extends React.Component {
     }
 
     attributes[deviceEvents.react.down] = this.handleMouseDown
-    if (isTouchDevice) { attributes[deviceEvents.react.mouseDown] = this.handleMouseDown }
+    if (isTouchDevice) {
+      attributes[deviceEvents.react.mouseDown] = this.handleMouseDown
+    }
 
     return <canvas ref={this.setCanvas} {...attributes} />
   }
