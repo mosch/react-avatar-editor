@@ -109,7 +109,7 @@ class App extends React.Component {
           onDrop={this.handleDrop}
           disableClick
           multiple={false}
-          style={{ width: '250px', height: '250px' }}
+          style={{ width: this.state.width, height: this.state.height,marginBottom:'35px' }}
         >
           <div>
             <ReactAvatarEditor
