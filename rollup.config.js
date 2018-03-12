@@ -1,6 +1,5 @@
 import babelrc from 'babelrc-rollup'
 import babel from 'rollup-plugin-babel'
-import uglify from 'rollup-plugin-uglify'
 import _isEqual from 'lodash/isEqual'
 
 const pkg = require('./package.json')
@@ -18,26 +17,21 @@ config.presets = config.presets.map(([name, config]) => {
   }
 })
 
-let plugins = [
-  babel(config),
-  uglify()
-]
-
 export default {
   entry: 'src/index.js',
-  plugins,
+  plugins: babel(config),
   external: external,
   globals: {
     react: 'React',
     'react-dom': 'ReactDOM',
-    'prop-types': 'PropTypes'
+    'prop-types': 'PropTypes',
   },
   targets: [
     {
       dest: pkg.main,
       format: 'umd',
       moduleName: 'AvatarEditor',
-      sourceMap: true
-    }
-  ]
+      sourceMap: false,
+    },
+  ],
 }
