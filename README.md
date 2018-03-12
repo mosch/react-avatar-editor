@@ -156,3 +156,8 @@ For development you can use following build tools:
 * `npm run watch`: Watches for file changes and builds _unminified_ into: `dist/index.js`
 * `npm run demo:build`: Builds the demo based on the dist file `dist/index.js`
 * `npm run demo:watch`: Run webpack-dev-server. Check demo website [localhost:8080](http://localhost:8080)
+
+## Kudos 
+
+Kudos and thanks to [danlee](https://github.com/dan-lee) for the imporant work & many contributions to this project!
+Also thanks to [mtlewis](https://github.com/mtlewis) and [hu9o](https://github.com/hu9o) and all other awesome people contributing to this.
