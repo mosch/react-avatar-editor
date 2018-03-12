@@ -160,4 +160,4 @@ For development you can use following build tools:
 ## Kudos 
 
 Kudos and thanks to [danlee](https://github.com/dan-lee) for the imporant work & many contributions to this project!
-Also thanks to [mtlewis](https://github.com/mtlewis) and [hu9o](https://github.com/hu9o) and all other awesome people contributing to this.
+Also thanks to [oyeanuj](https://github.com/oyeanuj), [mtlewis](https://github.com/mtlewis) and [hu9o](https://github.com/hu9o) and all other awesome people contributing to this.
