@@ -132,7 +132,7 @@ class AvatarEditor extends React.Component {
     onMouseUp: PropTypes.func,
     onMouseMove: PropTypes.func,
     onPositionChange: PropTypes.func,
-    disableBoundaryChecks: PropTypes.bool
+    disableBoundaryChecks: PropTypes.bool,
   }
 
   static defaultProps = {
