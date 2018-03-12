@@ -1,7 +1,7 @@
 const path = require('path')
 
 module.exports = {
-  entry: './docs/App.jsx',
+  entry: ['babel-polyfill', './docs/App.jsx'],
   output: {
     filename:
       process.env.NODE_ENV === 'production' ? 'docs/bundle.js' : 'bundle.js',
