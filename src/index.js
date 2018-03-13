@@ -404,17 +404,15 @@ class AvatarEditor extends React.Component {
     }
   }
 
-  async loadImage(image) {
-    let newImage
+  loadImage(image) {
     if (isFileAPISupported && image instanceof File) {
-      newImage = await loadImageFile(image)
+      loadImageFile(image).then(this.handleImageReady)
     } else if (typeof image === 'string') {
-      newImage = await loadImageURL(image, this.props.crossOrigin)
+      loadImageURL(image, this.props.crossOrigin).then(this.handleImageReady)
     }
-    this.handleImageReady(newImage)
   }
 
-  handleImageReady (image) {
+  handleImageReady = image => {
     const imageState = this.getInitialSize(image.width, image.height)
     imageState.resource = image
     imageState.x = 0.5
