@@ -4,7 +4,7 @@ import loadImageURL from './load-image-url'
 export default function loadImageFile(imageFile) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
-    reader.onload = async e => {
+    reader.onload = e => {
       try {
         const image = loadImageURL(e.target.result)
         resolve(image)
