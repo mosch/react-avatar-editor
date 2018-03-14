@@ -148,6 +148,19 @@ for example in case you intend to perform the actual cropping server-side.
 all relative to the image size (that is, comprised between 0 and 1). It is a method of AvatarEditor elements,
 like `getImage()`.
 
+_Note that:_ `getImage()` returns a canvas element and if you want to use it in `src` attribute of `img`, convert it into a blob url.
+
+```js
+const canvas = this.editor.getImage().toDataURL();
+let imageURL;
+fetch(canvas)
+  .then(res => res.blob())
+  .then(blob => (imageURL = window.URL.createObjectURL(blob)));
+
+// Usage
+<img src={imageURL} ... />
+```
+
 # Contributing
 
 For development you can use following build tools:
