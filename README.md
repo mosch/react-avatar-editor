@@ -153,7 +153,7 @@ _Note that:_ `getImage()` returns a canvas element and if you want to use it in 
 ```js
 const canvas = this.editor.getImage().toDataURL();
 let imageURL;
-fetch(canvasScaled)
+fetch(canvas)
   .then(res => res.blob())
   .then(blob => (imageURL = window.URL.createObjectURL(blob)));
 
