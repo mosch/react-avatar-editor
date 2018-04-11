@@ -143,13 +143,13 @@ class AvatarEditor extends React.Component {
     height: 200,
     color: [0, 0, 0, 0.5],
     style: {},
-    onLoadFailure() {},
-    onLoadSuccess() {},
-    onImageReady() {},
-    onImageChange() {},
-    onMouseUp() {},
-    onMouseMove() {},
-    onPositionChange() {},
+    onLoadFailure() { },
+    onLoadSuccess() { },
+    onImageReady() { },
+    onImageChange() { },
+    onMouseUp() { },
+    onMouseMove() { },
+    onPositionChange() { },
   }
 
   state = {
@@ -249,7 +249,12 @@ class AvatarEditor extends React.Component {
   }
 
   isVertical() {
-    return this.props.rotate % 180 !== 0
+    // return this.props.rotate % 180 !== 0
+    if (this.state.image.height && this.state.image.width && this.state.image.height > this.state.image.width) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   getBorders(border = this.props.border) {
