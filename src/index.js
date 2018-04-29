@@ -406,9 +406,13 @@ class AvatarEditor extends React.Component {
 
   loadImage(image) {
     if (isFileAPISupported && image instanceof File) {
-      loadImageFile(image).then(this.handleImageReady)
+      loadImageFile(image)
+        .then(this.handleImageReady)
+        .catch(this.props.onLoadFailure)
     } else if (typeof image === 'string') {
-      loadImageURL(image, this.props.crossOrigin).then(this.handleImageReady)
+      loadImageURL(image, this.props.crossOrigin)
+        .then(this.handleImageReady)
+        .catch(this.props.onLoadFailure)
     }
   }
 
