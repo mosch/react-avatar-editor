@@ -127,7 +127,7 @@ class AvatarEditor extends React.Component {
     crossOrigin: PropTypes.oneOf(['', 'anonymous', 'use-credentials']),
     className: PropTypes.oneOfType([
       PropTypes.string,
-      PropTypes.array,
+      PropTypes.arrayOf(PropTypes.string),
     ]),
 
     onLoadFailure: PropTypes.func,
