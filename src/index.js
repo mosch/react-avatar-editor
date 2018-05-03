@@ -2,6 +2,7 @@
 import PropTypes from 'prop-types'
 import React from 'react'
 import ReactDOM from 'react-dom'
+import classNames from 'classnames'
 
 import loadImageURL from './utils/load-image-url'
 import loadImageFile from './utils/load-image-file'
@@ -124,6 +125,10 @@ class AvatarEditor extends React.Component {
     color: PropTypes.arrayOf(PropTypes.number),
     style: PropTypes.object,
     crossOrigin: PropTypes.oneOf(['', 'anonymous', 'use-credentials']),
+    className: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.array,
+    ]),
 
     onLoadFailure: PropTypes.func,
     onLoadSuccess: PropTypes.func,
@@ -143,6 +148,7 @@ class AvatarEditor extends React.Component {
     height: 200,
     color: [0, 0, 0, 0.5],
     style: {},
+    className: "",
     onLoadFailure() {},
     onLoadSuccess() {},
     onImageReady() {},
@@ -658,7 +664,7 @@ class AvatarEditor extends React.Component {
       attributes[deviceEvents.react.mouseDown] = this.handleMouseDown
     }
 
-    return <canvas ref={this.setCanvas} {...attributes} />
+    return <canvas className={classNames(this.props.className)} ref={this.setCanvas} {...attributes} />
   }
 }
 
