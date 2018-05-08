@@ -41,8 +41,7 @@
     "image"
   ],
   "dependencies": {
-    "classnames": "^2.2.5",
-    "prop-types": "^15.5.8" 
+    "prop-types": "^15.5.8"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",
