@@ -2,7 +2,6 @@
 import PropTypes from 'prop-types'
 import React from 'react'
 import ReactDOM from 'react-dom'
-import classNames from 'classnames'
 
 import loadImageURL from './utils/load-image-url'
 import loadImageFile from './utils/load-image-file'
@@ -125,10 +124,7 @@ class AvatarEditor extends React.Component {
     color: PropTypes.arrayOf(PropTypes.number),
     style: PropTypes.object,
     crossOrigin: PropTypes.oneOf(['', 'anonymous', 'use-credentials']),
-    className: PropTypes.oneOfType([
-      PropTypes.string,
-      PropTypes.arrayOf(PropTypes.string),
-    ]),
+    className: PropTypes.string,
 
     onLoadFailure: PropTypes.func,
     onLoadSuccess: PropTypes.func,
@@ -643,6 +639,28 @@ class AvatarEditor extends React.Component {
   }
 
   render() {
+    const {
+      scale,
+      rotate,
+      image,
+      border,
+      borderRadius,
+      width,
+      height,
+      position,
+      color,
+      style,
+      crossOrigin,
+      onLoadFailure,
+      onLoadSuccess,
+      onImageReady,
+      onImageChange,
+      onMouseUp,
+      onMouseMove,
+      onPositionChange,
+      ...rest
+    } = this.props
+
     const dimensions = this.getDimensions()
     const defaultStyle = {
       width: dimensions.canvas.width,
@@ -655,7 +673,7 @@ class AvatarEditor extends React.Component {
       height: dimensions.canvas.height * pixelRatio,
       style: {
         ...defaultStyle,
-        ...this.props.style,
+        ...style,
       },
     }
 
@@ -664,7 +682,7 @@ class AvatarEditor extends React.Component {
       attributes[deviceEvents.react.mouseDown] = this.handleMouseDown
     }
 
-    return <canvas className={classNames(this.props.className)} ref={this.setCanvas} {...attributes} />
+    return <canvas ref={this.setCanvas} {...attributes} {...rest} />
   }
 }
 
