@@ -121,11 +121,9 @@ class App extends React.Component {
               onPositionChange={this.handlePositionChange}
               rotate={parseFloat(this.state.rotate)}
               borderRadius={this.state.width / (100 / this.state.borderRadius)}
-              onSave={this.handleSave}
               onLoadFailure={this.logCallback.bind(this, 'onLoadFailed')}
               onLoadSuccess={this.logCallback.bind(this, 'onLoadSuccess')}
               onImageReady={this.logCallback.bind(this, 'onImageReady')}
-              onImageLoad={this.logCallback.bind(this, 'onImageLoad')}
               image={this.state.image}
               className="editor-canvas"
             />
