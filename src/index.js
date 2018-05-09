@@ -133,9 +133,11 @@ class AvatarEditor extends React.Component {
     onMouseUp: PropTypes.func,
     onMouseMove: PropTypes.func,
     onPositionChange: PropTypes.func,
+    disableBoundaryChecks: PropTypes.bool,
   }
 
   static defaultProps = {
+    disableBoundaryChecks: false,
     scale: 1,
     rotate: 0,
     border: 25,
@@ -390,7 +392,7 @@ class AvatarEditor extends React.Component {
     // If the cropping rect is larger than the image, then we need to change
     // our maxima & minima for x & y to allow the image to appear anywhere up
     // to the very edge of the cropping rect.
-    const isLargerThanImage = width > 1 || height > 1
+    const isLargerThanImage = this.props.disableBoundaryChecks || width > 1 || height > 1
 
     if (isLargerThanImage) {
       xMin = -croppingRect.width
