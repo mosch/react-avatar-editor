@@ -120,13 +120,12 @@ class App extends React.Component {
               position={this.state.position}
               onPositionChange={this.handlePositionChange}
               rotate={parseFloat(this.state.rotate)}
-              borderRadius={this.state.borderRadius}
-              onSave={this.handleSave}
+              borderRadius={this.state.width / (100 / this.state.borderRadius)}
               onLoadFailure={this.logCallback.bind(this, 'onLoadFailed')}
               onLoadSuccess={this.logCallback.bind(this, 'onLoadSuccess')}
               onImageReady={this.logCallback.bind(this, 'onImageReady')}
-              onImageLoad={this.logCallback.bind(this, 'onImageLoad')}
               image={this.state.image}
+              className="editor-canvas"
             />
           </div>
         </Dropzone>
@@ -159,7 +158,7 @@ class App extends React.Component {
           type="range"
           onChange={this.handleBorderRadius}
           min="0"
-          max="100"
+          max="50"
           step="1"
           defaultValue="0"
         />

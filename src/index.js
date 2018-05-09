@@ -124,6 +124,7 @@ class AvatarEditor extends React.Component {
     color: PropTypes.arrayOf(PropTypes.number),
     style: PropTypes.object,
     crossOrigin: PropTypes.oneOf(['', 'anonymous', 'use-credentials']),
+    className: PropTypes.string,
 
     onLoadFailure: PropTypes.func,
     onLoadSuccess: PropTypes.func,
@@ -143,6 +144,7 @@ class AvatarEditor extends React.Component {
     height: 200,
     color: [0, 0, 0, 0.5],
     style: {},
+    className: "",
     onLoadFailure() {},
     onLoadSuccess() {},
     onImageReady() {},
@@ -637,6 +639,28 @@ class AvatarEditor extends React.Component {
   }
 
   render() {
+    const {
+      scale,
+      rotate,
+      image,
+      border,
+      borderRadius,
+      width,
+      height,
+      position,
+      color,
+      style,
+      crossOrigin,
+      onLoadFailure,
+      onLoadSuccess,
+      onImageReady,
+      onImageChange,
+      onMouseUp,
+      onMouseMove,
+      onPositionChange,
+      ...rest
+    } = this.props
+
     const dimensions = this.getDimensions()
     const defaultStyle = {
       width: dimensions.canvas.width,
@@ -649,7 +673,7 @@ class AvatarEditor extends React.Component {
       height: dimensions.canvas.height * pixelRatio,
       style: {
         ...defaultStyle,
-        ...this.props.style,
+        ...style,
       },
     }
 
@@ -658,7 +682,7 @@ class AvatarEditor extends React.Component {
       attributes[deviceEvents.react.mouseDown] = this.handleMouseDown
     }
 
-    return <canvas ref={this.setCanvas} {...attributes} />
+    return <canvas ref={this.setCanvas} {...attributes} {...rest} />
   }
 }
 
