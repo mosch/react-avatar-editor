@@ -672,6 +672,7 @@ class AvatarEditor extends React.Component {
       width: dimensions.canvas.width,
       height: dimensions.canvas.height,
       cursor: this.state.drag ? 'grabbing' : 'grab',
+      touchAction: 'none',
     }
 
     const attributes = {
