@@ -224,7 +224,7 @@ class AvatarEditor extends React.Component {
       prevState.image.x !== this.state.image.x ||
       prevState.image.y !== this.state.image.y
     ) {
-      this.props.onImageChange()
+      this.props.onImageChange(context)
     }
   }
 
