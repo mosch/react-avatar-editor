@@ -211,21 +211,7 @@ class AvatarEditor extends React.Component {
     context.clearRect(0, 0, canvas.width, canvas.height)
     this.paint(context)
     this.paintImage(context, this.state.image, this.props.border)
-
-    if (
-      prevProps.image !== this.props.image ||
-      prevProps.width !== this.props.width ||
-      prevProps.height !== this.props.height ||
-      prevProps.position !== this.props.position ||
-      prevProps.scale !== this.props.scale ||
-      prevProps.rotate !== this.props.rotate ||
-      prevState.my !== this.state.my ||
-      prevState.mx !== this.state.mx ||
-      prevState.image.x !== this.state.image.x ||
-      prevState.image.y !== this.state.image.y
-    ) {
-      this.props.onImageChange(context)
-    }
+    this.props.onImageChange(context)
   }
 
   componentWillUnmount() {
