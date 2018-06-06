@@ -31,6 +31,9 @@ node_modules
 # OS X
 *.DS_Store
 
+# Editor-specific config folders
+.vscode
+
 dist/
 docs/bundle.js
 docs/bundle.js.map
