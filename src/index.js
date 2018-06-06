@@ -54,7 +54,7 @@ const deviceEvents = isTouchDevice
   ? draggableEvents.touch
   : draggableEvents.desktop
 
-const pixelRatio =
+let pixelRatio =
   typeof window !== 'undefined' && window.devicePixelRatio
     ? window.devicePixelRatio
     : 1
@@ -134,10 +134,10 @@ class AvatarEditor extends React.Component {
     onMouseMove: PropTypes.func,
     onPositionChange: PropTypes.func,
     disableBoundaryChecks: PropTypes.bool,
+    disableHiDPIScaling: PropTypes.bool,
   }
 
   static defaultProps = {
-    disableBoundaryChecks: false,
     scale: 1,
     rotate: 0,
     border: 25,
@@ -154,6 +154,8 @@ class AvatarEditor extends React.Component {
     onMouseUp() {},
     onMouseMove() {},
     onPositionChange() {},
+    disableBoundaryChecks: false,
+    disableHiDPIScaling: false,
   }
 
   state = {
@@ -167,6 +169,10 @@ class AvatarEditor extends React.Component {
   }
 
   componentDidMount() {
+    // scaling by the devicePixelRatio can impact performance on mobile as it creates a very large canvas. This is an override to increase performance.
+    if (this.props.disableHiDPIScaling) {
+      pixelRatio = 1;
+    }
     // eslint-disable-next-line react/no-find-dom-node
     const context = ReactDOM.findDOMNode(this.canvas).getContext('2d')
     if (this.props.image) {
