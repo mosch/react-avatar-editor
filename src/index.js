@@ -670,6 +670,8 @@ class AvatarEditor extends React.Component {
       onMouseUp,
       onMouseMove,
       onPositionChange,
+      disableBoundaryChecks,
+      disableHiDPIScaling,
       ...rest
     } = this.props
 
