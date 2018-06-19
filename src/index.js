@@ -146,7 +146,7 @@ class AvatarEditor extends React.Component {
     height: 200,
     color: [0, 0, 0, 0.5],
     style: {},
-    className: "",
+    className: '',
     onLoadFailure() {},
     onLoadSuccess() {},
     onImageReady() {},
@@ -253,7 +253,8 @@ class AvatarEditor extends React.Component {
   }
 
   isVertical() {
-    return this.props.rotate % 180 !== 0
+    if (this.props.width !== this.props.height) return false
+    else return this.props.rotate % 180 !== 0
   }
 
   getBorders(border = this.props.border) {
@@ -392,7 +393,8 @@ class AvatarEditor extends React.Component {
     // If the cropping rect is larger than the image, then we need to change
     // our maxima & minima for x & y to allow the image to appear anywhere up
     // to the very edge of the cropping rect.
-    const isLargerThanImage = this.props.disableBoundaryChecks || width > 1 || height > 1
+    const isLargerThanImage =
+      this.props.disableBoundaryChecks || width > 1 || height > 1
 
     if (isLargerThanImage) {
       xMin = -croppingRect.width
