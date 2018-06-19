@@ -1,6 +1,6 @@
 {
   "name": "react-avatar-editor",
-  "version": "11.0.3",
+  "version": "11.0.4",
   "description": "Avatar / profile picture component. Resize and crop your uploaded image using a intuitive user interface.",
   "main": "dist/index.js",
   "scripts": {
