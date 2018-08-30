@@ -93,5 +93,8 @@
   },
   "eslintConfig": {
     "extends": "react-app"
+  },
+  "jest": {
+    "testURL": "http://localhost"
   }
 }
