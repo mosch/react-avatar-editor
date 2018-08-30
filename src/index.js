@@ -174,19 +174,35 @@ class AvatarEditor extends React.Component {
     }
     this.paint(context)
     if (document) {
+      // https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
+      let passiveSupported = false;
+      try {
+        let options = Object.defineProperty({}, "passive", {
+          get: function() {
+            passiveSupported = true;
+          }
+        });
+
+        window.addEventListener("test", options, options);
+        window.removeEventListener("test", options, options);
+      } catch(err) {
+        passiveSupported = false;
+      }
+      const thirdArgument = passiveSupported ? { passive: false } : false;
+
       const nativeEvents = deviceEvents.native
-      document.addEventListener(nativeEvents.move, this.handleMouseMove, false)
-      document.addEventListener(nativeEvents.up, this.handleMouseUp, false)
+      document.addEventListener(nativeEvents.move, this.handleMouseMove, thirdArgument)
+      document.addEventListener(nativeEvents.up, this.handleMouseUp, thirdArgument)
       if (isTouchDevice) {
         document.addEventListener(
           nativeEvents.mouseMove,
           this.handleMouseMove,
-          false
+          thirdArgument
         )
         document.addEventListener(
           nativeEvents.mouseUp,
           this.handleMouseUp,
-          false
+          thirdArgument
         )
       }
     }
@@ -581,6 +597,8 @@ class AvatarEditor extends React.Component {
     if (this.state.drag === false) {
       return
     }
+
+    e.preventDefault();  // stop scrolling on iOS Safari
 
     const mousePositionX = e.targetTouches
       ? e.targetTouches[0].pageX
