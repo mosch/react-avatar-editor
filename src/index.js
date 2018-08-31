@@ -180,7 +180,7 @@ class AvatarEditor extends React.Component {
         const options = Object.defineProperty({}, "passive", {
           get: function() {
             passiveSupported = true;
-          }
+          },
         });
 
         window.addEventListener("test", options, options);
