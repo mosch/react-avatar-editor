@@ -177,7 +177,7 @@ class AvatarEditor extends React.Component {
       // https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
       let passiveSupported = false;
       try {
-        let options = Object.defineProperty({}, "passive", {
+        const options = Object.defineProperty({}, "passive", {
           get: function() {
             passiveSupported = true;
           }
