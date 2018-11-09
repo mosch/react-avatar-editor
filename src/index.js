@@ -14,6 +14,24 @@ const isTouchDevice = !!(
 
 const isFileAPISupported = typeof File !== 'undefined'
 
+const isPassiveSupported = () => {
+  // https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
+  let passiveSupported = false;
+  try {
+    const options = Object.defineProperty({}, "passive", {
+      get: function() {
+        passiveSupported = true;
+      },
+    });
+
+    window.addEventListener("test", options, options);
+    window.removeEventListener("test", options, options);
+  } catch(err) {
+    passiveSupported = false;
+  }
+  return passiveSupported;
+}
+
 const draggableEvents = {
   touch: {
     react: {
@@ -174,20 +192,7 @@ class AvatarEditor extends React.Component {
     }
     this.paint(context)
     if (document) {
-      // https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
-      let passiveSupported = false;
-      try {
-        const options = Object.defineProperty({}, "passive", {
-          get: function() {
-            passiveSupported = true;
-          },
-        });
-
-        window.addEventListener("test", options, options);
-        window.removeEventListener("test", options, options);
-      } catch(err) {
-        passiveSupported = false;
-      }
+      const passiveSupported = isPassiveSupported();
       const thirdArgument = passiveSupported ? { passive: false } : false;
 
       const nativeEvents = deviceEvents.native
