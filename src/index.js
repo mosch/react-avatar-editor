@@ -226,8 +226,6 @@ class AvatarEditor extends React.Component {
       this.props.height !== newProps.height
     ) {
       this.loadImage(newProps.image)
-    } else if (!newProps.image) {
-      this.clearImage()
     }
   }
 
@@ -238,7 +236,9 @@ class AvatarEditor extends React.Component {
     context.clearRect(0, 0, canvas.width, canvas.height)
     this.paint(context)
     this.paintImage(context, this.state.image, this.props.border)
-
+    if (!newProps.image) {
+      this.clearImage()
+    }
     if (
       prevProps.image !== this.props.image ||
       prevProps.width !== this.props.width ||
