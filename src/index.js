@@ -5,6 +5,7 @@ import ReactDOM from 'react-dom'
 
 import loadImageURL from './utils/load-image-url'
 import loadImageFile from './utils/load-image-file'
+import makeCancelable from './utils/make-cancelable'
 
 const isTouchDevice = !!(
   typeof window !== 'undefined' &&
@@ -250,6 +251,7 @@ class AvatarEditor extends React.Component {
   }
 
   componentWillUnmount() {
+    if (this.loadingImage) this.loadingImage.cancel()
     if (document) {
       const nativeEvents = deviceEvents.native
       document.removeEventListener(
@@ -431,11 +433,16 @@ class AvatarEditor extends React.Component {
 
   loadImage(image) {
     if (isFileAPISupported && image instanceof File) {
-      loadImageFile(image)
+      this.loadingImage && this.loadingImage.cancel()
+      this.loadingImage = makeCancelable(loadImageFile(image))
+        .promise
         .then(this.handleImageReady)
         .catch(this.props.onLoadFailure)
+      
     } else if (typeof image === 'string') {
-      loadImageURL(image, this.props.crossOrigin)
+      this.loadingImage && this.loadingImage.cancel()
+      this.loadingImage = makeCancelable(loadImageURL(image, this.props.crossOrigin))
+        .promise
         .then(this.handleImageReady)
         .catch(this.props.onLoadFailure)
     }
