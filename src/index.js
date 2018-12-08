@@ -121,61 +121,6 @@ const drawRoundedRect = (context, x, y, width, height, borderRadius) => {
 }
 
 class AvatarEditor extends React.Component {
-  static propTypes = {
-    scale: PropTypes.number,
-    rotate: PropTypes.number,
-    image: PropTypes.oneOfType([
-      PropTypes.string,
-      ...(isFileAPISupported ? [PropTypes.instanceOf(File)] : []),
-    ]),
-    border: PropTypes.oneOfType([
-      PropTypes.number,
-      PropTypes.arrayOf(PropTypes.number),
-    ]),
-    borderRadius: PropTypes.number,
-    width: PropTypes.number,
-    height: PropTypes.number,
-    position: PropTypes.shape({
-      x: PropTypes.number,
-      y: PropTypes.number,
-    }),
-    color: PropTypes.arrayOf(PropTypes.number),
-    style: PropTypes.object,
-    crossOrigin: PropTypes.oneOf(['', 'anonymous', 'use-credentials']),
-    className: PropTypes.string,
-
-    onLoadFailure: PropTypes.func,
-    onLoadSuccess: PropTypes.func,
-    onImageReady: PropTypes.func,
-    onImageChange: PropTypes.func,
-    onMouseUp: PropTypes.func,
-    onMouseMove: PropTypes.func,
-    onPositionChange: PropTypes.func,
-    disableBoundaryChecks: PropTypes.bool,
-    disableHiDPIScaling: PropTypes.bool,
-  }
-
-  static defaultProps = {
-    scale: 1,
-    rotate: 0,
-    border: 25,
-    borderRadius: 0,
-    width: 200,
-    height: 200,
-    color: [0, 0, 0, 0.5],
-    style: {},
-    className: "",
-    onLoadFailure() {},
-    onLoadSuccess() {},
-    onImageReady() {},
-    onImageChange() {},
-    onMouseUp() {},
-    onMouseMove() {},
-    onPositionChange() {},
-    disableBoundaryChecks: false,
-    disableHiDPIScaling: false,
-  }
-
   state = {
     drag: false,
     my: null,
@@ -723,5 +668,61 @@ class AvatarEditor extends React.Component {
     return <canvas ref={this.setCanvas} {...attributes} {...rest} />
   }
 }
+
+AvatarEditor.propTypes = {
+  scale: PropTypes.number,
+  rotate: PropTypes.number,
+  image: PropTypes.oneOfType([
+    PropTypes.string,
+    ...(isFileAPISupported ? [PropTypes.instanceOf(File)] : []),
+  ]),
+  border: PropTypes.oneOfType([
+    PropTypes.number,
+    PropTypes.arrayOf(PropTypes.number),
+  ]),
+  borderRadius: PropTypes.number,
+  width: PropTypes.number,
+  height: PropTypes.number,
+  position: PropTypes.shape({
+    x: PropTypes.number,
+    y: PropTypes.number,
+  }),
+  color: PropTypes.arrayOf(PropTypes.number),
+  style: PropTypes.object,
+  crossOrigin: PropTypes.oneOf(['', 'anonymous', 'use-credentials']),
+  className: PropTypes.string,
+
+  onLoadFailure: PropTypes.func,
+  onLoadSuccess: PropTypes.func,
+  onImageReady: PropTypes.func,
+  onImageChange: PropTypes.func,
+  onMouseUp: PropTypes.func,
+  onMouseMove: PropTypes.func,
+  onPositionChange: PropTypes.func,
+  disableBoundaryChecks: PropTypes.bool,
+  disableHiDPIScaling: PropTypes.bool,
+}
+
+AvatarEditor.defaultProps = {
+  scale: 1,
+  rotate: 0,
+  border: 25,
+  borderRadius: 0,
+  width: 200,
+  height: 200,
+  color: [0, 0, 0, 0.5],
+  style: {},
+  className: "",
+  onLoadFailure() {},
+  onLoadSuccess() {},
+  onImageReady() {},
+  onImageChange() {},
+  onMouseUp() {},
+  onMouseMove() {},
+  onPositionChange() {},
+  disableBoundaryChecks: false,
+  disableHiDPIScaling: false,
+}
+
 
 export default AvatarEditor
