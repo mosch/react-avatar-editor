@@ -141,6 +141,8 @@ class AvatarEditor extends React.Component {
     }),
     color: PropTypes.arrayOf(PropTypes.number),
     style: PropTypes.object,
+    filters: PropTypes.string,
+
     crossOrigin: PropTypes.oneOf(['', 'anonymous', 'use-credentials']),
     className: PropTypes.string,
 
@@ -164,6 +166,7 @@ class AvatarEditor extends React.Component {
     height: 200,
     color: [0, 0, 0, 0.5],
     style: {},
+    filters: "",
     className: "",
     onLoadFailure() {},
     onLoadSuccess() {},
@@ -346,6 +349,7 @@ class AvatarEditor extends React.Component {
     context.translate(canvas.width / 2, canvas.height / 2)
     context.rotate(this.props.rotate * Math.PI / 180)
     context.translate(-(canvas.width / 2), -(canvas.height / 2))
+    context.filter(this.props.filters)
 
     if (this.isVertical()) {
       context.translate(
@@ -496,6 +500,7 @@ class AvatarEditor extends React.Component {
         -(context.canvas.width / 2),
         -(context.canvas.height / 2)
       )
+      context.filter(this.props.filters)
 
       if (this.isVertical()) {
         context.translate(
@@ -685,6 +690,7 @@ class AvatarEditor extends React.Component {
       position,
       color,
       style,
+      filters,
       crossOrigin,
       onLoadFailure,
       onLoadSuccess,
@@ -709,6 +715,7 @@ class AvatarEditor extends React.Component {
     const attributes = {
       width: dimensions.canvas.width * pixelRatio,
       height: dimensions.canvas.height * pixelRatio,
+      filter: filters,
       style: {
         ...defaultStyle,
         ...style,
