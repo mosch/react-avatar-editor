@@ -120,6 +120,11 @@ const drawRoundedRect = (context, x, y, width, height, borderRadius) => {
   }
 }
 
+const defaultEmptyImage = {
+  x: 0.5,
+  y: 0.5,
+}
+
 class AvatarEditor extends React.Component {
   static propTypes = {
     scale: PropTypes.number,
@@ -180,7 +185,7 @@ class AvatarEditor extends React.Component {
     drag: false,
     my: null,
     mx: null,
-    image: this.defaultEmptyImage,
+    image: defaultEmptyImage,
   }
 
   componentDidMount() {
@@ -274,11 +279,6 @@ class AvatarEditor extends React.Component {
         )
       }
     }
-  }
-
-  defaultEmptyImage = {
-    x: 0.5,
-    y: 0.5,
   }
 
   isVertical() {
@@ -485,7 +485,7 @@ class AvatarEditor extends React.Component {
     const context = canvas.getContext('2d')
     context.clearRect(0, 0, canvas.width, canvas.height)
     this.setState({
-      image: this.defaultEmptyImage,
+      image: defaultEmptyImage,
     })
   }
 
