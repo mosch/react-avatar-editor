@@ -180,10 +180,7 @@ class AvatarEditor extends React.Component {
     drag: false,
     my: null,
     mx: null,
-    image: {
-      x: 0.5,
-      y: 0.5,
-    },
+    image: this.defaultEmptyImage,
   }
 
   componentDidMount() {
@@ -277,6 +274,11 @@ class AvatarEditor extends React.Component {
         )
       }
     }
+  }
+
+  defaultEmptyImage = {
+    x: 0.5,
+    y: 0.5,
   }
 
   isVertical() {
@@ -482,6 +484,9 @@ class AvatarEditor extends React.Component {
     const canvas = this.canvas
     const context = canvas.getContext('2d')
     context.clearRect(0, 0, canvas.width, canvas.height)
+    this.setState({
+      image: this.defaultEmptyImage,
+    })
   }
 
   paintImage(context, image, border, scaleFactor = pixelRatio) {
