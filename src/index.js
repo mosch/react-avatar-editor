@@ -132,6 +132,7 @@ class AvatarEditor extends React.Component {
     image: PropTypes.oneOfType([
       PropTypes.string,
       ...(isFileAPISupported ? [PropTypes.instanceOf(File)] : []),
+      PropTypes.instanceOf(Blob),
     ]),
     border: PropTypes.oneOfType([
       PropTypes.number,
@@ -444,6 +445,11 @@ class AvatarEditor extends React.Component {
         .catch(this.props.onLoadFailure)
     } else if (typeof image === 'string') {
       loadImageURL(image, this.props.crossOrigin)
+        .then(this.handleImageReady)
+        .catch(this.props.onLoadFailure)
+    } else if (image instanceof Blob) {
+      // last attempt to try to load as Blob
+      loadImageFile(image)
         .then(this.handleImageReady)
         .catch(this.props.onLoadFailure)
     }
