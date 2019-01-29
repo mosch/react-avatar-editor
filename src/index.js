@@ -14,6 +14,24 @@ const isTouchDevice = !!(
 
 const isFileAPISupported = typeof File !== 'undefined'
 
+const isPassiveSupported = () => {
+  // https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
+  let passiveSupported = false;
+  try {
+    const options = Object.defineProperty({}, "passive", {
+      get: function() {
+        passiveSupported = true;
+      },
+    });
+
+    window.addEventListener("test", options, options);
+    window.removeEventListener("test", options, options);
+  } catch(err) {
+    passiveSupported = false;
+  }
+  return passiveSupported;
+}
+
 const draggableEvents = {
   touch: {
     react: {
@@ -102,6 +120,11 @@ const drawRoundedRect = (context, x, y, width, height, borderRadius) => {
   }
 }
 
+const defaultEmptyImage = {
+  x: 0.5,
+  y: 0.5,
+}
+
 class AvatarEditor extends React.Component {
   static propTypes = {
     scale: PropTypes.number,
@@ -162,10 +185,7 @@ class AvatarEditor extends React.Component {
     drag: false,
     my: null,
     mx: null,
-    image: {
-      x: 0.5,
-      y: 0.5,
-    },
+    image: defaultEmptyImage,
   }
 
   componentDidMount() {
@@ -180,19 +200,22 @@ class AvatarEditor extends React.Component {
     }
     this.paint(context)
     if (document) {
+      const passiveSupported = isPassiveSupported();
+      const thirdArgument = passiveSupported ? { passive: false } : false;
+
       const nativeEvents = deviceEvents.native
-      document.addEventListener(nativeEvents.move, this.handleMouseMove, false)
-      document.addEventListener(nativeEvents.up, this.handleMouseUp, false)
+      document.addEventListener(nativeEvents.move, this.handleMouseMove, thirdArgument)
+      document.addEventListener(nativeEvents.up, this.handleMouseUp, thirdArgument)
       if (isTouchDevice) {
         document.addEventListener(
           nativeEvents.mouseMove,
           this.handleMouseMove,
-          false
+          thirdArgument
         )
         document.addEventListener(
           nativeEvents.mouseUp,
           this.handleMouseUp,
-          false
+          thirdArgument
         )
       }
     }
@@ -461,6 +484,9 @@ class AvatarEditor extends React.Component {
     const canvas = this.canvas
     const context = canvas.getContext('2d')
     context.clearRect(0, 0, canvas.width, canvas.height)
+    this.setState({
+      image: defaultEmptyImage,
+    })
   }
 
   paintImage(context, image, border, scaleFactor = pixelRatio) {
@@ -587,6 +613,8 @@ class AvatarEditor extends React.Component {
     if (this.state.drag === false) {
       return
     }
+
+    e.preventDefault();  // stop scrolling on iOS Safari
 
     const mousePositionX = e.targetTouches
       ? e.targetTouches[0].pageX
