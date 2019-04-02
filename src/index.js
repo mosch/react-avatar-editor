@@ -145,9 +145,7 @@ class AvatarEditor extends React.Component {
       y: PropTypes.number,
     }),
     color: PropTypes.arrayOf(PropTypes.number),
-    style: PropTypes.object,
     crossOrigin: PropTypes.oneOf(['', 'anonymous', 'use-credentials']),
-    className: PropTypes.string,
 
     onLoadFailure: PropTypes.func,
     onLoadSuccess: PropTypes.func,
@@ -168,8 +166,6 @@ class AvatarEditor extends React.Component {
     width: 200,
     height: 200,
     color: [0, 0, 0, 0.5],
-    style: {},
-    className: "",
     onLoadFailure() {},
     onLoadSuccess() {},
     onImageReady() {},
