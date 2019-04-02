@@ -6,6 +6,24 @@ import ReactDOM from 'react-dom'
 import loadImageURL from './utils/load-image-url'
 import loadImageFile from './utils/load-image-file'
 
+const makeCancelable = promise => {
+  let hasCanceled_ = false
+
+  const wrappedPromise = new Promise((resolve, reject) => {
+    promise.then(
+      val => (hasCanceled_ ? reject({ isCanceled: true }) : resolve(val)),
+      error => (hasCanceled_ ? reject({ isCanceled: true }) : reject(error))
+    )
+  })
+
+  return {
+    promise: wrappedPromise,
+    cancel() {
+      hasCanceled_ = true
+    },
+  }
+}
+
 const isTouchDevice = !!(
   typeof window !== 'undefined' &&
   typeof navigator !== 'undefined' &&
@@ -16,20 +34,20 @@ const isFileAPISupported = typeof File !== 'undefined'
 
 const isPassiveSupported = () => {
   // https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
-  let passiveSupported = false;
+  let passiveSupported = false
   try {
-    const options = Object.defineProperty({}, "passive", {
+    const options = Object.defineProperty({}, 'passive', {
       get: function() {
-        passiveSupported = true;
+        passiveSupported = true
       },
-    });
+    })
 
-    window.addEventListener("test", options, options);
-    window.removeEventListener("test", options, options);
-  } catch(err) {
-    passiveSupported = false;
+    window.addEventListener('test', options, options)
+    window.removeEventListener('test', options, options)
+  } catch (err) {
+    passiveSupported = false
   }
-  return passiveSupported;
+  return passiveSupported
 }
 
 const draggableEvents = {
@@ -187,7 +205,7 @@ class AvatarEditor extends React.Component {
   componentDidMount() {
     // scaling by the devicePixelRatio can impact performance on mobile as it creates a very large canvas. This is an override to increase performance.
     if (this.props.disableHiDPIScaling) {
-      pixelRatio = 1;
+      pixelRatio = 1
     }
     // eslint-disable-next-line react/no-find-dom-node
     const context = ReactDOM.findDOMNode(this.canvas).getContext('2d')
@@ -196,12 +214,20 @@ class AvatarEditor extends React.Component {
     }
     this.paint(context)
     if (document) {
-      const passiveSupported = isPassiveSupported();
-      const thirdArgument = passiveSupported ? { passive: false } : false;
+      const passiveSupported = isPassiveSupported()
+      const thirdArgument = passiveSupported ? { passive: false } : false
 
       const nativeEvents = deviceEvents.native
-      document.addEventListener(nativeEvents.move, this.handleMouseMove, thirdArgument)
-      document.addEventListener(nativeEvents.up, this.handleMouseUp, thirdArgument)
+      document.addEventListener(
+        nativeEvents.move,
+        this.handleMouseMove,
+        thirdArgument
+      )
+      document.addEventListener(
+        nativeEvents.up,
+        this.handleMouseUp,
+        thirdArgument
+      )
       if (isTouchDevice) {
         document.addEventListener(
           nativeEvents.mouseMove,
@@ -342,7 +368,7 @@ class AvatarEditor extends React.Component {
     const context = canvas.getContext('2d')
 
     context.translate(canvas.width / 2, canvas.height / 2)
-    context.rotate(this.props.rotate * Math.PI / 180)
+    context.rotate((this.props.rotate * Math.PI) / 180)
     context.translate(-(canvas.width / 2), -(canvas.height / 2))
 
     if (this.isVertical()) {
@@ -399,8 +425,8 @@ class AvatarEditor extends React.Component {
       x: this.state.image.x,
       y: this.state.image.y,
     }
-    const width = 1 / this.props.scale * this.getXScale()
-    const height = 1 / this.props.scale * this.getYScale()
+    const width = (1 / this.props.scale) * this.getXScale()
+    const height = (1 / this.props.scale) * this.getYScale()
 
     const croppingRect = {
       x: position.x - width / 2,
@@ -417,7 +443,8 @@ class AvatarEditor extends React.Component {
     // If the cropping rect is larger than the image, then we need to change
     // our maxima & minima for x & y to allow the image to appear anywhere up
     // to the very edge of the cropping rect.
-    const isLargerThanImage = this.props.disableBoundaryChecks || width > 1 || height > 1
+    const isLargerThanImage =
+      this.props.disableBoundaryChecks || width > 1 || height > 1
 
     if (isLargerThanImage) {
       xMin = -croppingRect.width
@@ -435,12 +462,14 @@ class AvatarEditor extends React.Component {
 
   loadImage(image) {
     if (isFileAPISupported && image instanceof File) {
-      loadImageFile(image)
-        .then(this.handleImageReady)
+      this.loadingImage = makeCancelable(loadImageFile(image))
+        .promise.then(this.handleImageReady)
         .catch(this.props.onLoadFailure)
     } else if (typeof image === 'string') {
-      loadImageURL(image, this.props.crossOrigin)
-        .then(this.handleImageReady)
+      this.loadingImage = makeCancelable(
+        loadImageURL(image, this.props.crossOrigin)
+      )
+        .promise.then(this.handleImageReady)
         .catch(this.props.onLoadFailure)
     }
   }
@@ -492,7 +521,7 @@ class AvatarEditor extends React.Component {
       context.save()
 
       context.translate(context.canvas.width / 2, context.canvas.height / 2)
-      context.rotate(this.props.rotate * Math.PI / 180)
+      context.rotate((this.props.rotate * Math.PI) / 180)
       context.translate(
         -(context.canvas.width / 2),
         -(context.canvas.height / 2)
@@ -610,7 +639,7 @@ class AvatarEditor extends React.Component {
       return
     }
 
-    e.preventDefault();  // stop scrolling on iOS Safari
+    e.preventDefault() // stop scrolling on iOS Safari
 
     const mousePositionX = e.targetTouches
       ? e.targetTouches[0].pageX
@@ -649,8 +678,8 @@ class AvatarEditor extends React.Component {
       const x = lastX + mx * cos + my * sin
       const y = lastY + -mx * sin + my * cos
 
-      const relativeWidth = 1 / this.props.scale * this.getXScale()
-      const relativeHeight = 1 / this.props.scale * this.getYScale()
+      const relativeWidth = (1 / this.props.scale) * this.getXScale()
+      const relativeHeight = (1 / this.props.scale) * this.getYScale()
 
       const position = {
         x: x / width + relativeWidth / 2,
