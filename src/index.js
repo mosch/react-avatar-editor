@@ -10,6 +10,7 @@ const makeCancelable = promise => {
   let hasCanceled_ = false
 
   const wrappedPromise = new Promise((resolve, reject) => {
+    /* eslint-disable prefer-promise-reject-errors */
     promise.then(
       val => (hasCanceled_ ? reject({ isCanceled: true }) : resolve(val)),
       error => (hasCanceled_ ? reject({ isCanceled: true }) : reject(error))
@@ -714,6 +715,7 @@ class AvatarEditor extends React.Component {
       height,
       position,
       color,
+      /* eslint-disable react/prop-types */
       style,
       crossOrigin,
       onLoadFailure,
