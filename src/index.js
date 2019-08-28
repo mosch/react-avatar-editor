@@ -159,6 +159,8 @@ class AvatarEditor extends React.Component {
     borderRadius: PropTypes.number,
     width: PropTypes.number,
     height: PropTypes.number,
+    canvasWidth: PropTypes.number,
+    canvasHeight: PropTypes.number,
     position: PropTypes.shape({
       x: PropTypes.number,
       y: PropTypes.number,
@@ -309,7 +311,19 @@ class AvatarEditor extends React.Component {
   }
 
   getBorders(border = this.props.border) {
-    return Array.isArray(border) ? border : [border, border]
+    const borders = Array.isArray(border) ? border : [border, border]
+
+    const { width, height, canvasWidth, canvasHeight } = this.props
+
+    if (canvasWidth) {
+      borders[0] = (canvasWidth - width) / 2
+    }
+
+    if (canvasHeight) {
+      borders[1] = (canvasHeight - height) / 2
+    }
+
+    return borders
   }
 
   getDimensions() {
@@ -317,17 +331,14 @@ class AvatarEditor extends React.Component {
 
     const canvas = {}
 
-    const [borderX, borderY] = this.getBorders(border)
-
-    const canvasWidth = width
-    const canvasHeight = height
+    const [borderX, borderY] = this.getBorders()
 
     if (this.isVertical()) {
-      canvas.width = canvasHeight
-      canvas.height = canvasWidth
+      canvas.width = height
+      canvas.height = width
     } else {
-      canvas.width = canvasWidth
-      canvas.height = canvasHeight
+      canvas.width = width
+      canvas.height = height
     }
 
     canvas.width += borderX * 2
@@ -713,6 +724,8 @@ class AvatarEditor extends React.Component {
       borderRadius,
       width,
       height,
+      canvasWidth,
+      canvasHeight,
       position,
       color,
       /* eslint-disable react/prop-types */

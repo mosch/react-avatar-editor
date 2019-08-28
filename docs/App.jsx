@@ -14,6 +14,8 @@ class App extends React.Component {
     preview: null,
     width: 200,
     height: 200,
+    canvasWidth: 478,
+    canvasHeight: 270,
   }
 
   handleNewImage = e => {
@@ -109,7 +111,7 @@ class App extends React.Component {
           onDrop={this.handleDrop}
           disableClick
           multiple={false}
-          style={{ width: this.state.width, height: this.state.height, marginBottom:'35px' }}
+          style={{ width: this.state.canvasWidth, height: this.state.canvasHeight, marginBottom:'35px' }}
         >
           <div>
             <ReactAvatarEditor
@@ -117,6 +119,8 @@ class App extends React.Component {
               scale={parseFloat(this.state.scale)}
               width={this.state.width}
               height={this.state.height}
+              canvasWidth={this.state.canvasWidth}
+              canvasHeight={this.state.canvasHeight}
               position={this.state.position}
               onPositionChange={this.handlePositionChange}
               rotate={parseFloat(this.state.rotate)}
