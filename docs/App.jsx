@@ -14,6 +14,7 @@ class App extends React.Component {
     preview: null,
     width: 200,
     height: 200,
+    border: 25,
   }
 
   handleNewImage = e => {
@@ -104,30 +105,39 @@ class App extends React.Component {
 
   render() {
     return (
-      <div>
+      <>
         <Dropzone
           onDrop={this.handleDrop}
-          disableClick
-          multiple={false}
-          style={{ width: this.state.width, height: this.state.height, marginBottom:'35px' }}
+          onClick={evt => evt.preventDefault()}
         >
-          <div>
-            <ReactAvatarEditor
-              ref={this.setEditorRef}
-              scale={parseFloat(this.state.scale)}
-              width={this.state.width}
-              height={this.state.height}
-              position={this.state.position}
-              onPositionChange={this.handlePositionChange}
-              rotate={parseFloat(this.state.rotate)}
-              borderRadius={this.state.width / (100 / this.state.borderRadius)}
-              onLoadFailure={this.logCallback.bind(this, 'onLoadFailed')}
-              onLoadSuccess={this.logCallback.bind(this, 'onLoadSuccess')}
-              onImageReady={this.logCallback.bind(this, 'onImageReady')}
-              image={this.state.image}
-              className="editor-canvas"
-            />
-          </div>
+          {({ getRootProps }) => (
+            <div
+              style={{
+                width: this.state.width + this.state.border * 2,
+                height: this.state.height + this.state.border * 2,
+                marginBottom: '35px',
+              }}
+              {...getRootProps()}
+            >
+              <ReactAvatarEditor
+                ref={this.setEditorRef}
+                scale={parseFloat(this.state.scale)}
+                width={this.state.width}
+                height={this.state.height}
+                position={this.state.position}
+                onPositionChange={this.handlePositionChange}
+                rotate={parseFloat(this.state.rotate)}
+                borderRadius={
+                  this.state.width / (100 / this.state.borderRadius)
+                }
+                onLoadFailure={this.logCallback.bind(this, 'onLoadFailed')}
+                onLoadSuccess={this.logCallback.bind(this, 'onLoadSuccess')}
+                onImageReady={this.logCallback.bind(this, 'onImageReady')}
+                image={this.state.image}
+                className="editor-canvas"
+              />
+            </div>
+          )}
         </Dropzone>
         <br />
         New File:
@@ -239,7 +249,7 @@ class App extends React.Component {
             rect={this.state.preview.rect}
           />
         )}
-      </div>
+      </>
     )
   }
 }

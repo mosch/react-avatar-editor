@@ -369,7 +369,7 @@ class AvatarEditor extends React.Component {
     const context = canvas.getContext('2d')
 
     context.translate(canvas.width / 2, canvas.height / 2)
-    context.rotate((this.props.rotate * Math.PI) / 180)
+    context.rotate(this.props.rotate * Math.PI / 180)
     context.translate(-(canvas.width / 2), -(canvas.height / 2))
 
     if (this.isVertical()) {
@@ -426,8 +426,8 @@ class AvatarEditor extends React.Component {
       x: this.state.image.x,
       y: this.state.image.y,
     }
-    const width = (1 / this.props.scale) * this.getXScale()
-    const height = (1 / this.props.scale) * this.getYScale()
+    const width = 1 / this.props.scale * this.getXScale()
+    const height = 1 / this.props.scale * this.getYScale()
 
     const croppingRect = {
       x: position.x - width / 2,
@@ -522,7 +522,7 @@ class AvatarEditor extends React.Component {
       context.save()
 
       context.translate(context.canvas.width / 2, context.canvas.height / 2)
-      context.rotate((this.props.rotate * Math.PI) / 180)
+      context.rotate(this.props.rotate * Math.PI / 180)
       context.translate(
         -(context.canvas.width / 2),
         -(context.canvas.height / 2)
@@ -627,6 +627,7 @@ class AvatarEditor extends React.Component {
       my: null,
     })
   }
+
   handleMouseUp = () => {
     if (this.state.drag) {
       this.setState({ drag: false })
@@ -679,8 +680,8 @@ class AvatarEditor extends React.Component {
       const x = lastX + mx * cos + my * sin
       const y = lastY + -mx * sin + my * cos
 
-      const relativeWidth = (1 / this.props.scale) * this.getXScale()
-      const relativeHeight = (1 / this.props.scale) * this.getYScale()
+      const relativeWidth = 1 / this.props.scale * this.getXScale()
+      const relativeHeight = 1 / this.props.scale * this.getYScale()
 
       const position = {
         x: x / width + relativeWidth / 2,
