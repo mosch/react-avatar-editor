@@ -244,19 +244,17 @@ class AvatarEditor extends React.Component {
     }
   }
 
-  componentWillReceiveProps(newProps) {
+  componentDidUpdate(prevProps, prevState) {
     if (
-      (newProps.image && this.props.image !== newProps.image) ||
-      this.props.width !== newProps.width ||
-      this.props.height !== newProps.height
+      (this.props.image && this.props.image !== prevProps.image) ||
+      this.props.width !== prevProps.width ||
+      this.props.height !== prevProps.height
     ) {
-      this.loadImage(newProps.image)
-    } else if (!newProps.image) {
+      this.loadImage(this.props.image)
+    } else if (!this.props.image) {
       this.clearImage()
     }
-  }
 
-  componentDidUpdate(prevProps, prevState) {
     // eslint-disable-next-line react/no-find-dom-node
     const canvas = ReactDOM.findDOMNode(this.canvas)
     const context = canvas.getContext('2d')
