@@ -1,5 +1,4 @@
 import * as React from 'react'
-import 'canvas'
 import * as ReactDOM from 'react-dom'
 import ReactAvatarEditor from '../src'
 
