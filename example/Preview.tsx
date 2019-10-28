@@ -1,17 +1,20 @@
-/* eslint-env browser */
-import React from 'react'
-import { shape, number, string } from 'prop-types'
+import * as React from 'react'
 
-export default class Preview extends React.Component {
-  static propTypes = {
-    rect: shape({
-      width: number,
-      height: number,
-    }),
-    image: string,
-    width: number,
-    height: number,
+interface IPreviewProps {
+  rect: {
+    width: number
+    height: number
+    x: number
+    y: number
   }
+  image: string
+  width: number
+  height: number
+}
+
+export default class Preview extends React.Component<IPreviewProps> {
+  private canvas = React.createRef<HTMLCanvasElement>()
+  private image = new HTMLImageElement()
 
   componentDidMount() {
     this.redraw()
@@ -21,18 +24,22 @@ export default class Preview extends React.Component {
     this.redraw()
   }
 
-  setCanvas = canvas => (this.canvas = canvas)
-
   handleImageLoad = () => {
-    const ctx = this.canvas.getContext('2d')
+    const { current } = this.canvas
+    if (!current) {
+      return
+    }
+    const context = current.getContext('2d')
+    if (!context) {
+      return
+    }
     const { rect, width, height } = this.props
 
-    ctx.clearRect(0, 0, width, height)
-
-    ctx.strokeStyle = 'red'
+    context.clearRect(0, 0, width, height)
+    context.strokeStyle = 'red'
 
     if (rect && (rect.width > 1 || rect.height > 1)) {
-      ctx.drawImage(
+      context.drawImage(
         this.image,
         Math.round(-rect.x * (width / rect.width)),
         Math.round(-rect.y * (height / rect.height)),
@@ -40,14 +47,12 @@ export default class Preview extends React.Component {
         Math.round(height / rect.height)
       )
 
-      if (rect) {
-        ctx.strokeRect(1, 1, Math.round(width) - 2, Math.round(height) - 2)
-      }
+      context.strokeRect(1, 1, Math.round(width) - 2, Math.round(height) - 2)
     } else {
-      ctx.drawImage(this.image, 0, 0, width, height)
+      context.drawImage(this.image, 0, 0, width, height)
 
       if (rect) {
-        ctx.strokeRect(
+        context.strokeRect(
           Math.round(rect.x * width) + 0.5,
           Math.round(rect.y * height) + 0.5,
           Math.round(rect.width * width),
@@ -68,7 +73,7 @@ export default class Preview extends React.Component {
     const { width, height } = this.props
     return (
       <canvas
-        ref={this.setCanvas}
+        ref={this.canvas}
         style={{
           margin: '10px 24px 32px',
           padding: 5,

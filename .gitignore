@@ -34,6 +34,7 @@ node_modules
 # Editor-specific config folders
 .vscode
 
+.cache
 dist/
 docs/bundle.js
 docs/bundle.js.map

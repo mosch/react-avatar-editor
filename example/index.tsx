@@ -1,28 +1,61 @@
-import React from 'react'
-import ReactDOM from 'react-dom'
-import ReactAvatarEditor from '../src/index'
+import 'react-app-polyfill/ie11'
+import * as React from 'react'
+import * as ReactDOM from 'react-dom'
 import Dropzone from 'react-dropzone'
-import Preview from './Preview.jsx'
-class App extends React.Component {
-  state = {
-    image: 'avatar.jpg',
-    allowZoomOut: false,
-    position: { x: 0.5, y: 0.5 },
-    scale: 1,
-    rotate: 0,
-    borderRadius: 0,
-    preview: null,
-    width: 200,
-    height: 200,
+import Preview from './Preview'
+import ReactAvatarEditor from '../.'
+
+interface IAppState {
+  image: string
+  allowZoomOut: boolean
+  position: { x: number; y: number }
+  scale: number
+  rotate: number
+  borderRadius: number
+  preview?: {
+    img: string
+    rect: {
+      width: number
+      x: number
+      y: number
+      height: number
+    }
+    scale: number
+    width: number
+    height: number
+    borderRadius: number
+  }
+  width: number
+  height: number
+}
+
+class App extends React.Component<{}, IAppState> {
+  private editor = React.createRef<ReactAvatarEditor>()
+  constructor(props) {
+    super(props)
+    this.state = {
+      image: 'avatar.jpg',
+      allowZoomOut: false,
+      position: { x: 0.5, y: 0.5 },
+      scale: 1,
+      rotate: 0,
+      borderRadius: 0,
+      width: 200,
+      height: 200,
+    }
   }
 
   handleNewImage = e => {
     this.setState({ image: e.target.files[0] })
   }
 
-  handleSave = data => {
-    const img = this.editor.getImageScaledToCanvas().toDataURL()
-    const rect = this.editor.getCroppingRect()
+  handleSave = () => {
+    const { current } = this.editor
+    if (!current) {
+      return
+    }
+    const img = current.getImageScaledToCanvas().toDataURL()
+    const rect = current.getCroppingRect()
 
     this.setState({
       preview: {
@@ -85,15 +118,6 @@ class App extends React.Component {
     this.setState({ height })
   }
 
-  logCallback(e) {
-    // eslint-disable-next-line
-    console.log('callback', e)
-  }
-
-  setEditorRef = editor => {
-    if (editor) this.editor = editor
-  }
-
   handlePositionChange = position => {
     this.setState({ position })
   }
@@ -107,27 +131,32 @@ class App extends React.Component {
       <div>
         <Dropzone
           onDrop={this.handleDrop}
-          disableClick
+          noClick
           multiple={false}
-          style={{ width: this.state.width, height: this.state.height, marginBottom:'35px' }}
+          style={{
+            width: this.state.width,
+            height: this.state.height,
+            marginBottom: '35px',
+          }}
         >
-          <div>
-            <ReactAvatarEditor
-              ref={this.setEditorRef}
-              scale={parseFloat(this.state.scale)}
-              width={this.state.width}
-              height={this.state.height}
-              position={this.state.position}
-              onPositionChange={this.handlePositionChange}
-              rotate={parseFloat(this.state.rotate)}
-              borderRadius={this.state.width / (100 / this.state.borderRadius)}
-              onLoadFailure={this.logCallback.bind(this, 'onLoadFailed')}
-              onLoadSuccess={this.logCallback.bind(this, 'onLoadSuccess')}
-              onImageReady={this.logCallback.bind(this, 'onImageReady')}
-              image={this.state.image}
-              className="editor-canvas"
-            />
-          </div>
+          {({ getRootProps, getInputProps }) => (
+            <div {...getRootProps()}>
+              <input {...getInputProps()} />
+              <ReactAvatarEditor
+                ref={this.editor}
+                scale={parseFloat((this.state.scale as unknown) as string)}
+                width={this.state.width}
+                height={this.state.height}
+                position={this.state.position}
+                onPositionChange={this.handlePositionChange}
+                rotate={parseFloat((this.state.rotate as unknown) as string)}
+                borderRadius={
+                  this.state.width / (100 / this.state.borderRadius)
+                }
+                image={this.state.image}
+              />
+            </div>
+          )}
         </Dropzone>
         <br />
         New File:
@@ -232,7 +261,7 @@ class App extends React.Component {
             width={
               this.state.preview.scale < 1
                 ? this.state.preview.width
-                : this.state.preview.height * 478 / 270
+                : (this.state.preview.height * 478) / 270
             }
             height={this.state.preview.height}
             image="avatar.jpg"
@@ -244,6 +273,4 @@ class App extends React.Component {
   }
 }
 
-// Used to display the cropping rect
-
-ReactDOM.render(<App />, document.getElementById('app'))
+ReactDOM.render(<App />, document.getElementById('root'))

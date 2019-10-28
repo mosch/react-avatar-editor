@@ -1,20 +1,19 @@
 {
   "name": "react-avatar-editor",
-  "version": "11.0.7",
-  "description": "Avatar / profile picture component. Resize and crop your uploaded image using a intuitive user interface.",
+  "version": "0.1.0",
   "main": "dist/index.js",
-  "scripts": {
-    "clean": "rimraf dist",
-    "build": "rollup -c",
-    "watch": "rollup -c -w",
-    "lint": "eslint --cache --ext .js,.jsx src",
-    "test": "NODE_ENV=test jest",
-    "test:watch": "NODE_ENV=test jest --watch",
-    "demo:build": "NODE_ENV=production webpack",
-    "demo:watch": "webpack-dev-server",
-    "prepublish": "yarn run lint && yarn run test && yarn run clean && yarn run build",
-    "postversion": "git push --tags origin HEAD"
-  },
+  "module": "dist/react-avatar-editor.esm.js",
+  "typings": "dist/index.d.ts",
+  "keywords": [
+    "react-component",
+    "reactjs",
+    "react",
+    "canvas",
+    "avatar",
+    "editor",
+    "profile",
+    "image"
+  ],
   "author": {
     "name": "Moritz Schwoerer",
     "email": "mr.mosch@gmail.com"
@@ -30,71 +29,41 @@
     "url": "git://github.com/mosch/react-avatar-editor.git"
   },
   "license": "MIT",
-  "keywords": [
-    "react-component",
-    "reactjs",
-    "react",
-    "canvas",
-    "avatar",
-    "editor",
-    "profile",
-    "image"
+  "files": [
+    "dist"
   ],
-  "dependencies": {
-    "prop-types": "^15.5.8"
+  "scripts": {
+    "start": "tsdx watch",
+    "build": "tsdx build",
+    "test": "tsdx test --env=jsdom",
+    "lint": "tsdx lint"
   },
-  "devDependencies": {
-    "babel-cli": "^6.24.1",
-    "babel-eslint": "7.2.2",
-    "babel-jest": "22.4.1",
-    "babel-loader": "^6.4.1",
-    "babel-plugin-external-helpers": "6.22.0",
-    "babel-plugin-transform-class-properties": "^6.24.1",
-    "babel-plugin-transform-object-rest-spread": "^6.23.0",
-    "babel-preset-env": "1.6.1",
-    "babel-preset-react": "^6.24.1",
-    "eslint": "4.18.2",
-    "eslint-config-prettier": "^2.9.0",
-    "eslint-config-react-app": "^2.1.0",
-    "eslint-config-standard": "^11.0.0",
-    "eslint-plugin-import": "^2.9.0",
-    "eslint-plugin-node": "^6.0.1",
-    "eslint-plugin-promise": "^3.7.0",
-    "eslint-plugin-react": "^7.7.0",
-    "eslint-plugin-standard": "^3.0.1",
-    "jest": "22.4.2",
-    "prettier": "1.16.4",
-    "prop-types": "^15.5.8",
-    "react": "^15.5.4",
-    "react-dom": "^15.5.4",
-    "react-dropzone": "^4.2.3",
-    "rimraf": "^2.6.1",
-    "rollup": "^0.45.2",
-    "rollup-plugin-babel": "^2.7.1",
-    "rollup-plugin-uglify": "3.0.0",
-    "rollup-watch": "^4.3.1",
-    "snazzy": "^7.0.0",
-    "webpack": "^2.3.3",
-    "webpack-dev-server": ">=3.1.11"
+  "husky": {
+    "hooks": {
+      "pre-commit": "tsdx lint"
+    }
   },
   "peerDependencies": {
-    "react": ">=0.14.0 <17.0.0",
-    "react-dom": ">=0.14.0 <17.0.0"
+    "react": ">=16 <17.0.0"
   },
-  "files": [
-    "dist",
-    "src"
-  ],
   "prettier": {
-    "singleQuote": true,
-    "trailingComma": "es5",
+    "printWidth": 80,
     "semi": false,
-    "useTabs": false
+    "singleQuote": true,
+    "trailingComma": "es5"
   },
-  "eslintConfig": {
-    "extends": "react-app"
+  "devDependencies": {
+    "@types/jest": "^24.0.20",
+    "@types/react": "^16.9.11",
+    "@types/react-dom": "^16.9.3",
+    "husky": "^3.0.9",
+    "react": "^16.11.0",
+    "react-dom": "^16.11.0",
+    "tsdx": "^0.10.5",
+    "tslib": "^1.10.0",
+    "typescript": "^3.6.4"
   },
-  "jest": {
-    "testURL": "http://localhost"
+  "dependencies": {
+    "react-draggable": "^4.1.0"
   }
 }
