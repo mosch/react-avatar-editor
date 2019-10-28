@@ -188,7 +188,9 @@ class AvatarEditor extends React.Component<
 
   private getCanvas(): HTMLCanvasElement {
     if (!this.canvas.current) {
-      throw 'No canvas found, please report this to: https://github.com/mosch/react-avatar-editor/issues'
+      throw new Error(
+        'No canvas found, please report this to: https://github.com/mosch/react-avatar-editor/issues'
+      )
     }
 
     return this.canvas.current
@@ -197,7 +199,9 @@ class AvatarEditor extends React.Component<
   private getContext() {
     const context = this.getCanvas().getContext('2d')
     if (!context) {
-      throw 'No context found, please report this to: https://github.com/mosch/react-avatar-editor/issues'
+      throw new Error(
+        ' No context found, please report this to: https://github.com/mosch/react-avatar-editor/issues'
+      )
     }
 
     return context
