@@ -1,6 +1,7 @@
 {
   "name": "react-avatar-editor",
-  "version": "0.1.0",
+  "version": "11.0.7",
+  "description": "Small avatar & profile picture component. Resize and crop uploaded images using a intuitive user interface.",
   "main": "dist/index.js",
   "module": "dist/react-avatar-editor.esm.js",
   "typings": "dist/index.d.ts",
