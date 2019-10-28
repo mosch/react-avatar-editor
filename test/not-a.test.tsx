@@ -1,11 +1,14 @@
 import * as React from 'react'
+import 'canvas'
 import * as ReactDOM from 'react-dom'
-import { Thing } from '../src'
+import ReactAvatarEditor from '../src'
 
 describe('it', () => {
-  it('renders without crashing', () => {
+  it('renders with crashing', () => {
     const div = document.createElement('div')
-    ReactDOM.render(<Thing />, div)
+    expect(() => {
+      ReactDOM.render(<ReactAvatarEditor />, div)
+    }).toThrow()
     ReactDOM.unmountComponentAtNode(div)
   })
 })

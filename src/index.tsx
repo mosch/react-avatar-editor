@@ -7,26 +7,20 @@ import { DraggableCore, DraggableEvent, DraggableData } from 'react-draggable'
 type BorderType = [number, number] | number
 
 interface IAvatarEditorProps {
-  scale: number
-  rotate: number
-  image: string | File
-  border: BorderType
-  borderRadius: number
-  style: any
+  style?: any
+  image?: string | File
   width: number
+  border?: BorderType
   height: number
-  position: IPosition
-  color: ReadonlyArray<number>
-  crossOrigin: '' | 'anonymous' | 'use-credentials'
-  onLoadFailure: () => void
-  onLoadSuccess: (image: IImageState) => void
-  onImageReady: () => void
-  onImageChange: () => void
-  onMouseUp: () => void
-  onMouseMove: (e: React.TouchEvent | React.MouseEvent) => void
-  onPositionChange: (position: IPosition) => void
-  disableBoundaryChecks: boolean
-  disableHiDPIScaling: boolean
+  position?: IPosition
+  crossOrigin?: '' | 'anonymous' | 'use-credentials'
+  onLoadFailure?: () => void
+  onLoadSuccess?: (image: IImageState) => void
+  onImageReady?: () => void
+  onImageChange?: () => void
+  onMouseUp?: () => void
+  onMouseMove?: (e: React.TouchEvent | React.MouseEvent) => void
+  onPositionChange?: (position: IPosition) => void
 }
 
 interface IPosition {
@@ -110,33 +104,30 @@ const defaultEmptyImage = {
   height: 0,
 }
 
+const defaultProps = {
+  scale: 1,
+  rotate: 0,
+  border: 25,
+  borderRadius: 0,
+  width: 200,
+  height: 200,
+  color: [0, 0, 0, 0.5],
+  disableBoundaryChecks: false,
+  disableHiDPIScaling: false,
+}
+
+type DefaultProps = Readonly<typeof defaultProps>
+type IAllAvatarEditorProps = IAvatarEditorProps & DefaultProps
+
 class AvatarEditor extends React.Component<
-  IAvatarEditorProps,
+  IAllAvatarEditorProps,
   IAvatarEditorState
 > {
-  static defaultProps = {
-    scale: 1,
-    rotate: 0,
-    border: 25,
-    borderRadius: 0,
-    width: 200,
-    height: 200,
-    color: [0, 0, 0, 0.5],
-    onLoadFailure() {},
-    onLoadSuccess() {},
-    onImageReady() {},
-    onImageChange() {},
-    onMouseUp() {},
-    onMouseMove() {},
-    onPositionChange() {},
-    disableBoundaryChecks: false,
-    disableHiDPIScaling: false,
-  }
-
+  static defaultProps = defaultProps
   private canvas: React.RefObject<HTMLCanvasElement>
   private pixelRatio = defaultPixelRatio
 
-  constructor(props: IAvatarEditorProps) {
+  constructor(props: IAllAvatarEditorProps) {
     super(props)
     this.state = {
       dragging: false,
@@ -153,7 +144,7 @@ class AvatarEditor extends React.Component<
   }
 
   componentDidUpdate(
-    prevProps: IAvatarEditorProps,
+    prevProps: IAllAvatarEditorProps,
     prevState: IAvatarEditorState
   ) {
     if (
@@ -182,7 +173,7 @@ class AvatarEditor extends React.Component<
       prevState.image.x !== this.state.image.x ||
       prevState.image.y !== this.state.image.y
     ) {
-      this.props.onImageChange()
+      this.props.onImageChange && this.props.onImageChange()
     }
   }
 
@@ -211,7 +202,7 @@ class AvatarEditor extends React.Component<
     return this.props.rotate % 180 !== 0
   }
 
-  private getBorders(border = this.props.border) {
+  private getBorders(border: BorderType) {
     return Array.isArray(border) ? border : [border, border]
   }
 
@@ -380,7 +371,7 @@ class AvatarEditor extends React.Component<
       }
 
       this.setState({ image: imageState }, onImageReady)
-      onLoadSuccess(imageState)
+      onLoadSuccess && onLoadSuccess(imageState)
     }
 
     if (isFileAPISupported && image instanceof File) {
@@ -553,7 +544,7 @@ class AvatarEditor extends React.Component<
       y: y / height + relativeHeight / 2,
     }
 
-    onPositionChange(position)
+    onPositionChange && onPositionChange(position)
 
     this.setState({
       image: {
