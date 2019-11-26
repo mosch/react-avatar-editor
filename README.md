@@ -87,7 +87,7 @@ If you want the image sized in the dimensions of the canvas you can use `getImag
 import React from 'react'
 import AvatarEditor from 'react-avatar-editor'
 
-const MyEditor extends React.Component {
+class MyEditor extends React.Component {
   onClickSave = () => {
     if (this.editor) {
       // This returns a HTMLCanvasElement, it can be made into a data URL or a blob,
@@ -124,18 +124,34 @@ We recommend using [react-dropzone](https://github.com/react-dropzone/react-drop
 drag and drop support to anything really easy. Here is an example how to use it with react-avatar-editor:
 
 ```javascript
+import React from 'react'
+import AvatarEditor from 'react-avatar-editor'
+import Dropzone from 'react-dropzone'
+
 class MyEditor extends React.Component {
+  state = {
+    image: 'http://example.com/initialimage.jpg',
+  }
+
   handleDrop = dropped => {
     this.setState({ image: dropped[0] })
   }
+
   render() {
     return (
       <Dropzone
         onDrop={this.handleDrop}
-        disableClick
+        noClick
         style={{ width: '250px', height: '250px' }}
       >
-        <ReactAvatarEditor width={250} height={250} image={this.state.image} />
+        {({ getRootProps }) => (
+          <AvatarEditor
+            width={250}
+            height={250}
+            image={this.state.image}
+            {...getRootProps()}
+          />
+        )}
       </Dropzone>
     )
   }
