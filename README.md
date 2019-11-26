@@ -142,15 +142,17 @@ class MyEditor extends React.Component {
       <Dropzone
         onDrop={this.handleDrop}
         noClick
+        noKeyboard
         style={{ width: '250px', height: '250px' }}
       >
-        {({ getRootProps }) => (
+        {({ getRootProps, getInputProps }) => (
           <AvatarEditor
             width={250}
             height={250}
             image={this.state.image}
             {...getRootProps()}
           />
+          <input {...getInputProps()} />
         )}
       </Dropzone>
     )
