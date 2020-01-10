@@ -251,7 +251,7 @@ class AvatarEditor extends React.Component {
       this.props.height !== prevProps.height
     ) {
       this.loadImage(this.props.image)
-    } else if (!this.props.image) {
+    } else if (!this.props.image && prevState.image !== defaultEmptyImage) {
       this.clearImage()
     }
 
