@@ -164,6 +164,7 @@ class AvatarEditor extends React.Component {
       y: PropTypes.number,
     }),
     color: PropTypes.arrayOf(PropTypes.number),
+    canvasBackgroundColor: PropTypes.arrayOf(PropTypes.number),
     crossOrigin: PropTypes.oneOf(['', 'anonymous', 'use-credentials']),
 
     onLoadFailure: PropTypes.func,
@@ -185,6 +186,7 @@ class AvatarEditor extends React.Component {
     width: 200,
     height: 200,
     color: [0, 0, 0, 0.5],
+    canvasBackgroundColor: [0, 0, 0, 1],
     onLoadFailure() {},
     onLoadSuccess() {},
     onImageReady() {},
@@ -401,6 +403,12 @@ class AvatarEditor extends React.Component {
 
     // don't paint a border here, as it is the resulting image
     this.paintImage(canvas.getContext('2d'), this.state.image, 0, 1)
+
+    // optionally set the background color of canvas when "zoomed out" for an image
+    canvas.getContext('2d').globalCompositeOperation = 'destination-over'
+    canvas.getContext('2d').fillStyle =
+      'rgba(' + this.props.canvasBackgroundColor.slice(0, 4).join(',') + ')'
+    canvas.getContext('2d').fillRect(0, 0, canvas.width, canvas.height)
 
     return canvas
   }
