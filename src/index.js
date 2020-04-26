@@ -625,6 +625,7 @@ class AvatarEditor extends React.Component {
       my: null,
     })
   }
+
   handleMouseUp = () => {
     if (this.state.drag) {
       this.setState({ drag: false })
