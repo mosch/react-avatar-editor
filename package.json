@@ -66,7 +66,7 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-dropzone": "^4.2.3",
-    "rimraf": "^2.6.1",
+    "rimraf": "^3.0.2",
     "rollup": "^0.45.2",
     "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-uglify": "3.0.0",
