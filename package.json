@@ -86,7 +86,7 @@
   ],
   "prettier": {
     "singleQuote": true,
-    "trailingComma": "es5",
+    "trailingComma": "all",
     "semi": false,
     "useTabs": false
   },
