@@ -105,33 +105,35 @@ class App extends React.Component {
   render() {
     return (
       <div>
-        <Dropzone
-          onDrop={this.handleDrop}
-          disableClick
-          multiple={false}
-          style={{
-            width: this.state.width,
-            height: this.state.height,
-            marginBottom: '35px',
-          }}
-        >
-          <div>
-            <ReactAvatarEditor
-              ref={this.setEditorRef}
-              scale={parseFloat(this.state.scale)}
-              width={this.state.width}
-              height={this.state.height}
-              position={this.state.position}
-              onPositionChange={this.handlePositionChange}
-              rotate={parseFloat(this.state.rotate)}
-              borderRadius={this.state.width / (100 / this.state.borderRadius)}
-              onLoadFailure={this.logCallback.bind(this, 'onLoadFailed')}
-              onLoadSuccess={this.logCallback.bind(this, 'onLoadSuccess')}
-              onImageReady={this.logCallback.bind(this, 'onImageReady')}
-              image={this.state.image}
-              className="editor-canvas"
-            />
-          </div>
+        <Dropzone onDrop={this.handleDrop} multiple={false}>
+          {({ getRootProps }) => (
+            <div
+              {...getRootProps({ onClick: (evt) => evt.preventDefault() })}
+              style={{
+                width: this.state.width,
+                height: this.state.height,
+                marginBottom: '35px',
+              }}
+            >
+              <ReactAvatarEditor
+                ref={this.setEditorRef}
+                scale={parseFloat(this.state.scale)}
+                width={this.state.width}
+                height={this.state.height}
+                position={this.state.position}
+                onPositionChange={this.handlePositionChange}
+                rotate={parseFloat(this.state.rotate)}
+                borderRadius={
+                  this.state.width / (100 / this.state.borderRadius)
+                }
+                onLoadFailure={this.logCallback.bind(this, 'onLoadFailed')}
+                onLoadSuccess={this.logCallback.bind(this, 'onLoadSuccess')}
+                onImageReady={this.logCallback.bind(this, 'onImageReady')}
+                image={this.state.image}
+                className="editor-canvas"
+              />
+            </div>
+          )}
         </Dropzone>
         <br />
         New File:
