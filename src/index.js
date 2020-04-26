@@ -1,7 +1,6 @@
 /* eslint-env browser, node */
 import PropTypes from 'prop-types'
 import React from 'react'
-import ReactDOM from 'react-dom'
 
 import loadImageURL from './utils/load-image-url'
 import loadImageFile from './utils/load-image-file'
@@ -196,6 +195,11 @@ class AvatarEditor extends React.Component {
     disableHiDPIScaling: false,
   }
 
+  constructor(props) {
+    super(props)
+    this.canvas = null
+  }
+
   state = {
     drag: false,
     my: null,
@@ -209,7 +213,7 @@ class AvatarEditor extends React.Component {
       pixelRatio = 1
     }
     // eslint-disable-next-line react/no-find-dom-node
-    const context = ReactDOM.findDOMNode(this.canvas).getContext('2d')
+    const context = this.canvas.getContext('2d')
     if (this.props.image) {
       this.loadImage(this.props.image)
     }
@@ -258,9 +262,8 @@ class AvatarEditor extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     // eslint-disable-next-line react/no-find-dom-node
-    const canvas = ReactDOM.findDOMNode(this.canvas)
-    const context = canvas.getContext('2d')
-    context.clearRect(0, 0, canvas.width, canvas.height)
+    const context = this.canvas.getContext('2d')
+    context.clearRect(0, 0, this.canvas.width, this.canvas.height)
     this.paint(context)
     this.paintImage(context, this.state.image, this.props.border)
 
@@ -507,9 +510,8 @@ class AvatarEditor extends React.Component {
   }
 
   clearImage = () => {
-    const canvas = this.canvas
-    const context = canvas.getContext('2d')
-    context.clearRect(0, 0, canvas.width, canvas.height)
+    const context = this.canvas.getContext('2d')
+    context.clearRect(0, 0, this.canvas.width, this.canvas.height)
     this.setState({
       image: defaultEmptyImage,
     })
