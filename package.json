@@ -4,7 +4,7 @@
   "description": "Avatar / profile picture component. Resize and crop your uploaded image using a intuitive user interface.",
   "main": "dist/index.js",
   "scripts": {
-    "clean": "rimraf dist",
+    "clean": "rimraf dist docs/bundle.js*",
     "build": "rollup -c",
     "watch": "rollup -c -w",
     "lint": "eslint --cache --ext .js,.jsx src",
