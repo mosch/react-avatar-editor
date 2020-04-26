@@ -21,7 +21,7 @@ export default class Preview extends React.Component {
     this.redraw()
   }
 
-  setCanvas = canvas => (this.canvas = canvas)
+  setCanvas = (canvas) => (this.canvas = canvas)
 
   handleImageLoad = () => {
     const ctx = this.canvas.getContext('2d')
@@ -37,7 +37,7 @@ export default class Preview extends React.Component {
         Math.round(-rect.x * (width / rect.width)),
         Math.round(-rect.y * (height / rect.height)),
         Math.round(width / rect.width),
-        Math.round(height / rect.height)
+        Math.round(height / rect.height),
       )
 
       if (rect) {
@@ -51,7 +51,7 @@ export default class Preview extends React.Component {
           Math.round(rect.x * width) + 0.5,
           Math.round(rect.y * height) + 0.5,
           Math.round(rect.width * width),
-          Math.round(rect.height * height)
+          Math.round(rect.height * height),
         )
       }
     }

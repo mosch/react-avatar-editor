@@ -2,9 +2,7 @@
   "name": "react-avatar-editor",
   "description": "Facebook like avatar / profile picture component. Resize and crop your uploaded image using a intuitive user interface.",
   "main": "dist/index.js",
-  "authors": [
-    "Moritz \"mosch\" Schwoerer"
-  ],
+  "authors": ["Moritz \"mosch\" Schwoerer"],
   "license": "MIT",
   "keywords": [
     "react-component",

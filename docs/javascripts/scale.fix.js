@@ -1,5 +1,5 @@
 // eslint-disable-next-line
-fixScale = function(doc) {
+fixScale = function (doc) {
   const addEvent = 'addEventListener'
   const type = 'gesturestart'
   const qsa = 'querySelectorAll'

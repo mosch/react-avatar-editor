@@ -18,7 +18,7 @@ export default {
     react: 'React',
     'react-dom': 'ReactDOM',
     'prop-types': 'PropTypes',
-    'classnames': 'classNames',
+    classnames: 'classNames',
   },
   targets: [
     {

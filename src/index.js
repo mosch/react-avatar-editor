@@ -6,14 +6,14 @@ import ReactDOM from 'react-dom'
 import loadImageURL from './utils/load-image-url'
 import loadImageFile from './utils/load-image-file'
 
-const makeCancelable = promise => {
+const makeCancelable = (promise) => {
   let hasCanceled_ = false
 
   const wrappedPromise = new Promise((resolve, reject) => {
     /* eslint-disable prefer-promise-reject-errors */
     promise.then(
-      val => (hasCanceled_ ? reject({ isCanceled: true }) : resolve(val)),
-      error => (hasCanceled_ ? reject({ isCanceled: true }) : reject(error))
+      (val) => (hasCanceled_ ? reject({ isCanceled: true }) : resolve(val)),
+      (error) => (hasCanceled_ ? reject({ isCanceled: true }) : reject(error)),
     )
   })
 
@@ -38,7 +38,7 @@ const isPassiveSupported = () => {
   let passiveSupported = false
   try {
     const options = Object.defineProperty({}, 'passive', {
-      get: function() {
+      get: function () {
         passiveSupported = true
       },
     })
@@ -109,7 +109,7 @@ const drawRoundedRect = (context, x, y, width, height, borderRadius) => {
       borderRadius,
       borderRadius,
       Math.PI,
-      Math.PI * 1.5
+      Math.PI * 1.5,
     )
     context.lineTo(widthMinusRad, 0)
     context.arc(
@@ -117,7 +117,7 @@ const drawRoundedRect = (context, x, y, width, height, borderRadius) => {
       borderRadius,
       borderRadius,
       Math.PI * 1.5,
-      Math.PI * 2
+      Math.PI * 2,
     )
     context.lineTo(width, heightMinusRad)
     context.arc(
@@ -125,7 +125,7 @@ const drawRoundedRect = (context, x, y, width, height, borderRadius) => {
       heightMinusRad,
       borderRadius,
       Math.PI * 2,
-      Math.PI * 0.5
+      Math.PI * 0.5,
     )
     context.lineTo(borderRadius, height)
     context.arc(
@@ -133,7 +133,7 @@ const drawRoundedRect = (context, x, y, width, height, borderRadius) => {
       heightMinusRad,
       borderRadius,
       Math.PI * 0.5,
-      Math.PI
+      Math.PI,
     )
     context.translate(-x, -y)
   }
@@ -222,23 +222,23 @@ class AvatarEditor extends React.Component {
       document.addEventListener(
         nativeEvents.move,
         this.handleMouseMove,
-        thirdArgument
+        thirdArgument,
       )
       document.addEventListener(
         nativeEvents.up,
         this.handleMouseUp,
-        thirdArgument
+        thirdArgument,
       )
       if (isTouchDevice) {
         document.addEventListener(
           nativeEvents.mouseMove,
           this.handleMouseMove,
-          thirdArgument
+          thirdArgument,
         )
         document.addEventListener(
           nativeEvents.mouseUp,
           this.handleMouseUp,
-          thirdArgument
+          thirdArgument,
         )
       }
     }
@@ -284,19 +284,19 @@ class AvatarEditor extends React.Component {
       document.removeEventListener(
         nativeEvents.move,
         this.handleMouseMove,
-        false
+        false,
       )
       document.removeEventListener(nativeEvents.up, this.handleMouseUp, false)
       if (isTouchDevice) {
         document.removeEventListener(
           nativeEvents.mouseMove,
           this.handleMouseMove,
-          false
+          false,
         )
         document.removeEventListener(
           nativeEvents.mouseUp,
           this.handleMouseUp,
-          false
+          false,
         )
       }
     }
@@ -373,7 +373,7 @@ class AvatarEditor extends React.Component {
     if (this.isVertical()) {
       context.translate(
         (canvas.width - canvas.height) / 2,
-        (canvas.height - canvas.width) / 2
+        (canvas.height - canvas.width) / 2,
       )
     }
 
@@ -466,14 +466,14 @@ class AvatarEditor extends React.Component {
         .catch(this.props.onLoadFailure)
     } else if (typeof image === 'string') {
       this.loadingImage = makeCancelable(
-        loadImageURL(image, this.props.crossOrigin)
+        loadImageURL(image, this.props.crossOrigin),
       )
         .promise.then(this.handleImageReady)
         .catch(this.props.onLoadFailure)
     }
   }
 
-  handleImageReady = image => {
+  handleImageReady = (image) => {
     const imageState = this.getInitialSize(image.width, image.height)
     imageState.resource = image
     imageState.x = 0.5
@@ -523,13 +523,13 @@ class AvatarEditor extends React.Component {
       context.rotate((this.props.rotate * Math.PI) / 180)
       context.translate(
         -(context.canvas.width / 2),
-        -(context.canvas.height / 2)
+        -(context.canvas.height / 2),
       )
 
       if (this.isVertical()) {
         context.translate(
           (context.canvas.width - context.canvas.height) / 2,
-          (context.canvas.height - context.canvas.width) / 2
+          (context.canvas.height - context.canvas.width) / 2,
         )
       }
 
@@ -541,7 +541,7 @@ class AvatarEditor extends React.Component {
         position.x,
         position.y,
         position.width,
-        position.height
+        position.height,
       )
 
       context.restore()
@@ -594,7 +594,7 @@ class AvatarEditor extends React.Component {
     borderRadius = Math.min(
       borderRadius,
       width / 2 - borderSizeX,
-      height / 2 - borderSizeY
+      height / 2 - borderSizeY,
     )
 
     context.beginPath()
@@ -605,7 +605,7 @@ class AvatarEditor extends React.Component {
       borderSizeY,
       width - borderSizeX * 2,
       height - borderSizeY * 2,
-      borderRadius
+      borderRadius,
     )
     context.rect(width, 0, -width, height) // outer rect, drawn "counterclockwise"
     context.fill('evenodd')
@@ -613,7 +613,7 @@ class AvatarEditor extends React.Component {
     context.restore()
   }
 
-  handleMouseDown = e => {
+  handleMouseDown = (e) => {
     e = e || window.event
     // if e is a touch event, preventDefault keeps
     // corresponding mouse events from also being fired
@@ -632,7 +632,7 @@ class AvatarEditor extends React.Component {
     }
   }
 
-  handleMouseMove = e => {
+  handleMouseMove = (e) => {
     e = e || window.event
     if (this.state.drag === false) {
       return
@@ -670,7 +670,7 @@ class AvatarEditor extends React.Component {
       lastY *= height
 
       // helpers to calculate vectors
-      const toRadians = degree => degree * (Math.PI / 180)
+      const toRadians = (degree) => degree * (Math.PI / 180)
       const cos = Math.cos(toRadians(rotate))
       const sin = Math.sin(toRadians(rotate))
 
@@ -698,7 +698,7 @@ class AvatarEditor extends React.Component {
     this.props.onMouseMove(e)
   }
 
-  setCanvas = canvas => {
+  setCanvas = (canvas) => {
     this.canvas = canvas
   }
 

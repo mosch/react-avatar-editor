@@ -75,8 +75,8 @@ export default MyEditor
 | onMouseMove(event)     | function         | Invoked when the user hold and moving the image.                                                                                                                                                                                                                     |
 | onImageChange()        | function         | Invoked when the user changed the image. Not invoked on the first render, and invoked multiple times during drag, etc.                                                                                                                                               |
 | onPositionChange()     | function         | Invoked when the user pans the editor to change the selected area of the image. Passed a position object in the form `{ x: 0.5, y: 0.5 }` where x and y are the relative x and y coordinates of the center of the selected area.                                     |
-| disableBoundaryChecks  | Boolean          | Set to `true` to allow the image to be moved outside the cropping boundary.                                                                                                                                                                                             |
-| disableHiDPIScaling    | Boolean          | Set to `true` to disable devicePixelRatio based canvas scaling.  Can improve perfermance of very large canvases on mobile devices.                                                                                                                                      |
+| disableBoundaryChecks  | Boolean          | Set to `true` to allow the image to be moved outside the cropping boundary.                                                                                                                                                                                          |
+| disableHiDPIScaling    | Boolean          | Set to `true` to disable devicePixelRatio based canvas scaling. Can improve perfermance of very large canvases on mobile devices.                                                                                                                                    |
 
 ## Accessing the resulting image
 
@@ -99,18 +99,18 @@ class MyEditor extends React.Component {
     }
   }
 
-  setEditorRef = (editor) => this.editor = editor
+  setEditorRef = (editor) => (this.editor = editor)
 
-  render () {
+  render() {
     return (
-        <AvatarEditor
-          ref={this.setEditorRef}
-          image="http://example.com/initialimage.jpg"
-          width={250}
-          height={250}
-          border={50}
-          scale={1.2}
-        />
+      <AvatarEditor
+        ref={this.setEditorRef}
+        image="http://example.com/initialimage.jpg"
+        width={250}
+        height={250}
+        border={50}
+        scale={1.2}
+      />
     )
   }
 }
@@ -133,7 +133,7 @@ class MyEditor extends React.Component {
     image: 'http://example.com/initialimage.jpg',
   }
 
-  handleDrop = dropped => {
+  handleDrop = (dropped) => {
     this.setState({ image: dropped[0] })
   }
 
@@ -183,12 +183,12 @@ fetch(canvas)
 
 For development you can use following build tools:
 
-* `npm run build`: Builds the _minified_ dist file: `dist/index.js`
-* `npm run watch`: Watches for file changes and builds _unminified_ into: `dist/index.js`
-* `npm run demo:build`: Builds the demo based on the dist file `dist/index.js`
-* `npm run demo:watch`: Run webpack-dev-server. Check demo website [localhost:8080](http://localhost:8080)
+- `npm run build`: Builds the _minified_ dist file: `dist/index.js`
+- `npm run watch`: Watches for file changes and builds _unminified_ into: `dist/index.js`
+- `npm run demo:build`: Builds the demo based on the dist file `dist/index.js`
+- `npm run demo:watch`: Run webpack-dev-server. Check demo website [localhost:8080](http://localhost:8080)
 
-## Kudos 
+## Kudos
 
 Kudos and thanks to [danlee](https://github.com/dan-lee) for the imporant work & many contributions to this project!
 Also thanks to [oyeanuj](https://github.com/oyeanuj), [mtlewis](https://github.com/mtlewis) and [hu9o](https://github.com/hu9o) and all other awesome people contributing to this.

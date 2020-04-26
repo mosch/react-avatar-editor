@@ -16,11 +16,11 @@ class App extends React.Component {
     height: 200,
   }
 
-  handleNewImage = e => {
+  handleNewImage = (e) => {
     this.setState({ image: e.target.files[0] })
   }
 
-  handleSave = data => {
+  handleSave = (data) => {
     const img = this.editor.getImageScaledToCanvas().toDataURL()
     const rect = this.editor.getCroppingRect()
 
@@ -36,7 +36,7 @@ class App extends React.Component {
     })
   }
 
-  handleScale = e => {
+  handleScale = (e) => {
     const scale = parseFloat(e.target.value)
     this.setState({ scale })
   }
@@ -45,7 +45,7 @@ class App extends React.Component {
     this.setState({ allowZoomOut })
   }
 
-  rotateLeft = e => {
+  rotateLeft = (e) => {
     e.preventDefault()
 
     this.setState({
@@ -53,34 +53,34 @@ class App extends React.Component {
     })
   }
 
-  rotateRight = e => {
+  rotateRight = (e) => {
     e.preventDefault()
     this.setState({
       rotate: this.state.rotate + 90,
     })
   }
 
-  handleBorderRadius = e => {
+  handleBorderRadius = (e) => {
     const borderRadius = parseInt(e.target.value)
     this.setState({ borderRadius })
   }
 
-  handleXPosition = e => {
+  handleXPosition = (e) => {
     const x = parseFloat(e.target.value)
     this.setState({ position: { ...this.state.position, x } })
   }
 
-  handleYPosition = e => {
+  handleYPosition = (e) => {
     const y = parseFloat(e.target.value)
     this.setState({ position: { ...this.state.position, y } })
   }
 
-  handleWidth = e => {
+  handleWidth = (e) => {
     const width = parseInt(e.target.value)
     this.setState({ width })
   }
 
-  handleHeight = e => {
+  handleHeight = (e) => {
     const height = parseInt(e.target.value)
     this.setState({ height })
   }
@@ -90,15 +90,15 @@ class App extends React.Component {
     console.log('callback', e)
   }
 
-  setEditorRef = editor => {
+  setEditorRef = (editor) => {
     if (editor) this.editor = editor
   }
 
-  handlePositionChange = position => {
+  handlePositionChange = (position) => {
     this.setState({ position })
   }
 
-  handleDrop = acceptedFiles => {
+  handleDrop = (acceptedFiles) => {
     this.setState({ image: acceptedFiles[0] })
   }
 
@@ -109,7 +109,11 @@ class App extends React.Component {
           onDrop={this.handleDrop}
           disableClick
           multiple={false}
-          style={{ width: this.state.width, height: this.state.height, marginBottom:'35px' }}
+          style={{
+            width: this.state.width,
+            height: this.state.height,
+            marginBottom: '35px',
+          }}
         >
           <div>
             <ReactAvatarEditor
@@ -218,12 +222,11 @@ class App extends React.Component {
           <img
             src={this.state.preview.img}
             style={{
-              borderRadius: `${(Math.min(
-                this.state.preview.height,
-                this.state.preview.width
-              ) +
-                10) *
-                (this.state.preview.borderRadius / 2 / 100)}px`,
+              borderRadius: `${
+                (Math.min(this.state.preview.height, this.state.preview.width) +
+                  10) *
+                (this.state.preview.borderRadius / 2 / 100)
+              }px`,
             }}
           />
         )}
@@ -232,7 +235,7 @@ class App extends React.Component {
             width={
               this.state.preview.scale < 1
                 ? this.state.preview.width
-                : this.state.preview.height * 478 / 270
+                : (this.state.preview.height * 478) / 270
             }
             height={this.state.preview.height}
             image="avatar.jpg"

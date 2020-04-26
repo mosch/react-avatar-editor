@@ -58,7 +58,7 @@ describe('retrieveImageURL', () => {
     it('creates a document using parseDOM', () => {
       invokeGetAsStringCallback()
       expect(mockParseDOM).toHaveBeenCalledWith(
-        '<div id="test-fragment"></div>'
+        '<div id="test-fragment"></div>',
       )
     })
 

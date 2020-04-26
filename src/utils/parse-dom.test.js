@@ -3,8 +3,7 @@
 import parseDOM from './parse-dom'
 
 describe('parseDOM', () => {
-  let realDOMParser,
-    result
+  let realDOMParser, result
 
   beforeEach(() => {
     realDOMParser = global.DOMParser
@@ -31,7 +30,7 @@ describe('parseDOM', () => {
     it('calls parseFromString with the passed-in string', () => {
       expect(parseFromString).toHaveBeenCalledWith(
         '<div id="test"></div>',
-        'text/html'
+        'text/html',
       )
     })
 

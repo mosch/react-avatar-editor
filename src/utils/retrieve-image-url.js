@@ -12,7 +12,7 @@ const retrieveImageURL = (dataTransferItems, callback) => {
     const item = dataTransferItems[i]
 
     if (item.type === 'text/html') {
-      item.getAsString(value => {
+      item.getAsString((value) => {
         const doc = parseDOM(value)
         const img = doc.querySelector('img')
         if (img && img.src) {
