@@ -1,8 +1,13 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import ReactAvatarEditor from '../src/index'
 import Dropzone from 'react-dropzone'
 import Preview from './Preview.jsx'
+
+const ReactAvatarEditor =
+  process.env.NODE_ENV === 'production'
+    ? require('../dist')
+    : require('../src').default
+
 class App extends React.Component {
   state = {
     image: 'avatar.jpg',
