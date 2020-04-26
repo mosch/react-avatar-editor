@@ -41,7 +41,7 @@
     "image"
   ],
   "dependencies": {
-    "prop-types": "^15.5.8"
+    "prop-types": "^15.7.2"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",
@@ -64,9 +64,8 @@
     "eslint-plugin-standard": "^3.0.1",
     "jest": "22.4.2",
     "prettier": "1.16.4",
-    "prop-types": "^15.5.8",
-    "react": "^15.5.4",
-    "react-dom": "^15.5.4",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
     "react-dropzone": "^4.2.3",
     "rimraf": "^2.6.1",
     "rollup": "^0.45.2",
