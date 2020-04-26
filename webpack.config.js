@@ -2,9 +2,10 @@ const path = require('path')
 
 module.exports = {
   entry: './docs/App.jsx',
+  mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
   output: {
-    filename:
-      process.env.NODE_ENV === 'production' ? 'docs/bundle.js' : 'bundle.js',
+    path: path.resolve(__dirname, 'docs'),
+    filename: 'bundle.js',
     publicPath: '/',
   },
   devServer: {

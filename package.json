@@ -71,8 +71,9 @@
     "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-uglify": "3.0.0",
     "rollup-watch": "^4.3.1",
-    "webpack": "^2.3.3",
-    "webpack-dev-server": ">=3.1.11"
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": ">=3.10.3"
   },
   "peerDependencies": {
     "react": ">=0.14.0 <17.0.0",
