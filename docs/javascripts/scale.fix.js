@@ -1,4 +1,4 @@
-// eslint-disable-next-line
+// eslint-disable-next-line no-undef
 fixScale = function(doc) {
   const addEvent = 'addEventListener'
   const type = 'gesturestart'

@@ -86,7 +86,7 @@ class App extends React.Component {
   }
 
   logCallback(e) {
-    // eslint-disable-next-line
+    // eslint-disable-next-line no-console
     console.log('callback', e)
   }
 

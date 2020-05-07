@@ -14,6 +14,7 @@ const makeCancelable = promise => {
       val => (hasCanceled_ ? reject({ isCanceled: true }) : resolve(val)),
       error => (hasCanceled_ ? reject({ isCanceled: true }) : reject(error))
     )
+    /* eslint-enable */
   })
 
   return {
@@ -212,7 +213,6 @@ class AvatarEditor extends React.Component {
     if (this.props.disableHiDPIScaling) {
       pixelRatio = 1
     }
-    // eslint-disable-next-line react/no-find-dom-node
     const context = this.canvas.getContext('2d')
     if (this.props.image) {
       this.loadImage(this.props.image)
@@ -259,7 +259,6 @@ class AvatarEditor extends React.Component {
       this.clearImage()
     }
 
-    // eslint-disable-next-line react/no-find-dom-node
     const context = this.canvas.getContext('2d')
     context.clearRect(0, 0, this.canvas.width, this.canvas.height)
     this.paint(context)
@@ -715,7 +714,7 @@ class AvatarEditor extends React.Component {
       height,
       position,
       color,
-      /* eslint-disable react/prop-types */
+      // eslint-disable-next-line react/prop-types
       style,
       crossOrigin,
       onLoadFailure,
