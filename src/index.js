@@ -14,6 +14,7 @@ const makeCancelable = promise => {
       val => (hasCanceled_ ? reject({ isCanceled: true }) : resolve(val)),
       error => (hasCanceled_ ? reject({ isCanceled: true }) : reject(error))
     )
+    /* eslint-enable */
   })
 
   return {
@@ -715,7 +716,7 @@ class AvatarEditor extends React.Component {
       height,
       position,
       color,
-      /* eslint-disable react/prop-types */
+      // eslint-disable-next-line react/prop-types
       style,
       crossOrigin,
       onLoadFailure,
