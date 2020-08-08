@@ -175,6 +175,7 @@ class AvatarEditor extends React.Component {
     onPositionChange: PropTypes.func,
     disableBoundaryChecks: PropTypes.bool,
     disableHiDPIScaling: PropTypes.bool,
+    disableCanvasRotation: PropTypes.bool,
   }
 
   static defaultProps = {
@@ -194,6 +195,7 @@ class AvatarEditor extends React.Component {
     onPositionChange() {},
     disableBoundaryChecks: false,
     disableHiDPIScaling: false,
+    disableCanvasRotation: true,
   }
 
   constructor(props) {
@@ -305,7 +307,7 @@ class AvatarEditor extends React.Component {
   }
 
   isVertical() {
-    return this.props.rotate % 180 !== 0
+    return !this.props.disableCanvasRotation && this.props.rotate % 180 !== 0
   }
 
   getBorders(border = this.props.border) {
