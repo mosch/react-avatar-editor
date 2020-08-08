@@ -75,7 +75,10 @@
     "rollup": "^2.20.0",
     "rollup-plugin-uglify": "6.0.4",
     "rollup-watch": "^4.3.1",
-    "snazzy": "^7.0.0"
+    "snazzy": "^7.0.0",
+    "webpack": "^4.44.1",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.0"
   },
   "peerDependencies": {
     "react": ">=0.14.0 <17.0.0",
