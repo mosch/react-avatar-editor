@@ -14,6 +14,7 @@ class App extends React.Component {
     preview: null,
     width: 200,
     height: 200,
+    disableCanvasRotation: false,
   }
 
   handleNewImage = e => {
@@ -43,6 +44,20 @@ class App extends React.Component {
 
   handleAllowZoomOut = ({ target: { checked: allowZoomOut } }) => {
     this.setState({ allowZoomOut })
+  }
+
+  handleDisableCanvasRotation = ({
+    target: { checked: disableCanvasRotation },
+  }) => {
+    this.setState({ disableCanvasRotation })
+  }
+
+  rotateScale = e => {
+    const scale = parseFloat(e.target.value)
+    e.preventDefault()
+    this.setState({
+      rotate: scale,
+    })
   }
 
   rotateLeft = e => {
@@ -109,7 +124,11 @@ class App extends React.Component {
           onDrop={this.handleDrop}
           disableClick
           multiple={false}
-          style={{ width: this.state.width, height: this.state.height, marginBottom:'35px' }}
+          style={{
+            width: this.state.width,
+            height: this.state.height,
+            marginBottom: '35px',
+          }}
         >
           <div>
             <ReactAvatarEditor
@@ -126,6 +145,7 @@ class App extends React.Component {
               onImageReady={this.logCallback.bind(this, 'onImageReady')}
               image={this.state.image}
               className="editor-canvas"
+              disableCanvasRotation={this.state.disableCanvasRotation}
             />
           </div>
         </Dropzone>
@@ -211,6 +231,25 @@ class App extends React.Component {
         <button onClick={this.rotateLeft}>Left</button>
         <button onClick={this.rotateRight}>Right</button>
         <br />
+        Disable Canvas Rotation
+        <input
+          name="disableCanvasRotation"
+          type="checkbox"
+          onChange={this.handleDisableCanvasRotation}
+          checked={this.state.disableCanvasRotation}
+        />
+        <br />
+        Rotation Scale:
+        <input
+          name="scale"
+          type="range"
+          onChange={this.rotateScale}
+          min="0"
+          max="180"
+          step="1"
+          defaultValue="0"
+        />
+        <br />
         <br />
         <input type="button" onClick={this.handleSave} value="Preview" />
         <br />
@@ -232,7 +271,7 @@ class App extends React.Component {
             width={
               this.state.preview.scale < 1
                 ? this.state.preview.width
-                : this.state.preview.height * 478 / 270
+                : (this.state.preview.height * 478) / 270
             }
             height={this.state.preview.height}
             image="avatar.jpg"

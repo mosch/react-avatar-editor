@@ -9,8 +9,6 @@ export default {
   plugins: [
     babel({
       exclude: 'node_modules/**',
-      babelHelpers: 'external',
-      plugins: ['@babel/plugin-external-helpers'],
     }),
     uglify(),
   ],
@@ -20,7 +18,7 @@ export default {
       react: 'React',
       'react-dom': 'ReactDOM',
       'prop-types': 'PropTypes',
-      'classnames': 'classNames',
+      classnames: 'classNames',
     },
     file: pkg.main,
     format: 'umd',
