@@ -37,3 +37,5 @@ node_modules
 dist/
 docs/bundle.js
 docs/bundle.js.map
+
+.cache
