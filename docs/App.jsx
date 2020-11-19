@@ -1,11 +1,13 @@
 import React from 'react'
-import ReactDOM from 'react-dom'
 import ReactAvatarEditor from '../src/index'
 import Dropzone from 'react-dropzone'
 import Preview from './Preview.jsx'
-class App extends React.Component {
+
+import AvatarImagePath from './avatar.jpg'
+
+export default class App extends React.Component {
   state = {
-    image: 'avatar.jpg',
+    image: AvatarImagePath,
     allowZoomOut: false,
     position: { x: 0.5, y: 0.5 },
     scale: 1,
@@ -282,7 +284,3 @@ class App extends React.Component {
     )
   }
 }
-
-// Used to display the cropping rect
-
-ReactDOM.render(<App />, document.getElementById('app'))

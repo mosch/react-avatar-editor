@@ -4,15 +4,15 @@
   "description": "Avatar / profile picture component. Resize and crop your uploaded image using a intuitive user interface.",
   "main": "dist/index.js",
   "scripts": {
-    "clean": "rimraf dist",
+    "clean": "rimraf dist && rimraf dist-docs",
     "build": "rollup -c",
     "watch": "rollup -c -w",
     "lint": "eslint --cache --ext .js,.jsx src",
     "test": "NODE_ENV=test jest",
     "test:watch": "NODE_ENV=test jest --watch",
-    "demo:build": "NODE_ENV=production webpack",
-    "demo:watch": "webpack-dev-server",
-    "prepublish": "yarn run lint && yarn run test && yarn run clean && yarn run build",
+    "demo:build": "parcel build docs/index.html -d dist-docs",
+    "demo:watch": "parcel docs/index.html",
+    "prepublishOnly": "yarn run lint && yarn run test && yarn run clean && yarn run build",
     "postversion": "git push --tags origin HEAD"
   },
   "author": {
@@ -56,6 +56,7 @@
     "babel-eslint": "^9.0.0",
     "babel-jest": "^23.4.2",
     "babel-loader": "^8.0.0",
+    "cssnano": "4.1.10",
     "eslint": "4.18.2",
     "eslint-config-prettier": "^2.9.0",
     "eslint-config-react-app": "^2.1.0",
@@ -66,6 +67,7 @@
     "eslint-plugin-react": "^7.7.0",
     "eslint-plugin-standard": "^3.0.1",
     "jest": "22.4.2",
+    "parcel-bundler": "1.12.4",
     "prettier": "1.16.4",
     "prop-types": "^15.5.8",
     "react": "^15.5.4",
@@ -75,10 +77,7 @@
     "rollup": "^2.20.0",
     "rollup-plugin-uglify": "6.0.4",
     "rollup-watch": "^4.3.1",
-    "snazzy": "^7.0.0",
-    "webpack": "^4.44.1",
-    "webpack-cli": "^3.3.12",
-    "webpack-dev-server": "^3.11.0"
+    "snazzy": "^7.0.0"
   },
   "peerDependencies": {
     "react": ">=0.14.0 <17.0.0",
