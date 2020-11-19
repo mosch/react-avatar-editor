@@ -4,13 +4,13 @@
   "description": "Avatar / profile picture component. Resize and crop your uploaded image using a intuitive user interface.",
   "main": "dist/index.js",
   "scripts": {
-    "clean": "rimraf dist",
+    "clean": "rimraf dist && rimraf dist-docs",
     "build": "rollup -c",
     "watch": "rollup -c -w",
     "lint": "eslint --cache --ext .js,.jsx src",
     "test": "NODE_ENV=test jest",
     "test:watch": "NODE_ENV=test jest --watch",
-    "demo:build": "parcel build docs/index.html",
+    "demo:build": "parcel build docs/index.html -d dist-docs",
     "demo:watch": "parcel docs/index.html",
     "prepublishOnly": "yarn run lint && yarn run test && yarn run clean && yarn run build",
     "postversion": "git push --tags origin HEAD"

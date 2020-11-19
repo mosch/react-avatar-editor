@@ -35,7 +35,6 @@ node_modules
 .vscode
 
 dist/
-docs/bundle.js
-docs/bundle.js.map
+dist-docs/
 
 .cache
