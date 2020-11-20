@@ -5,26 +5,6 @@ import React from 'react'
 import loadImageURL from './utils/load-image-url'
 import loadImageFile from './utils/load-image-file'
 
-const makeCancelable = promise => {
-  let hasCanceled_ = false
-
-  const wrappedPromise = new Promise((resolve, reject) => {
-    /* eslint-disable prefer-promise-reject-errors */
-    promise.then(
-      val => (hasCanceled_ ? reject({ isCanceled: true }) : resolve(val)),
-      error => (hasCanceled_ ? reject({ isCanceled: true }) : reject(error)),
-    )
-    /* eslint-enable */
-  })
-
-  return {
-    promise: wrappedPromise,
-    cancel() {
-      hasCanceled_ = true
-    },
-  }
-}
-
 const isTouchDevice = !!(
   typeof window !== 'undefined' &&
   typeof navigator !== 'undefined' &&
@@ -38,7 +18,7 @@ const isPassiveSupported = () => {
   let passiveSupported = false
   try {
     const options = Object.defineProperty({}, 'passive', {
-      get: function() {
+      get: function () {
         passiveSupported = true
       },
     })
@@ -465,19 +445,17 @@ class AvatarEditor extends React.Component {
 
   loadImage(image) {
     if (isFileAPISupported && image instanceof File) {
-      this.loadingImage = makeCancelable(loadImageFile(image))
-        .promise.then(this.handleImageReady)
+      this.loadingImage = loadImageFile(image)
+        .then(this.handleImageReady)
         .catch(this.props.onLoadFailure)
     } else if (typeof image === 'string') {
-      this.loadingImage = makeCancelable(
-        loadImageURL(image, this.props.crossOrigin),
-      )
-        .promise.then(this.handleImageReady)
+      this.loadingImage = loadImageURL(image, this.props.crossOrigin)
+        .then(this.handleImageReady)
         .catch(this.props.onLoadFailure)
     }
   }
 
-  handleImageReady = image => {
+  handleImageReady = (image) => {
     const imageState = this.getInitialSize(image.width, image.height)
     imageState.resource = image
     imageState.x = 0.5
@@ -616,7 +594,7 @@ class AvatarEditor extends React.Component {
     context.restore()
   }
 
-  handleMouseDown = e => {
+  handleMouseDown = (e) => {
     e = e || window.event
     // if e is a touch event, preventDefault keeps
     // corresponding mouse events from also being fired
@@ -628,7 +606,7 @@ class AvatarEditor extends React.Component {
       my: null,
     })
   }
-  
+
   handleMouseUp = () => {
     if (this.state.drag) {
       this.setState({ drag: false })
@@ -636,7 +614,7 @@ class AvatarEditor extends React.Component {
     }
   }
 
-  handleMouseMove = e => {
+  handleMouseMove = (e) => {
     e = e || window.event
     if (this.state.drag === false) {
       return
@@ -674,7 +652,7 @@ class AvatarEditor extends React.Component {
       lastY *= height
 
       // helpers to calculate vectors
-      const toRadians = degree => degree * (Math.PI / 180)
+      const toRadians = (degree) => degree * (Math.PI / 180)
       const cos = Math.cos(toRadians(rotate))
       const sin = Math.sin(toRadians(rotate))
 
@@ -702,7 +680,7 @@ class AvatarEditor extends React.Component {
     this.props.onMouseMove(e)
   }
 
-  setCanvas = canvas => {
+  setCanvas = (canvas) => {
     this.canvas = canvas
   }
 

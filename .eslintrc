@@ -5,51 +5,6 @@
     "prettier",
     "prettier/react"
   ],
-  "globals": {
-    "React": true,
-    "describe": true,
-    "expect": true,
-    "it": true,
-    "jest": true,
-    "mockStore": true,
-    "mount": true,
-    "mountIntl": true,
-    "shallow": true,
-    "shallowIntl": true
-  },
   "parser": "babel-eslint",
-  "plugins": ["import", "react"],
-  "rules": {
-    "comma-dangle": [2, "always-multiline"],
-    "generator-star-spacing": 0,
-    "import/export": 2,
-    "jsx-quotes": [2, "prefer-double"],
-    "no-console": 2,
-    "no-return-assign": 0,
-    "no-unused-expressions": 0,
-    "react/jsx-curly-spacing": [2, "never"],
-    "react/jsx-first-prop-new-line": [2, "multiline-multiprop"],
-    "react/jsx-indent-props": 0,
-    "react/jsx-no-bind": 0,
-    "react/no-array-index-key": 2,
-    "react/no-multi-comp": [
-      "warn",
-      {
-        "ignoreStateless": true
-      }
-    ],
-    "react/self-closing-comp": [
-      "error",
-      {
-        "component": true,
-        "html": true
-      }
-    ],
-    "react/sort-comp": 2,
-    "react/no-render-return-value": 0,
-    "space-before-function-paren": 0,
-    "standard/computed-property-even-spacing": 0,
-    "no-var": 2,
-    "prefer-const": 2
-  }
+  "plugins": ["import", "react"]
 }

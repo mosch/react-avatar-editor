@@ -89,9 +89,8 @@
   ],
   "prettier": {
     "singleQuote": true,
-    "trailingComma": "es5",
-    "semi": false,
-    "useTabs": false
+    "trailingComma": "all",
+    "semi": false
   },
   "eslintConfig": {
     "extends": "react-app"
