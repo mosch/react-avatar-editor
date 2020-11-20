@@ -19,11 +19,11 @@ export default class App extends React.Component {
     disableCanvasRotation: false,
   }
 
-  handleNewImage = e => {
+  handleNewImage = (e) => {
     this.setState({ image: e.target.files[0] })
   }
 
-  handleSave = data => {
+  handleSave = (data) => {
     const img = this.editor.getImageScaledToCanvas().toDataURL()
     const rect = this.editor.getCroppingRect()
 
@@ -39,7 +39,7 @@ export default class App extends React.Component {
     })
   }
 
-  handleScale = e => {
+  handleScale = (e) => {
     const scale = parseFloat(e.target.value)
     this.setState({ scale })
   }
@@ -54,7 +54,7 @@ export default class App extends React.Component {
     this.setState({ disableCanvasRotation })
   }
 
-  rotateScale = e => {
+  rotateScale = (e) => {
     const scale = parseFloat(e.target.value)
     e.preventDefault()
     this.setState({
@@ -62,7 +62,7 @@ export default class App extends React.Component {
     })
   }
 
-  rotateLeft = e => {
+  rotateLeft = (e) => {
     e.preventDefault()
 
     this.setState({
@@ -70,34 +70,34 @@ export default class App extends React.Component {
     })
   }
 
-  rotateRight = e => {
+  rotateRight = (e) => {
     e.preventDefault()
     this.setState({
       rotate: this.state.rotate + 90,
     })
   }
 
-  handleBorderRadius = e => {
+  handleBorderRadius = (e) => {
     const borderRadius = parseInt(e.target.value)
     this.setState({ borderRadius })
   }
 
-  handleXPosition = e => {
+  handleXPosition = (e) => {
     const x = parseFloat(e.target.value)
     this.setState({ position: { ...this.state.position, x } })
   }
 
-  handleYPosition = e => {
+  handleYPosition = (e) => {
     const y = parseFloat(e.target.value)
     this.setState({ position: { ...this.state.position, y } })
   }
 
-  handleWidth = e => {
+  handleWidth = (e) => {
     const width = parseInt(e.target.value)
     this.setState({ width })
   }
 
-  handleHeight = e => {
+  handleHeight = (e) => {
     const height = parseInt(e.target.value)
     this.setState({ height })
   }
@@ -107,24 +107,22 @@ export default class App extends React.Component {
     console.log('callback', e)
   }
 
-  setEditorRef = editor => {
+  setEditorRef = (editor) => {
     if (editor) this.editor = editor
   }
 
-  handlePositionChange = position => {
+  handlePositionChange = (position) => {
     this.setState({ position })
-  }
-
-  handleDrop = acceptedFiles => {
-    this.setState({ image: acceptedFiles[0] })
   }
 
   render() {
     return (
       <div>
         <Dropzone
-          onDrop={this.handleDrop}
-          disableClick
+          onDrop={(acceptedFiles) => {
+            this.setState({ image: acceptedFiles[0] })
+          }}
+          noClick
           multiple={false}
           style={{
             width: this.state.width,
@@ -132,28 +130,38 @@ export default class App extends React.Component {
             marginBottom: '35px',
           }}
         >
-          <div>
-            <ReactAvatarEditor
-              ref={this.setEditorRef}
-              scale={parseFloat(this.state.scale)}
-              width={this.state.width}
-              height={this.state.height}
-              position={this.state.position}
-              onPositionChange={this.handlePositionChange}
-              rotate={parseFloat(this.state.rotate)}
-              borderRadius={this.state.width / (100 / this.state.borderRadius)}
-              onLoadFailure={this.logCallback.bind(this, 'onLoadFailed')}
-              onLoadSuccess={this.logCallback.bind(this, 'onLoadSuccess')}
-              onImageReady={this.logCallback.bind(this, 'onImageReady')}
-              image={this.state.image}
-              className="editor-canvas"
-              disableCanvasRotation={this.state.disableCanvasRotation}
-            />
-          </div>
+          {({ getRootProps, getInputProps }) => (
+            <div {...getRootProps()}>
+              <ReactAvatarEditor
+                ref={this.setEditorRef}
+                scale={parseFloat(this.state.scale)}
+                width={this.state.width}
+                height={this.state.height}
+                position={this.state.position}
+                onPositionChange={this.handlePositionChange}
+                rotate={parseFloat(this.state.rotate)}
+                borderRadius={
+                  this.state.width / (100 / this.state.borderRadius)
+                }
+                onLoadFailure={this.logCallback.bind(this, 'onLoadFailed')}
+                onLoadSuccess={this.logCallback.bind(this, 'onLoadSuccess')}
+                onImageReady={this.logCallback.bind(this, 'onImageReady')}
+                image={this.state.image}
+                className="editor-canvas"
+                disableCanvasRotation={this.state.disableCanvasRotation}
+              />
+              <br />
+              New File:
+              <input
+                name="newImage"
+                type="file"
+                onChange={this.handleNewImage}
+                {...getInputProps()}
+                style={{ display: 'initial' }}
+              />
+            </div>
+          )}
         </Dropzone>
-        <br />
-        New File:
-        <input name="newImage" type="file" onChange={this.handleNewImage} />
         <br />
         Zoom:
         <input
@@ -259,12 +267,11 @@ export default class App extends React.Component {
           <img
             src={this.state.preview.img}
             style={{
-              borderRadius: `${(Math.min(
-                this.state.preview.height,
-                this.state.preview.width
-              ) +
-                10) *
-                (this.state.preview.borderRadius / 2 / 100)}px`,
+              borderRadius: `${
+                (Math.min(this.state.preview.height, this.state.preview.width) +
+                  10) *
+                (this.state.preview.borderRadius / 2 / 100)
+              }px`,
             }}
           />
         )}

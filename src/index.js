@@ -12,7 +12,7 @@ const makeCancelable = promise => {
     /* eslint-disable prefer-promise-reject-errors */
     promise.then(
       val => (hasCanceled_ ? reject({ isCanceled: true }) : resolve(val)),
-      error => (hasCanceled_ ? reject({ isCanceled: true }) : reject(error))
+      error => (hasCanceled_ ? reject({ isCanceled: true }) : reject(error)),
     )
     /* eslint-enable */
   })
@@ -109,7 +109,7 @@ const drawRoundedRect = (context, x, y, width, height, borderRadius) => {
       borderRadius,
       borderRadius,
       Math.PI,
-      Math.PI * 1.5
+      Math.PI * 1.5,
     )
     context.lineTo(widthMinusRad, 0)
     context.arc(
@@ -117,7 +117,7 @@ const drawRoundedRect = (context, x, y, width, height, borderRadius) => {
       borderRadius,
       borderRadius,
       Math.PI * 1.5,
-      Math.PI * 2
+      Math.PI * 2,
     )
     context.lineTo(width, heightMinusRad)
     context.arc(
@@ -125,7 +125,7 @@ const drawRoundedRect = (context, x, y, width, height, borderRadius) => {
       heightMinusRad,
       borderRadius,
       Math.PI * 2,
-      Math.PI * 0.5
+      Math.PI * 0.5,
     )
     context.lineTo(borderRadius, height)
     context.arc(
@@ -133,7 +133,7 @@ const drawRoundedRect = (context, x, y, width, height, borderRadius) => {
       heightMinusRad,
       borderRadius,
       Math.PI * 0.5,
-      Math.PI
+      Math.PI,
     )
     context.translate(-x, -y)
   }
@@ -228,23 +228,23 @@ class AvatarEditor extends React.Component {
       document.addEventListener(
         nativeEvents.move,
         this.handleMouseMove,
-        thirdArgument
+        thirdArgument,
       )
       document.addEventListener(
         nativeEvents.up,
         this.handleMouseUp,
-        thirdArgument
+        thirdArgument,
       )
       if (isTouchDevice) {
         document.addEventListener(
           nativeEvents.mouseMove,
           this.handleMouseMove,
-          thirdArgument
+          thirdArgument,
         )
         document.addEventListener(
           nativeEvents.mouseUp,
           this.handleMouseUp,
-          thirdArgument
+          thirdArgument,
         )
       }
     }
@@ -288,19 +288,19 @@ class AvatarEditor extends React.Component {
       document.removeEventListener(
         nativeEvents.move,
         this.handleMouseMove,
-        false
+        false,
       )
       document.removeEventListener(nativeEvents.up, this.handleMouseUp, false)
       if (isTouchDevice) {
         document.removeEventListener(
           nativeEvents.mouseMove,
           this.handleMouseMove,
-          false
+          false,
         )
         document.removeEventListener(
           nativeEvents.mouseUp,
           this.handleMouseUp,
-          false
+          false,
         )
       }
     }
@@ -377,7 +377,7 @@ class AvatarEditor extends React.Component {
     if (this.isVertical()) {
       context.translate(
         (canvas.width - canvas.height) / 2,
-        (canvas.height - canvas.width) / 2
+        (canvas.height - canvas.width) / 2,
       )
     }
 
@@ -470,7 +470,7 @@ class AvatarEditor extends React.Component {
         .catch(this.props.onLoadFailure)
     } else if (typeof image === 'string') {
       this.loadingImage = makeCancelable(
-        loadImageURL(image, this.props.crossOrigin)
+        loadImageURL(image, this.props.crossOrigin),
       )
         .promise.then(this.handleImageReady)
         .catch(this.props.onLoadFailure)
@@ -526,13 +526,13 @@ class AvatarEditor extends React.Component {
       context.rotate((this.props.rotate * Math.PI) / 180)
       context.translate(
         -(context.canvas.width / 2),
-        -(context.canvas.height / 2)
+        -(context.canvas.height / 2),
       )
 
       if (this.isVertical()) {
         context.translate(
           (context.canvas.width - context.canvas.height) / 2,
-          (context.canvas.height - context.canvas.width) / 2
+          (context.canvas.height - context.canvas.width) / 2,
         )
       }
 
@@ -544,7 +544,7 @@ class AvatarEditor extends React.Component {
         position.x,
         position.y,
         position.width,
-        position.height
+        position.height,
       )
 
       context.restore()
@@ -597,7 +597,7 @@ class AvatarEditor extends React.Component {
     borderRadius = Math.min(
       borderRadius,
       width / 2 - borderSizeX,
-      height / 2 - borderSizeY
+      height / 2 - borderSizeY,
     )
 
     context.beginPath()
@@ -608,7 +608,7 @@ class AvatarEditor extends React.Component {
       borderSizeY,
       width - borderSizeX * 2,
       height - borderSizeY * 2,
-      borderRadius
+      borderRadius,
     )
     context.rect(width, 0, -width, height) // outer rect, drawn "counterclockwise"
     context.fill('evenodd')
@@ -628,6 +628,7 @@ class AvatarEditor extends React.Component {
       my: null,
     })
   }
+  
   handleMouseUp = () => {
     if (this.state.drag) {
       this.setState({ drag: false })
