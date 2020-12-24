@@ -17,6 +17,8 @@ export default class App extends React.Component {
     width: 200,
     height: 200,
     disableCanvasRotation: false,
+    isTransparent: false,
+    backgroundColor: null
   }
 
   handleNewImage = (e) => {
@@ -115,6 +117,18 @@ export default class App extends React.Component {
     this.setState({ position })
   }
 
+  setBackgroundColor = (e) => {
+    this.setState({ backgroundColor: e.target.value })
+  }
+
+  setTransparent = (e) => {
+    const isTransparent = e.target.checked;
+    // set color to white initially
+    const backgroundColor = isTransparent ? '#FFFFFF' : null
+    
+    this.setState({ backgroundColor, isTransparent })
+  }
+
   render() {
     return (
       <div>
@@ -143,6 +157,7 @@ export default class App extends React.Component {
                 borderRadius={
                   this.state.width / (100 / this.state.borderRadius)
                 }
+                backgroundColor={this.state.backgroundColor}
                 onLoadFailure={this.logCallback.bind(this, 'onLoadFailed')}
                 onLoadSuccess={this.logCallback.bind(this, 'onLoadSuccess')}
                 onImageReady={this.logCallback.bind(this, 'onImageReady')}
@@ -260,6 +275,19 @@ export default class App extends React.Component {
           defaultValue="0"
         />
         <br />
+        Transparent image?
+        <input type="checkbox" onChange={this.setTransparent} defaultChecked={this.state.isTransparent}></input>
+        <br />
+        {this.state.isTransparent && <div style={{ marginLeft: '1rem' }}>
+          Background color: 
+          <input
+            name="backgroundColor"
+            type="color"
+            defaultValue={this.state.backgroundColor}
+            onChange={this.setBackgroundColor}
+          />
+          <br />
+        </div>}
         <br />
         <input type="button" onClick={this.handleSave} value="Preview" />
         <br />

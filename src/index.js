@@ -144,6 +144,7 @@ class AvatarEditor extends React.Component {
       y: PropTypes.number,
     }),
     color: PropTypes.arrayOf(PropTypes.number),
+    backgroundColor: PropTypes.string,
     crossOrigin: PropTypes.oneOf(['', 'anonymous', 'use-credentials']),
 
     onLoadFailure: PropTypes.func,
@@ -234,7 +235,8 @@ class AvatarEditor extends React.Component {
     if (
       (this.props.image && this.props.image !== prevProps.image) ||
       this.props.width !== prevProps.width ||
-      this.props.height !== prevProps.height
+      this.props.height !== prevProps.height ||
+      this.props.backgroundColor !== prevProps.backgroundColor
     ) {
       this.loadImage(this.props.image)
     } else if (!this.props.image && prevState.image !== defaultEmptyImage) {
@@ -256,7 +258,8 @@ class AvatarEditor extends React.Component {
       prevState.my !== this.state.my ||
       prevState.mx !== this.state.mx ||
       prevState.image.x !== this.state.image.x ||
-      prevState.image.y !== this.state.image.y
+      prevState.image.y !== this.state.image.y ||
+      prevState.backgroundColor !== this.state.backgroundColor
     ) {
       this.props.onImageChange()
     }
@@ -361,6 +364,16 @@ class AvatarEditor extends React.Component {
       )
     }
 
+    if (image.backgroundColor) {
+      context.fillStyle = image.backgroundColor
+      context.fillRect(
+        -cropRect.x,
+        -cropRect.y,
+        image.resource.width,
+        image.resource.height,
+      )
+    }
+
     context.drawImage(image.resource, -cropRect.x, -cropRect.y)
 
     return canvas
@@ -460,6 +473,7 @@ class AvatarEditor extends React.Component {
     imageState.resource = image
     imageState.x = 0.5
     imageState.y = 0.5
+    imageState.backgroundColor = this.props.backgroundColor
     this.setState({ drag: false, image: imageState }, this.props.onImageReady)
     this.props.onLoadSuccess(imageState)
   }
@@ -524,6 +538,16 @@ class AvatarEditor extends React.Component {
         position.width,
         position.height,
       )
+
+      if (image.backgroundColor) {
+        context.fillStyle = image.backgroundColor
+        context.fillRect(
+          position.x,
+          position.y,
+          position.width,
+          position.height,
+        )
+      }
 
       context.restore()
     }
@@ -695,6 +719,7 @@ class AvatarEditor extends React.Component {
       height,
       position,
       color,
+      backgroundColor,
       // eslint-disable-next-line react/prop-types
       style,
       crossOrigin,
