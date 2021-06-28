@@ -68,14 +68,14 @@ export default class App extends React.Component {
     e.preventDefault()
 
     this.setState({
-      rotate: this.state.rotate - 90,
+      rotate: (this.state.rotate - 90) % 360 ,
     })
   }
 
   rotateRight = (e) => {
     e.preventDefault()
     this.setState({
-      rotate: this.state.rotate + 90,
+      rotate: (this.state.rotate + 90) % 360 ,
     })
   }
 
