@@ -34,7 +34,7 @@ node_modules
 # Editor-specific config folders
 .vscode
 
-dist/
+# dist/
 dist-docs/
 
 .cache
