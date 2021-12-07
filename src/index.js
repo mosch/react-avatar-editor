@@ -366,12 +366,7 @@ class AvatarEditor extends React.Component {
 
     if (image.backgroundColor) {
       context.fillStyle = image.backgroundColor
-      context.fillRect(
-        -cropRect.x,
-        -cropRect.y,
-        image.resource.width,
-        image.resource.height,
-      )
+      context.fillRect(0, 0, canvas.width, canvas.height)
     }
 
     context.drawImage(image.resource, -cropRect.x, -cropRect.y)
@@ -541,12 +536,7 @@ class AvatarEditor extends React.Component {
 
       if (image.backgroundColor) {
         context.fillStyle = image.backgroundColor
-        context.fillRect(
-          position.x,
-          position.y,
-          position.width,
-          position.height,
-        )
+        context.fillRect(0, 0, context.canvas.width, context.canvas.height)
       }
 
       context.restore()
