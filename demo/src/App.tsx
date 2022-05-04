@@ -155,7 +155,7 @@ export default class App extends React.Component<{}, State> {
           multiple={false}
         >
           {({ getRootProps, getInputProps }) => (
-            <div {...getRootProps()}>
+            <div {...getRootProps()} className="preview">
               <AvatarEditor
                 ref={this.editor}
                 scale={this.state.scale}
@@ -174,8 +174,6 @@ export default class App extends React.Component<{}, State> {
                 image={this.state.image}
                 disableCanvasRotation={this.state.disableCanvasRotation}
               />
-              <br />
-              New File:
               <input
                 name="newImage"
                 type="file"
@@ -186,6 +184,7 @@ export default class App extends React.Component<{}, State> {
           )}
         </Dropzone>
         <br />
+        <h3>Props</h3>
         Zoom:
         <input
           name="scale"
