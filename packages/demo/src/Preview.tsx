@@ -1,17 +1,15 @@
-/* eslint-env browser */
 import React from 'react'
-import { shape, number, string } from 'prop-types'
 
-export default class Preview extends React.Component {
-  static propTypes = {
-    rect: shape({
-      width: number,
-      height: number,
-    }),
-    image: string,
-    width: number,
-    height: number,
-  }
+type Props = {
+  rect: { x: number; y: number; width: number; height: number }
+  image: string
+  width: number
+  height: number
+}
+
+export default class Preview extends React.Component<Props> {
+  private canvas = React.createRef<HTMLCanvasElement>()
+  private image: HTMLImageElement | null = null
 
   componentDidMount() {
     this.redraw()
@@ -21,10 +19,11 @@ export default class Preview extends React.Component {
     this.redraw()
   }
 
-  setCanvas = canvas => (this.canvas = canvas)
-
   handleImageLoad = () => {
-    const ctx = this.canvas.getContext('2d')
+    const ctx = this.canvas.current?.getContext('2d')
+
+    if (!ctx || !this.image) return
+
     const { rect, width, height } = this.props
 
     ctx.clearRect(0, 0, width, height)
@@ -37,7 +36,7 @@ export default class Preview extends React.Component {
         Math.round(-rect.x * (width / rect.width)),
         Math.round(-rect.y * (height / rect.height)),
         Math.round(width / rect.width),
-        Math.round(height / rect.height)
+        Math.round(height / rect.height),
       )
 
       if (rect) {
@@ -51,7 +50,7 @@ export default class Preview extends React.Component {
           Math.round(rect.x * width) + 0.5,
           Math.round(rect.y * height) + 0.5,
           Math.round(rect.width * width),
-          Math.round(rect.height * height)
+          Math.round(rect.height * height),
         )
       }
     }
@@ -68,7 +67,7 @@ export default class Preview extends React.Component {
     const { width, height } = this.props
     return (
       <canvas
-        ref={this.setCanvas}
+        ref={this.canvas}
         style={{
           margin: '10px 24px 32px',
           padding: 5,

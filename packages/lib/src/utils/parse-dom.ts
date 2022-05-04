@@ -11,7 +11,7 @@
  * The drawback to this approach is that browser support is not
  * as wide - IE10 and up along with evergreen browsers.
  */
-const parseDOM = (str) => {
+const parseDOM = (str: string) => {
   const parser = typeof DOMParser === 'undefined' ? null : new DOMParser()
 
   if (!parser) {

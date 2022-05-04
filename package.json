@@ -1,100 +1,31 @@
 {
-  "name": "react-avatar-editor",
-  "version": "13.0.0",
-  "description": "Avatar / profile picture component. Resize and crop your uploaded image using a intuitive user interface.",
-  "main": "dist/index.js",
+  "name": "react-avatar-editor-mono",
+  "engines": {
+    "pnpm": "6.x"
+  },
+  "version": "1.0.0",
   "scripts": {
-    "clean": "rimraf dist && rimraf dist-docs",
-    "build": "rollup -c",
-    "watch": "rollup -c -w",
-    "lint": "eslint --cache --ext .js,.jsx src",
-    "test": "NODE_ENV=test jest",
-    "test:watch": "NODE_ENV=test jest --watch",
-    "demo:build": "parcel build docs/index.html -d dist-docs",
-    "demo:watch": "parcel docs/index.html",
-    "prepublishOnly": "yarn run lint && yarn run test && yarn run clean && yarn run build",
+    "build": "pnpm --filter react-avatar-editor build",
+    "clean": "pnpm --filter 'react-avatar-editor*' clean",
+    "demo:build": "pnpm --filter 'react-avatar-editor*' build",
+    "demo:dev": "pnpm build && pnpm --filter react-avatar-editor-demo dev",
+    "lint": "eslint . --cache --ext .ts,.tsx",
+    "prepublishOnly": "pnpm lint && pnpm build",
     "postversion": "git push --tags origin HEAD"
   },
-  "author": {
-    "name": "Moritz Schwoerer",
-    "email": "mr.mosch@gmail.com"
-  },
-  "contributors": [
-    {
-      "name": "Daniel Lehr",
-      "email": "daniellehr@gmx.de"
-    }
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/mosch/react-avatar-editor.git"
+  "devDependencies": {
+    "@types/react": "18.0.8",
+    "@typescript-eslint/eslint-plugin": "5.22.0",
+    "@typescript-eslint/parser": "5.22.0",
+    "eslint": "8.14.0",
+    "eslint-config-prettier": "8.5.0",
+    "prettier": "2.6.2",
+    "typescript": "4.6.4"
   },
   "license": "MIT",
-  "keywords": [
-    "react-component",
-    "reactjs",
-    "react",
-    "canvas",
-    "avatar",
-    "editor",
-    "profile",
-    "image"
-  ],
-  "dependencies": {
-    "@babel/plugin-transform-runtime": "^7.12.1",
-    "@babel/runtime": "^7.12.5",
-    "prop-types": "^15.7.2"
-  },
-  "devDependencies": {
-    "@babel/cli": "^7.12.1",
-    "@babel/core": "^7.12.3",
-    "@babel/plugin-proposal-class-properties": "^7.12.1",
-    "@babel/preset-env": "^7.12.1",
-    "@babel/preset-react": "^7.12.5",
-    "@rollup/plugin-babel": "^5.2.1",
-    "babel-core": "^7.0.0-bridge.0",
-    "babel-eslint": "^10.1.0",
-    "babel-jest": "^26.6.3",
-    "cssnano": "4.1.10",
-    "eslint": "7.13.0",
-    "eslint-config-prettier": "^6.15.0",
-    "eslint-config-react-app": "^6.0.0",
-    "eslint-config-standard": "^16.0.2",
-    "eslint-plugin-import": "^2.22.1",
-    "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-react": "^7.21.5",
-    "eslint-plugin-standard": "^4.1.0",
-    "jest": "26.6.3",
-    "parcel-bundler": "1.12.4",
-    "prettier": "2.2.0",
-    "prop-types": "^15.7.2",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
-    "react-dropzone": "^11.2.4",
-    "rimraf": "^3.0.2",
-    "rollup": "^2.33.3",
-    "rollup-plugin-uglify": "6.0.4",
-    "rollup-watch": "^4.3.1",
-    "snazzy": "^9.0.0"
-  },
-  "peerDependencies": {
-    "react": "^0.14.0 || ^16.0.0 || ^17.0.0 || ^18.0.0",
-    "react-dom": "^0.14.0 || ^16.0.0 || ^17.0.0 || ^18.0.0"
-  },
-  "files": [
-    "dist",
-    "src"
-  ],
   "prettier": {
     "singleQuote": true,
     "trailingComma": "all",
     "semi": false
-  },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
-  "jest": {
-    "testURL": "http://localhost"
   }
 }

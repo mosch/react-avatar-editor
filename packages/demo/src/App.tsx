@@ -1,33 +1,66 @@
-import React from 'react'
-import ReactAvatarEditor from '../src/index'
+import React, { ChangeEvent, MouseEventHandler } from 'react'
+import AvatarEditor, { type Position } from 'react-avatar-editor'
 import Dropzone from 'react-dropzone'
-import Preview from './Preview.jsx'
+import Preview from './Preview.js'
 
 import AvatarImagePath from './avatar.jpg'
 
-export default class App extends React.Component {
-  state = {
+type State = {
+  image: string | File
+  allowZoomOut: boolean
+  position: Position
+  scale: number
+  rotate: number
+  borderRadius: number
+  preview?: {
+    img: string
+    rect: {
+      x: number
+      y: number
+      width: number
+      height: number
+    }
+    scale: number
+    width: number
+    height: number
+    borderRadius: number
+  }
+  width: number
+  height: number
+  disableCanvasRotation: boolean
+  isTransparent: boolean
+  backgroundColor?: string
+}
+
+export default class App extends React.Component<{}, State> {
+  private editor = React.createRef<AvatarEditor>()
+
+  state: State = {
     image: AvatarImagePath,
     allowZoomOut: false,
     position: { x: 0.5, y: 0.5 },
     scale: 1,
     rotate: 0,
     borderRadius: 0,
-    preview: null,
+    preview: undefined,
     width: 200,
     height: 200,
     disableCanvasRotation: false,
     isTransparent: false,
-    backgroundColor: null
+    backgroundColor: undefined,
   }
 
-  handleNewImage = (e) => {
-    this.setState({ image: e.target.files[0] })
+  handleNewImage = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.[0]) {
+      this.setState({ image: e.target.files[0] })
+    }
   }
 
-  handleSave = (data) => {
-    const img = this.editor.getImageScaledToCanvas().toDataURL()
-    const rect = this.editor.getCroppingRect()
+  handleSave = () => {
+    const img = this.editor.current?.getImageScaledToCanvas().toDataURL()
+    const rect = this.editor.current?.getCroppingRect()
+
+    if (!img || !rect) return
 
     this.setState({
       preview: {
@@ -41,91 +74,75 @@ export default class App extends React.Component {
     })
   }
 
-  handleScale = (e) => {
+  handleScale = (e: ChangeEvent<HTMLInputElement>) => {
     const scale = parseFloat(e.target.value)
     this.setState({ scale })
   }
 
-  handleAllowZoomOut = ({ target: { checked: allowZoomOut } }) => {
-    this.setState({ allowZoomOut })
+  handleAllowZoomOut = (e: ChangeEvent<HTMLInputElement>) => {
+    this.setState({ allowZoomOut: e.target.checked })
   }
 
-  handleDisableCanvasRotation = ({
-    target: { checked: disableCanvasRotation },
-  }) => {
-    this.setState({ disableCanvasRotation })
+  handleDisableCanvasRotation = (e: ChangeEvent<HTMLInputElement>) => {
+    this.setState({ disableCanvasRotation: e.target.checked })
   }
 
-  rotateScale = (e) => {
-    const scale = parseFloat(e.target.value)
+  rotateScale = (e: ChangeEvent<HTMLInputElement>) => {
     e.preventDefault()
+    this.setState({ rotate: parseFloat(e.target.value) })
+  }
+
+  rotateLeft: MouseEventHandler<HTMLButtonElement> = (e) => {
+    e.preventDefault()
+    this.setState({ rotate: (this.state.rotate - 90) % 360 })
+  }
+
+  rotateRight: MouseEventHandler<HTMLButtonElement> = (e) => {
+    e.preventDefault()
+    this.setState({ rotate: (this.state.rotate + 90) % 360 })
+  }
+
+  handleBorderRadius = (e: ChangeEvent<HTMLInputElement>) => {
+    this.setState({ borderRadius: parseInt(e.target.value) })
+  }
+
+  handleXPosition = (e: ChangeEvent<HTMLInputElement>) => {
     this.setState({
-      rotate: scale,
+      position: { ...this.state.position, x: parseFloat(e.target.value) },
     })
   }
 
-  rotateLeft = (e) => {
-    e.preventDefault()
-
+  handleYPosition = (e: ChangeEvent<HTMLInputElement>) => {
     this.setState({
-      rotate: (this.state.rotate - 90) % 360 ,
+      position: { ...this.state.position, y: parseFloat(e.target.value) },
     })
   }
 
-  rotateRight = (e) => {
-    e.preventDefault()
-    this.setState({
-      rotate: (this.state.rotate + 90) % 360 ,
-    })
+  handleWidth = (e: ChangeEvent<HTMLInputElement>) => {
+    this.setState({ width: parseInt(e.target.value) })
   }
 
-  handleBorderRadius = (e) => {
-    const borderRadius = parseInt(e.target.value)
-    this.setState({ borderRadius })
+  handleHeight = (e: ChangeEvent<HTMLInputElement>) => {
+    this.setState({ height: parseInt(e.target.value) })
   }
 
-  handleXPosition = (e) => {
-    const x = parseFloat(e.target.value)
-    this.setState({ position: { ...this.state.position, x } })
-  }
-
-  handleYPosition = (e) => {
-    const y = parseFloat(e.target.value)
-    this.setState({ position: { ...this.state.position, y } })
-  }
-
-  handleWidth = (e) => {
-    const width = parseInt(e.target.value)
-    this.setState({ width })
-  }
-
-  handleHeight = (e) => {
-    const height = parseInt(e.target.value)
-    this.setState({ height })
-  }
-
-  logCallback(e) {
-    // eslint-disable-next-line no-console
+  logCallback(e: any) {
     console.log('callback', e)
   }
 
-  setEditorRef = (editor) => {
-    if (editor) this.editor = editor
-  }
-
-  handlePositionChange = (position) => {
+  handlePositionChange = (position: Position) => {
     this.setState({ position })
   }
 
-  setBackgroundColor = (e) => {
+  setBackgroundColor = (e: ChangeEvent<HTMLInputElement>) => {
     this.setState({ backgroundColor: e.target.value })
   }
 
-  setTransparent = (e) => {
-    const isTransparent = e.target.checked;
+  setTransparent = (e: ChangeEvent<HTMLInputElement>) => {
+    const isTransparent = e.target.checked
     // set color to white initially
-    const backgroundColor = isTransparent ? '#FFFFFF' : null
-    
+    const backgroundColor = isTransparent ? '#fff' : undefined
+
     this.setState({ backgroundColor, isTransparent })
   }
 
@@ -133,27 +150,20 @@ export default class App extends React.Component {
     return (
       <div>
         <Dropzone
-          onDrop={(acceptedFiles) => {
-            this.setState({ image: acceptedFiles[0] })
-          }}
+          onDrop={([image]) => this.setState({ image })}
           noClick
           multiple={false}
-          style={{
-            width: this.state.width,
-            height: this.state.height,
-            marginBottom: '35px',
-          }}
         >
           {({ getRootProps, getInputProps }) => (
-            <div {...getRootProps()}>
-              <ReactAvatarEditor
-                ref={this.setEditorRef}
-                scale={parseFloat(this.state.scale)}
+            <div {...getRootProps()} className="preview">
+              <AvatarEditor
+                ref={this.editor}
+                scale={this.state.scale}
                 width={this.state.width}
                 height={this.state.height}
                 position={this.state.position}
                 onPositionChange={this.handlePositionChange}
-                rotate={parseFloat(this.state.rotate)}
+                rotate={this.state.rotate}
                 borderRadius={
                   this.state.width / (100 / this.state.borderRadius)
                 }
@@ -162,22 +172,19 @@ export default class App extends React.Component {
                 onLoadSuccess={this.logCallback.bind(this, 'onLoadSuccess')}
                 onImageReady={this.logCallback.bind(this, 'onImageReady')}
                 image={this.state.image}
-                className="editor-canvas"
                 disableCanvasRotation={this.state.disableCanvasRotation}
               />
-              <br />
-              New File:
               <input
                 name="newImage"
                 type="file"
                 onChange={this.handleNewImage}
                 {...getInputProps()}
-                style={{ display: 'initial' }}
               />
             </div>
           )}
         </Dropzone>
         <br />
+        <h3>Props</h3>
         Zoom:
         <input
           name="scale"
@@ -264,9 +271,9 @@ export default class App extends React.Component {
           checked={this.state.disableCanvasRotation}
         />
         <br />
-        Rotation Scale:
+        Rotation:
         <input
-          name="scale"
+          name="rotation"
           type="range"
           onChange={this.rotateScale}
           min="0"
@@ -276,44 +283,53 @@ export default class App extends React.Component {
         />
         <br />
         Transparent image?
-        <input type="checkbox" onChange={this.setTransparent} defaultChecked={this.state.isTransparent}></input>
+        <input
+          type="checkbox"
+          onChange={this.setTransparent}
+          defaultChecked={this.state.isTransparent}
+        ></input>
         <br />
-        {this.state.isTransparent && <div style={{ marginLeft: '1rem' }}>
-          Background color: 
-          <input
-            name="backgroundColor"
-            type="color"
-            defaultValue={this.state.backgroundColor}
-            onChange={this.setBackgroundColor}
-          />
-          <br />
-        </div>}
+        {this.state.isTransparent && (
+          <div style={{ marginLeft: '1rem' }}>
+            Background color:
+            <input
+              name="backgroundColor"
+              type="color"
+              defaultValue={this.state.backgroundColor}
+              onChange={this.setBackgroundColor}
+            />
+            <br />
+          </div>
+        )}
         <br />
         <input type="button" onClick={this.handleSave} value="Preview" />
         <br />
-        {!!this.state.preview && (
-          <img
-            src={this.state.preview.img}
-            style={{
-              borderRadius: `${
-                (Math.min(this.state.preview.height, this.state.preview.width) +
-                  10) *
-                (this.state.preview.borderRadius / 2 / 100)
-              }px`,
-            }}
-          />
-        )}
-        {!!this.state.preview && (
-          <Preview
-            width={
-              this.state.preview.scale < 1
-                ? this.state.preview.width
-                : (this.state.preview.height * 478) / 270
-            }
-            height={this.state.preview.height}
-            image="avatar.jpg"
-            rect={this.state.preview.rect}
-          />
+        {this.state.preview && (
+          <>
+            <img
+              src={this.state.preview.img}
+              style={{
+                borderRadius: `${
+                  (Math.min(
+                    this.state.preview.height,
+                    this.state.preview.width,
+                  ) +
+                    10) *
+                  (this.state.preview.borderRadius / 2 / 100)
+                }px`,
+              }}
+            />
+            <Preview
+              width={
+                this.state.preview.scale < 1
+                  ? this.state.preview.width
+                  : (this.state.preview.height * 478) / 270
+              }
+              height={this.state.preview.height}
+              image={AvatarImagePath}
+              rect={this.state.preview.rect}
+            />
+          </>
         )}
       </div>
     )

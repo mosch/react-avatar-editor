@@ -2,6 +2,8 @@
 logs
 *.log
 .eslintcache
+test-results
+screenshot-*.png
 
 # Runtime data
 pids
