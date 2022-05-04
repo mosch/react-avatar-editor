@@ -3,11 +3,12 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "build": "vite build"
+    "build": "vite build",
+    "clean": "rm -rf dist"
   },
   "dependencies": {
     "react": "18.1.0",
-    "react-avatar-editor": "file:..",
+    "react-avatar-editor": "workspace:*",
     "react-dom": "18.1.0",
     "react-dropzone": "^11.2.4"
   },

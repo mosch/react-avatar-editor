@@ -1,65 +1,27 @@
 {
-  "name": "react-avatar-editor",
+  "name": "react-avatar-editor-mono",
   "engines": {
     "pnpm": "6.x"
   },
-  "version": "13.0.0",
-  "description": "Avatar / profile picture component. Resize and crop your uploaded image using a intuitive user interface.",
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
-  "sideEffects": false,
+  "version": "1.0.0",
   "scripts": {
-    "build": "tsup",
-    "lint": "eslint --cache --ext .ts,.tsx src",
-    "demo:build": "pnpm build && cd demo && pnpm i && pnpm build",
+    "build": "pnpm --filter react-avatar-editor build",
+    "clean": "pnpm --filter 'react-avatar-editor*' clean",
+    "demo:build": "pnpm --filter 'react-avatar-editor*' build",
+    "demo:dev": "pnpm build && pnpm --filter react-avatar-editor-demo dev",
+    "lint": "eslint . --cache --ext .ts,.tsx",
     "prepublishOnly": "pnpm lint && pnpm build",
     "postversion": "git push --tags origin HEAD"
   },
-  "author": {
-    "name": "Moritz Schwoerer",
-    "email": "mr.mosch@gmail.com"
-  },
-  "contributors": [
-    {
-      "name": "Daniel Lehr",
-      "email": "daniellehr@gmx.de"
-    }
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/mosch/react-avatar-editor"
-  },
-  "license": "MIT",
-  "keywords": [
-    "react-component",
-    "reactjs",
-    "react",
-    "canvas",
-    "avatar",
-    "editor",
-    "profile",
-    "image"
-  ],
-  "dependencies": {},
   "devDependencies": {
-    "@types/react": "18.0.8",
     "@typescript-eslint/eslint-plugin": "5.22.0",
     "@typescript-eslint/parser": "5.22.0",
     "eslint": "8.14.0",
     "eslint-config-prettier": "8.5.0",
     "prettier": "2.6.2",
-    "tsup": "5.12.6",
     "typescript": "4.6.4"
   },
-  "peerDependencies": {
-    "react": "^0.14.0 || ^16.0.0 || ^17.0.0 || ^18.0.0",
-    "react-dom": "^0.14.0 || ^16.0.0 || ^17.0.0 || ^18.0.0"
-  },
-  "files": [
-    "dist",
-    "src"
-  ],
+  "license": "MIT",
   "prettier": {
     "singleQuote": true,
     "trailingComma": "all",

@@ -1,0 +1,47 @@
+{
+  "name": "react-avatar-editor",
+  "version": "13.0.0",
+  "description": "Avatar / profile picture component. Resize and crop your uploaded image using a intuitive user interface.",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "clean": "rm -rf dist"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "dependencies": {},
+  "peerDependencies": {
+    "react": "^0.14.0 || ^16.0.0 || ^17.0.0 || ^18.0.0",
+    "react-dom": "^0.14.0 || ^16.0.0 || ^17.0.0 || ^18.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "18.0.8",
+    "tsup": "5.12.6"
+  },
+  "license": "MIT",
+  "keywords": [
+    "react-component",
+    "reactjs",
+    "react",
+    "canvas",
+    "avatar",
+    "editor",
+    "profile",
+    "image"
+  ],
+  "author": {
+    "name": "Moritz Schwoerer",
+    "email": "mr.mosch@gmail.com"
+  },
+  "contributors": [
+    {
+      "name": "Daniel Lehr",
+      "email": "daniellehr@gmx.de"
+    }
+  ]
+}
