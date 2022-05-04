@@ -6,6 +6,9 @@
     "build": "vite build",
     "clean": "rm -rf dist"
   },
+  "exports": {
+    "./serve": "./serve.ts"
+  },
   "dependencies": {
     "react": "18.1.0",
     "react-avatar-editor": "workspace:*",

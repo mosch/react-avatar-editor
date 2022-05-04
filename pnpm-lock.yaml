@@ -47,10 +47,12 @@ importers:
     specifiers:
       '@playwright/test': ^1.21.1
       '@types/react': 18.0.8
+      react-avatar-editor-demo: workspace:*
       tsup: 5.12.6
     devDependencies:
       '@playwright/test': 1.21.1
       '@types/react': 18.0.8
+      react-avatar-editor-demo: link:../demo
       tsup: 5.12.6_typescript@4.6.4
 
 packages:

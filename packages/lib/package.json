@@ -23,7 +23,8 @@
   "devDependencies": {
     "@types/react": "18.0.8",
     "tsup": "5.12.6",
-    "@playwright/test": "^1.21.1"
+    "@playwright/test": "^1.21.1",
+    "react-avatar-editor-demo": "workspace:*"
   },
   "license": "MIT",
   "keywords": [
