@@ -237,28 +237,6 @@ export default class App extends React.Component<{}, State> {
           value={this.state.height}
         />
         <br />
-        X Position:
-        <input
-          name="scale"
-          type="range"
-          onChange={this.handleXPosition}
-          min="0"
-          max="1"
-          step="0.01"
-          value={this.state.position.x}
-        />
-        <br />
-        Y Position:
-        <input
-          name="scale"
-          type="range"
-          onChange={this.handleYPosition}
-          min="0"
-          max="1"
-          step="0.01"
-          value={this.state.position.y}
-        />
-        <br />
         Rotate:
         <button onClick={this.rotateLeft}>Left</button>
         <button onClick={this.rotateRight}>Right</button>
