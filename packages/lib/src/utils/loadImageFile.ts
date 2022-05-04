@@ -1,7 +1,7 @@
-import loadImageURL from './load-image-url'
+import { loadImageURL } from './loadImageURL'
 
-export default function loadImageFile(file: File) {
-  return new Promise<HTMLImageElement>((resolve, reject) => {
+export const loadImageFile = (file: File) =>
+  new Promise<HTMLImageElement>((resolve, reject) => {
     const reader = new FileReader()
     reader.onload = (e) => {
       try {
@@ -16,4 +16,3 @@ export default function loadImageFile(file: File) {
     }
     reader.readAsDataURL(file)
   })
-}

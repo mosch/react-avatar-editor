@@ -1,85 +1,10 @@
-import React from 'react'
+import React, { type CSSProperties, type MouseEventHandler } from 'react'
 
-import loadImageURL from './utils/load-image-url'
-import loadImageFile from './utils/load-image-file'
-
-const isTouchDevice =
-  typeof window !== 'undefined' &&
-  typeof navigator !== 'undefined' &&
-  ('ontouchstart' in window || navigator.maxTouchPoints > 0)
-
-const isFileAPISupported = typeof File !== 'undefined'
-
-const isPassiveSupported = () => {
-  // https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
-  let passiveSupported = false
-  try {
-    const options = Object.defineProperty({}, 'passive', {
-      get: function () {
-        passiveSupported = true
-      },
-    })
-
-    const handler = () => {}
-    window.addEventListener('test', handler, options)
-    window.removeEventListener('test', handler, options)
-  } catch (err) {
-    passiveSupported = false
-  }
-  return passiveSupported
-}
-
-const draggableEvents = {
-  touch: {
-    react: {
-      down: 'onTouchStart',
-      mouseDown: 'onMouseDown',
-      drag: 'onTouchMove',
-      move: 'onTouchMove',
-      mouseMove: 'onMouseMove',
-      up: 'onTouchEnd',
-      mouseUp: 'onMouseUp',
-    },
-    native: {
-      down: 'touchstart',
-      mouseDown: 'mousedown',
-      drag: 'touchmove',
-      move: 'touchmove',
-      mouseMove: 'mousemove',
-      up: 'touchend',
-      mouseUp: 'mouseup',
-    },
-  },
-  desktop: {
-    react: {
-      down: 'onMouseDown',
-      mouseDown: 'onMouseDown',
-      drag: 'onDragOver',
-      move: 'onMouseMove',
-      mouseMove: 'onMouseMove',
-      up: 'onMouseUp',
-      mouseUp: 'onMouseUp',
-    },
-    native: {
-      down: 'mousedown',
-      mouseDown: 'mousedown',
-      drag: 'dragStart',
-      move: 'mousemove',
-      mouseMove: 'mousemove',
-      up: 'mouseup',
-      mouseUp: 'mouseup',
-    },
-  },
-} as const
-
-const deviceEvents = isTouchDevice
-  ? draggableEvents.touch
-  : draggableEvents.desktop
-
-let pixelRatio =
-  typeof window !== 'undefined' && window.devicePixelRatio
-    ? window.devicePixelRatio
-    : 1
+import { loadImageURL } from './utils/loadImageURL'
+import { loadImageFile } from './utils/loadImageFile'
+import { isPassiveSupported } from './utils/isPassiveSupported'
+import { isTouchDevice } from './utils/isTouchDevice'
+import { isFileAPISupported } from './utils/isFileAPISupported'
 
 // Draws a rounded rectangle on a 2D context.
 const drawRoundedRect = (
@@ -149,7 +74,7 @@ interface ImageState {
 export interface Props {
   width: number
   height: number
-  style?: any
+  style?: CSSProperties
   image?: string | File
   border?: BorderType
   position?: Position
@@ -188,6 +113,10 @@ type PropsWithDefaults = typeof AvatarEditor.defaultProps &
 
 class AvatarEditor extends React.Component<PropsWithDefaults, State> {
   private canvas = React.createRef<HTMLCanvasElement>()
+  private pixelRatio =
+    typeof window !== 'undefined' && window.devicePixelRatio
+      ? window.devicePixelRatio
+      : 1
 
   static defaultProps = {
     scale: 1,
@@ -213,36 +142,22 @@ class AvatarEditor extends React.Component<PropsWithDefaults, State> {
     // scaling by the devicePixelRatio can impact performance on mobile as it creates a very large canvas.
     // This is an override to increase performance.
     if (this.props.disableHiDPIScaling) {
-      pixelRatio = 1
+      this.pixelRatio = 1
     }
     const context = this.getContext()
+
     if (this.props.image) {
       this.loadImage(this.props.image)
     }
     this.paint(context)
-    if (document) {
-      const passiveSupported = isPassiveSupported()
-      const options = passiveSupported ? { passive: false } : false
 
-      const nativeEvents = deviceEvents.native
-      document.addEventListener(
-        nativeEvents.move,
-        this.handleMouseMove,
-        options,
-      )
-      document.addEventListener(nativeEvents.up, this.handleMouseUp, options)
-      if (isTouchDevice) {
-        document.addEventListener(
-          nativeEvents.mouseMove,
-          this.handleMouseMove,
-          options,
-        )
-        document.addEventListener(
-          nativeEvents.mouseUp,
-          this.handleMouseUp,
-          options,
-        )
-      }
+    const options = isPassiveSupported() ? { passive: false } : false
+    document.addEventListener('mousemove', this.handleMouseMove, options)
+    document.addEventListener('mouseup', this.handleMouseUp, options)
+
+    if (isTouchDevice) {
+      document.addEventListener('touchstart', this.handleMouseMove, options)
+      document.addEventListener('touchend', this.handleMouseUp, options)
     }
   }
 
@@ -302,22 +217,12 @@ class AvatarEditor extends React.Component<PropsWithDefaults, State> {
   }
 
   componentWillUnmount() {
-    if (document) {
-      const nativeEvents = deviceEvents.native
-      document.removeEventListener(
-        nativeEvents.move,
-        this.handleMouseMove,
-        false,
-      )
-      document.removeEventListener(nativeEvents.up, this.handleMouseUp, false)
-      if (isTouchDevice) {
-        document.removeEventListener(
-          nativeEvents.move,
-          this.handleMouseMove,
-          false,
-        )
-        document.removeEventListener(nativeEvents.up, this.handleMouseUp, false)
-      }
+    document.removeEventListener('mousemove', this.handleMouseMove, false)
+    document.removeEventListener('mouseup', this.handleMouseUp, false)
+
+    if (isTouchDevice) {
+      document.removeEventListener('touchstart', this.handleMouseMove, false)
+      document.removeEventListener('touchend', this.handleMouseUp, false)
     }
   }
 
@@ -336,15 +241,12 @@ class AvatarEditor extends React.Component<PropsWithDefaults, State> {
 
     const [borderX, borderY] = this.getBorders(border)
 
-    const canvasWidth = width
-    const canvasHeight = height
-
     if (this.isVertical()) {
-      canvas.width = canvasHeight
-      canvas.height = canvasWidth
+      canvas.width = height
+      canvas.height = width
     } else {
-      canvas.width = canvasWidth
-      canvas.height = canvasHeight
+      canvas.width = width
+      canvas.height = height
     }
 
     canvas.width += borderX * 2
@@ -539,10 +441,10 @@ class AvatarEditor extends React.Component<PropsWithDefaults, State> {
     const imageRatio = height / width
 
     if (canvasRatio > imageRatio) {
-      newHeight = this.getDimensions().height
+      newHeight = dimensions.height
       newWidth = width * (newHeight / height)
     } else {
-      newWidth = this.getDimensions().width
+      newWidth = dimensions.width
       newHeight = height * (newWidth / width)
     }
 
@@ -553,28 +455,18 @@ class AvatarEditor extends React.Component<PropsWithDefaults, State> {
   }
 
   clearImage = () => {
-    if (!this.canvas.current) return
+    const canvas = this.getCanvas()
+    const context = this.getContext()
 
-    const context = this.canvas.current.getContext('2d')
-
-    if (!context) return
-
-    context.clearRect(
-      0,
-      0,
-      this.canvas.current.width,
-      this.canvas.current.height,
-    )
-    this.setState({
-      image: defaultEmptyImage,
-    })
+    context.clearRect(0, 0, canvas.width, canvas.height)
+    this.setState({ image: defaultEmptyImage })
   }
 
   paintImage(
     context: CanvasRenderingContext2D,
     image: ImageState,
     border: number,
-    scaleFactor = pixelRatio,
+    scaleFactor = this.pixelRatio,
   ) {
     if (!image.resource) return
 
@@ -640,7 +532,7 @@ class AvatarEditor extends React.Component<PropsWithDefaults, State> {
 
   paint(context: CanvasRenderingContext2D) {
     context.save()
-    context.scale(pixelRatio, pixelRatio)
+    context.scale(this.pixelRatio, this.pixelRatio)
     context.translate(0, 0)
     context.fillStyle = 'rgba(' + this.props.color.slice(0, 4).join(',') + ')'
 
@@ -674,7 +566,7 @@ class AvatarEditor extends React.Component<PropsWithDefaults, State> {
     context.restore()
   }
 
-  handleMouseDown = (e: MouseEvent | TouchEvent) => {
+  handleMouseDown: MouseEventHandler<HTMLCanvasElement> = (e) => {
     // if e is a touch event, preventDefault keeps
     // corresponding mouse events from also being fired
     // later.
@@ -777,21 +669,19 @@ class AvatarEditor extends React.Component<PropsWithDefaults, State> {
     } = this.props
 
     const dimensions = this.getDimensions()
-    const defaultStyle = {
+
+    const defaultStyle: CSSProperties = {
       width: dimensions.canvas.width,
       height: dimensions.canvas.height,
       cursor: this.state.drag ? 'grabbing' : 'grab',
       touchAction: 'none',
     }
 
-    const attributes = {
-      width: dimensions.canvas.width * pixelRatio,
-      height: dimensions.canvas.height * pixelRatio,
-      style: {
-        ...defaultStyle,
-        ...style,
-      },
-      [deviceEvents.react.down]: this.handleMouseDown,
+    const attributes: JSX.IntrinsicElements['canvas'] = {
+      width: dimensions.canvas.width * this.pixelRatio,
+      height: dimensions.canvas.height * this.pixelRatio,
+      onMouseDown: this.handleMouseDown,
+      style: { ...defaultStyle, ...style },
     }
 
     return React.createElement('canvas', {
