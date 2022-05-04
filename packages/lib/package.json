@@ -8,7 +8,8 @@
   "sideEffects": false,
   "scripts": {
     "build": "tsup",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "test": "playwright test"
   },
   "files": [
     "dist",
@@ -21,7 +22,8 @@
   },
   "devDependencies": {
     "@types/react": "18.0.8",
-    "tsup": "5.12.6"
+    "tsup": "5.12.6",
+    "@playwright/test": "^1.21.1"
   },
   "license": "MIT",
   "keywords": [
