@@ -271,9 +271,9 @@ export default class App extends React.Component<{}, State> {
           checked={this.state.disableCanvasRotation}
         />
         <br />
-        Rotation Scale:
+        Rotation:
         <input
-          name="scale"
+          name="rotation"
           type="range"
           onChange={this.rotateScale}
           min="0"

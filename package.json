@@ -14,6 +14,8 @@
     "postversion": "git push --tags origin HEAD"
   },
   "devDependencies": {
+    "@playwright/test": "^1.21.1",
+    "@types/react": "18.0.8",
     "@typescript-eslint/eslint-plugin": "5.22.0",
     "@typescript-eslint/parser": "5.22.0",
     "eslint": "8.14.0",
