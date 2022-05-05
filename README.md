@@ -18,19 +18,20 @@ Resize, crop and rotate your uploaded image using a simple and clean user interf
 
 ## Install
 
-Just use yarn or npm to add it to your project:
+Just use your favorite package manager to add `react-avatar-editor` to your project:
 
 ```sh
 yarn add react-avatar-editor
+
 npm i --save react-avatar-editor
-pnpm i react-avatar-editor
+
+pnpm add react-avatar-editor
 ```
 
-## Demo
+## [Demo](https://react-avatar-editor.netlify.com/)
 
 ![](https://thumbs.gfycat.com/FlawedBlushingGermanwirehairedpointer-size_restricted.gif)
 
-[Demo](https://react-avatar-editor.netlify.com/)
 
 ## Usage
 
@@ -191,5 +192,5 @@ For development you can use following build tools:
 
 ### Kudos
 
-Kudos and thanks to [danlee](https://github.com/dan-lee) for the work & many contributions to this project!
+Kudos and thanks to [dan-lee](https://github.com/dan-lee) for the work & many contributions to this project!
 Also [oyeanuj](https://github.com/oyeanuj), [mtlewis](https://github.com/mtlewis) and [hu9o](https://github.com/hu9o) and all other awesome people contributing to this in any way.
