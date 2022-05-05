@@ -4,30 +4,35 @@
 <a href="https://npmjs.org/package/react-avatar-editor"><img alt="Downloads" src="http://img.shields.io/npm/dm/react-avatar-editor.svg"></a>
 [![Build Status](https://travis-ci.org/mosch/react-avatar-editor.svg?branch=master)](https://travis-ci.org/mosch/react-avatar-editor)
 
-Facebook like, avatar / profile picture component.
-Resize, crop and rotate your uploaded image using a clear user interface.
+Avatar / profile picture cropping component (like on Facebook). 
+Resize, crop and rotate your uploaded image using a simple and clean user interface.
 
-# Install
+## Features
+
+- Fully typed, written in TypeScript
+- Provide your own input controls
+- Resize
+- Crop
+- Rotate
+- Rounded or square image result 
+
+## Install
 
 Just use yarn or npm to add it to your project:
 
-```
+```sh
 yarn add react-avatar-editor
+npm i --save react-avatar-editor
+pnpm i react-avatar-editor
 ```
 
-respective
-
-```
-npm install --save react-avatar-editor
-```
-
-# Demo
+## Demo
 
 ![](https://thumbs.gfycat.com/FlawedBlushingGermanwirehairedpointer-size_restricted.gif)
 
 [Demo](https://react-avatar-editor.netlify.com/)
 
-# Usage
+## Usage
 
 ```javascript
 import React from 'react'
@@ -52,7 +57,7 @@ class MyEditor extends React.Component {
 export default MyEditor
 ```
 
-## Props
+### Props
 
 | Prop                   | Type             | Description                                                                                                                                                                                                                                                          |
 | ---------------------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -79,7 +84,7 @@ export default MyEditor
 | disableBoundaryChecks  | Boolean          | Set to `true` to allow the image to be moved outside the cropping boundary.                                                                                                                                                                                          |
 | disableHiDPIScaling    | Boolean          | Set to `true` to disable devicePixelRatio based canvas scaling. Can improve perfermance of very large canvases on mobile devices.                                                                                                                                    |
 
-## Accessing the resulting image
+### Accessing the resulting image
 
 The resulting image will have the same resolution as the original image, regardless of the editor's size.
 If you want the image sized in the dimensions of the canvas you can use `getImageScaledToCanvas`.
@@ -119,7 +124,7 @@ class MyEditor extends React.Component {
 export default MyEditor
 ```
 
-## Adding drag and drop
+### Adding drag and drop
 
 We recommend using [react-dropzone](https://github.com/react-dropzone/react-dropzone). It allows you to add
 drag and drop support to anything really easy. Here is an example how to use it with react-avatar-editor:
@@ -158,7 +163,7 @@ class MyEditor extends React.Component {
 }
 ```
 
-## Accessing the cropping rectangle
+### Accessing the cropping rectangle
 
 Sometimes you will need to get the cropping rectangle (the coordinates of the area of the image to keep),
 for example in case you intend to perform the actual cropping server-side.
@@ -180,7 +185,7 @@ fetch(canvas)
 <img src={imageURL} ... />
 ```
 
-# Contributing
+## Contributing
 
 For development you can use following build tools:
 
@@ -189,7 +194,7 @@ For development you can use following build tools:
 - `npm run demo:build`: Builds the demo based on the dist file `dist/index.js`
 - `npm run demo:watch`: Run webpack-dev-server. Check demo website [localhost:8080](http://localhost:8080)
 
-## Kudos
+### Kudos
 
-Kudos and thanks to [danlee](https://github.com/dan-lee) for the imporant work & many contributions to this project!
-Also thanks to [oyeanuj](https://github.com/oyeanuj), [mtlewis](https://github.com/mtlewis) and [hu9o](https://github.com/hu9o) and all other awesome people contributing to this.
+Kudos and thanks to [danlee](https://github.com/dan-lee) for the work & many contributions to this project!
+Also [oyeanuj](https://github.com/oyeanuj), [mtlewis](https://github.com/mtlewis) and [hu9o](https://github.com/hu9o) and all other awesome people contributing to this in any way.
