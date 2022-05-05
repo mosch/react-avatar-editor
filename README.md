@@ -38,20 +38,18 @@ pnpm i react-avatar-editor
 import React from 'react'
 import AvatarEditor from 'react-avatar-editor'
 
-class MyEditor extends React.Component {
-  render() {
-    return (
-      <AvatarEditor
-        image="http://example.com/initialimage.jpg"
-        width={250}
-        height={250}
-        border={50}
-        color={[255, 255, 255, 0.6]} // RGBA
-        scale={1.2}
-        rotate={0}
-      />
-    )
-  }
+const MyEditor = () => {
+  return (
+    <AvatarEditor
+      image="http://example.com/initialimage.jpg"
+      width={250}
+      height={250}
+      border={50}
+      color={[255, 255, 255, 0.6]} // RGBA
+      scale={1.2}
+      rotate={0}
+    />
+  )
 }
 
 export default MyEditor
@@ -93,30 +91,31 @@ If you want the image sized in the dimensions of the canvas you can use `getImag
 import React from 'react'
 import AvatarEditor from 'react-avatar-editor'
 
-class MyEditor extends React.Component {
-  onClickSave = () => {
-    if (this.editor) {
-      // This returns a HTMLCanvasElement, it can be made into a data URL or a blob,
-      // drawn on another canvas, or added to the DOM.
-      const canvas = this.editor.getImage()
-
-      // If you want the image resized to the canvas size (also a HTMLCanvasElement)
-      const canvasScaled = this.editor.getImageScaledToCanvas()
-    }
-  }
-
-  setEditorRef = (editor) => (this.editor = editor)
+const MyEditor = () => {
+  const editor = useRef(null);
 
   render() {
     return (
-      <AvatarEditor
-        ref={this.setEditorRef}
-        image="http://example.com/initialimage.jpg"
-        width={250}
-        height={250}
-        border={50}
-        scale={1.2}
-      />
+      <div>
+        <AvatarEditor
+          ref={editor}
+          image="http://example.com/initialimage.jpg"
+          width={250}
+          height={250}
+          border={50}
+          scale={1.2}
+        />
+        <button onClick={() => {
+          if (this.editor) {
+            // This returns a HTMLCanvasElement, it can be made into a data URL or a blob,
+            // drawn on another canvas, or added to the DOM.
+            const canvas = editor.current.getImage()
+
+            // If you want the image resized to the canvas size (also a HTMLCanvasElement)
+            const canvasScaled = editor.current.getImageScaledToCanvas()
+          }
+        }}>Save</button>
+      </div>
     )
   }
 }
@@ -134,32 +133,24 @@ import React from 'react'
 import AvatarEditor from 'react-avatar-editor'
 import Dropzone from 'react-dropzone'
 
-class MyEditor extends React.Component {
-  state = {
-    image: 'http://example.com/initialimage.jpg',
-  }
+const MyEditor = () => {
+  const [image, setImage] = useState('http://example.com/initialimage.jpg')
 
-  handleDrop = (dropped) => {
-    this.setState({ image: dropped[0] })
-  }
-
-  render() {
-    return (
-      <Dropzone
-        onDrop={this.handleDrop}
-        noClick
-        noKeyboard
-        style={{ width: '250px', height: '250px' }}
-      >
-        {({ getRootProps, getInputProps }) => (
-          <div {...getRootProps()}>
-            <AvatarEditor width={250} height={250} image={this.state.image} />
-            <input {...getInputProps()} />
-          </div>
-        )}
-      </Dropzone>
-    )
-  }
+  return (
+    <Dropzone
+      onDrop={(dropped) => setImage(dropped[0])}
+      noClick
+      noKeyboard
+      style={{ width: '250px', height: '250px' }}
+    >
+      {({ getRootProps, getInputProps }) => (
+        <div {...getRootProps()}>
+          <AvatarEditor width={250} height={250} image={this.state.image} />
+          <input {...getInputProps()} />
+        </div>
+      )}
+    </Dropzone>
+  )
 }
 ```
 
@@ -175,13 +166,17 @@ like `getImage()`.
 _Note that:_ `getImage()` returns a canvas element and if you want to use it in `src` attribute of `img`, convert it into a blob url.
 
 ```js
-const canvas = this.editor.getImage().toDataURL();
-let imageURL;
-fetch(canvas)
-  .then(res => res.blob())
-  .then(blob => (imageURL = window.URL.createObjectURL(blob)));
+const getImageUrl = async () => {
+  const dataUrl = editor.getImage().toDataURL()
+  const result = await fetch(dataUrl)
+  const blob = await res.blob()
+
+  return window.URL.createObjectURL(blob)
+}
 
 // Usage
+const imageURL = await getImageUrl()
+
 <img src={imageURL} ... />
 ```
 
