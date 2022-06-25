@@ -1,4 +1,4 @@
-import React, { TouchEventHandler, type CSSProperties, type MouseEventHandler } from 'react'
+import React, { type TouchEventHandler, type CSSProperties, type MouseEventHandler } from 'react'
 
 import { loadImageURL } from './utils/loadImageURL'
 import { loadImageFile } from './utils/loadImageFile'
