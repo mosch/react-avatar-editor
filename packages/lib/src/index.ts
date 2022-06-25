@@ -1,4 +1,4 @@
-import React, { type CSSProperties, type MouseEventHandler } from 'react'
+import React, { TouchEventHandler, type CSSProperties, type MouseEventHandler } from 'react'
 
 import { loadImageURL } from './utils/loadImageURL'
 import { loadImageFile } from './utils/loadImageFile'
@@ -156,7 +156,7 @@ class AvatarEditor extends React.Component<PropsWithDefaults, State> {
     document.addEventListener('mouseup', this.handleMouseUp, options)
 
     if (isTouchDevice) {
-      document.addEventListener('touchstart', this.handleMouseMove, options)
+      document.addEventListener('touchmove', this.handleMouseMove, options)
       document.addEventListener('touchend', this.handleMouseUp, options)
     }
   }
@@ -221,7 +221,7 @@ class AvatarEditor extends React.Component<PropsWithDefaults, State> {
     document.removeEventListener('mouseup', this.handleMouseUp, false)
 
     if (isTouchDevice) {
-      document.removeEventListener('touchstart', this.handleMouseMove, false)
+      document.removeEventListener('touchmove', this.handleMouseMove, false)
       document.removeEventListener('touchend', this.handleMouseUp, false)
     }
   }
@@ -569,6 +569,13 @@ class AvatarEditor extends React.Component<PropsWithDefaults, State> {
     this.setState({ drag: true, mx: undefined, my: undefined })
   }
 
+  handleTouchStart: TouchEventHandler<HTMLCanvasElement> = (e) => {
+    // if e is a touch event, preventDefault keeps
+    // corresponding mouse events from also being fired
+    // later.
+    this.setState({ drag: true, mx: undefined, my: undefined })
+  }
+
   handleMouseUp = () => {
     if (this.state.drag) {
       this.setState({ drag: false })
@@ -676,6 +683,7 @@ class AvatarEditor extends React.Component<PropsWithDefaults, State> {
       width: dimensions.canvas.width * this.pixelRatio,
       height: dimensions.canvas.height * this.pixelRatio,
       onMouseDown: this.handleMouseDown,
+      onTouchStart: this.handleTouchStart,
       style: { ...defaultStyle, ...style },
     }
 
