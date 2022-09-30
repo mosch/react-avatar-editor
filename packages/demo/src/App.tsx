@@ -30,6 +30,7 @@ type State = {
   disableCanvasRotation: boolean
   isTransparent: boolean
   backgroundColor?: string
+  showGrid: boolean
 }
 
 export default class App extends React.Component<{}, State> {
@@ -48,6 +49,7 @@ export default class App extends React.Component<{}, State> {
     disableCanvasRotation: false,
     isTransparent: false,
     backgroundColor: undefined,
+    showGrid: false,
   }
 
   handleNewImage = (e: ChangeEvent<HTMLInputElement>) => {
@@ -146,6 +148,9 @@ export default class App extends React.Component<{}, State> {
     this.setState({ backgroundColor, isTransparent })
   }
 
+  handleShowGrid = (e: ChangeEvent<HTMLInputElement>) =>
+    this.setState({ showGrid: e.target.checked })
+
   render() {
     return (
       <div>
@@ -162,6 +167,7 @@ export default class App extends React.Component<{}, State> {
                 width={this.state.width}
                 height={this.state.height}
                 position={this.state.position}
+                showGrid={this.state.showGrid}
                 onPositionChange={this.handlePositionChange}
                 rotate={this.state.rotate}
                 borderRadius={
@@ -185,7 +191,7 @@ export default class App extends React.Component<{}, State> {
         </Dropzone>
         <br />
         <h3>Props</h3>
-        Zoom:
+        Zoom:{' '}
         <input
           name="scale"
           type="range"
@@ -202,6 +208,13 @@ export default class App extends React.Component<{}, State> {
           type="checkbox"
           onChange={this.handleAllowZoomOut}
           checked={this.state.allowZoomOut}
+        />
+        <br />
+        Show grid:{' '}
+        <input
+          type="checkbox"
+          checked={this.state.showGrid}
+          onChange={this.handleShowGrid}
         />
         <br />
         Border radius:
@@ -285,6 +298,7 @@ export default class App extends React.Component<{}, State> {
         {this.state.preview && (
           <>
             <img
+              alt=""
               src={this.state.preview.img}
               style={{
                 borderRadius: `${
