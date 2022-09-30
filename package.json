@@ -1,7 +1,7 @@
 {
   "name": "react-avatar-editor-mono",
   "engines": {
-    "pnpm": "6.x"
+    "pnpm": "7.x"
   },
   "version": "1.0.0",
   "scripts": {
@@ -14,13 +14,13 @@
     "postversion": "git push --tags origin HEAD"
   },
   "devDependencies": {
-    "@types/react": "18.0.8",
-    "@typescript-eslint/eslint-plugin": "5.22.0",
-    "@typescript-eslint/parser": "5.22.0",
-    "eslint": "8.14.0",
+    "@types/react": "18.0.21",
+    "@typescript-eslint/eslint-plugin": "5.38.1",
+    "@typescript-eslint/parser": "5.38.1",
+    "eslint": "8.24.0",
     "eslint-config-prettier": "8.5.0",
-    "prettier": "2.6.2",
-    "typescript": "4.6.4"
+    "prettier": "2.7.1",
+    "typescript": "4.8.4"
   },
   "license": "MIT",
   "prettier": {
