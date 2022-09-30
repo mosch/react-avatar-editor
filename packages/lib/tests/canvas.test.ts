@@ -29,6 +29,6 @@ test('basic test', async ({ page }) => {
   await page.fill('[name=rotation]', '90')
   expect(await page.locator('canvas').screenshot()).toMatchSnapshot()
 
-  await page.fill('[name=rotation]', '130')
+  await page.fill('[name=rotation]', '120')
   expect(await page.locator('canvas').screenshot()).toMatchSnapshot()
 })

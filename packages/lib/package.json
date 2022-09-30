@@ -10,7 +10,7 @@
     "build": "tsup",
     "clean": "rm -rf dist",
     "test": "playwright test",
-    "prepublishOnly": "pnpm -w lint && pnpm build",
+    "prepublishOnly": "pnpm -w lint && pnpm test && pnpm build",
     "postversion": "git push --tags origin HEAD"
   },
   "files": [
