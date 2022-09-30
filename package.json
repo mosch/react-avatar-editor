@@ -9,9 +9,7 @@
     "clean": "pnpm --filter 'react-avatar-editor*' clean",
     "demo:build": "pnpm build && pnpm --filter 'react-avatar-editor*' build",
     "demo:dev": "pnpm build && pnpm --filter react-avatar-editor-demo dev",
-    "lint": "eslint . --cache --ext .ts,.tsx",
-    "prepublishOnly": "pnpm lint && pnpm build",
-    "postversion": "git push --tags origin HEAD"
+    "lint": "eslint . --cache --ext .ts,.tsx"
   },
   "devDependencies": {
     "@types/react": "18.0.21",

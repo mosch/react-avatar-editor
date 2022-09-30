@@ -9,7 +9,9 @@
   "scripts": {
     "build": "tsup",
     "clean": "rm -rf dist",
-    "test": "playwright test"
+    "test": "playwright test",
+    "prepublishOnly": "pnpm lint && pnpm build",
+    "postversion": "git push --tags origin HEAD"
   },
   "files": [
     "dist",
