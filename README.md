@@ -85,7 +85,7 @@ export default MyEditor
 
 ### Accessing the resulting image
 
-The resulting image will have the same resolution as the original image, regardless of the editor's size.
+The resulting image will have the same resolution as the original image, for that you can use `getImage`, regardless of the editor's size.
 If you want the image sized in the dimensions of the canvas you can use `getImageScaledToCanvas`.
 
 ```javascript
