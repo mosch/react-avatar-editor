@@ -130,7 +130,7 @@ We recommend using [react-dropzone](https://github.com/react-dropzone/react-drop
 drag and drop support to anything really easy. Here is an example how to use it with react-avatar-editor:
 
 ```javascript
-import React from 'react'
+import React, { useState } from 'react'
 import AvatarEditor from 'react-avatar-editor'
 import Dropzone from 'react-dropzone'
 
@@ -146,7 +146,7 @@ const MyEditor = () => {
     >
       {({ getRootProps, getInputProps }) => (
         <div {...getRootProps()}>
-          <AvatarEditor width={250} height={250} image={this.state.image} />
+          <AvatarEditor width={250} height={250} image={image} />
           <input {...getInputProps()} />
         </div>
       )}
