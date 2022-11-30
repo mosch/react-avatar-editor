@@ -22,7 +22,7 @@ You can find a quick demo of it in action: https://react-avatar-editor.netlify.a
 
 ## 🎭 Target audience
 
-Since we are creating a product for everyone we target people from 8 to 99 – across the board without any specifics. Your project might be different though. So please make sure to describe one or more of your target users as good as possible.
+Our target audience is 100% React developers who are using this component. But the design choices made might unfluence the end user who is interacting with the Avatar editor drastically.
 
 ## 💅 Design relevant materials
 
