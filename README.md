@@ -81,7 +81,7 @@ export default MyEditor
 | onImageChange()        | function         | Invoked when the user changed the image. Not invoked on the first render, and invoked multiple times during drag, etc.                                                                                                                                               |
 | onPositionChange()     | function         | Invoked when the user pans the editor to change the selected area of the image. Passed a position object in the form `{ x: 0.5, y: 0.5 }` where x and y are the relative x and y coordinates of the center of the selected area.                                     |
 | disableBoundaryChecks  | Boolean          | Set to `true` to allow the image to be moved outside the cropping boundary.                                                                                                                                                                                          |
-| disableHiDPIScaling    | Boolean          | Set to `true` to disable devicePixelRatio based canvas scaling. Can improve perfermance of very large canvases on mobile devices.                                                                                                                                    |
+| disableHiDPIScaling    | Boolean          | Set to `true` to disable devicePixelRatio based canvas scaling. Can improve performance of very large canvases on mobile devices.                                                                                                                                    |
 
 ### Accessing the resulting image
 
