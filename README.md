@@ -3,6 +3,7 @@
 <a href="https://www.npmjs.com/package/react-avatar-editor"><img alt="npm version" src="https://badge.fury.io/js/react-avatar-editor.svg"></a>
 <a href="https://npmjs.org/package/react-avatar-editor"><img alt="Downloads" src="http://img.shields.io/npm/dm/react-avatar-editor.svg"></a>
 [![Build Status](https://travis-ci.org/mosch/react-avatar-editor.svg?branch=master)](https://travis-ci.org/mosch/react-avatar-editor)
+[![Design](https://contribute.design/api/shield/mosch/react-avatar-editor)](https://contribute.design/mosch/react-avatar-editor)
 
 Avatar / profile picture cropping component (like on Facebook). 
 Resize, crop and rotate your uploaded image using a simple and clean user interface.
