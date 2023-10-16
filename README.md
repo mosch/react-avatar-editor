@@ -170,7 +170,7 @@ _Note that:_ `getImage()` returns a canvas element and if you want to use it in 
 ```js
 const getImageUrl = async () => {
   const dataUrl = editor.getImage().toDataURL()
-  const result = await fetch(dataUrl)
+  const res = await fetch(dataUrl)
   const blob = await res.blob()
 
   return window.URL.createObjectURL(blob)
