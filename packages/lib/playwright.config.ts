@@ -9,6 +9,14 @@ export default defineConfig({
     baseURL: `http://127.0.0.1:${port}`,
     trace: 'on-first-retry',
   },
+  //
+  snapshotPathTemplate: '{testDir}/__screenshots__/{testFilePath}/{arg}{ext}',
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+    },
+  ],
   webServer: {
     command: `pnpm --filter react-avatar-editor-demo dev --host --port ${port}`,
     url: `http://127.0.0.1:${port}/index.html`,
