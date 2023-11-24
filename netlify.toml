@@ -1,6 +1,6 @@
 [build.environment]
-  NODE_VERSION = "16"
+  NODE_VERSION = "18"
   NPM_FLAGS = "--version" # prevent Netlify npm install
 [build]
   publish = "packages/demo/dist"
-  command = "npx -y pnpm@7 install --store=node_modules/.pnpm-store && npx -y pnpm@7 demo:build"
+  command = "npx -y pnpm@8 install --store=node_modules/.pnpm-store && npx -y pnpm@8 demo:build"
