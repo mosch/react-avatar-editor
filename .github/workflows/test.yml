@@ -30,6 +30,9 @@ jobs:
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile --prefer-offline
 
+      - name: Install Playwright
+        run: pnpm --filter react-avatar-editor exec playwright install
+
       - uses: actions/setup-node@v3
         with:
           node-version: 18
