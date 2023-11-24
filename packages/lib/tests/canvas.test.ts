@@ -1,18 +1,7 @@
 import { test, expect } from '@playwright/test'
-import { start, stop } from 'react-avatar-editor-demo/serve'
-
-let port = 0
-test.beforeAll(async () => {
-  port = await start()
-  console.log('Running on port', port)
-})
-
-test.afterAll(async () => {
-  await stop()
-})
 
 test('basic test', async ({ page }) => {
-  await page.goto(`http://localhost:${port}`)
+  await page.goto('index.html')
 
   expect(await page.locator('canvas').screenshot()).toMatchSnapshot()
 

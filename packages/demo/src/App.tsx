@@ -1,7 +1,7 @@
-import React, { ChangeEvent, MouseEventHandler } from 'react'
+import React, { ChangeEvent, MouseEventHandler, useRef, useState } from 'react'
 import AvatarEditor, { type Position } from 'react-avatar-editor'
 import Dropzone from 'react-dropzone'
-import Preview from './Preview.js'
+import Preview from './Preview'
 
 import AvatarImagePath from './avatar.jpg'
 
@@ -33,10 +33,9 @@ type State = {
   showGrid: boolean
 }
 
-export default class App extends React.Component<{}, State> {
-  private editor = React.createRef<AvatarEditor>()
-
-  state: State = {
+const App = () => {
+  const editor = useRef<AvatarEditor>(null)
+  const [state, setState] = useState<State>({
     image: AvatarImagePath,
     allowZoomOut: false,
     position: { x: 0.5, y: 0.5 },
@@ -50,280 +49,277 @@ export default class App extends React.Component<{}, State> {
     isTransparent: false,
     backgroundColor: undefined,
     showGrid: false,
-  }
+  })
 
-  handleNewImage = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleNewImage = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files?.[0]) {
-      this.setState({ image: e.target.files[0] })
+      setState({ ...state, image: e.target.files[0] })
     }
   }
 
-  handleSave = () => {
-    const img = this.editor.current?.getImageScaledToCanvas().toDataURL()
-    const rect = this.editor.current?.getCroppingRect()
+  const handleSave = () => {
+    const img = editor.current?.getImageScaledToCanvas().toDataURL()
+    const rect = editor.current?.getCroppingRect()
 
     if (!img || !rect) return
 
-    this.setState({
+    setState({
+      ...state,
       preview: {
         img,
         rect,
-        scale: this.state.scale,
-        width: this.state.width,
-        height: this.state.height,
-        borderRadius: this.state.borderRadius,
+        scale: state.scale,
+        width: state.width,
+        height: state.height,
+        borderRadius: state.borderRadius,
       },
     })
   }
 
-  handleScale = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleScale = (e: ChangeEvent<HTMLInputElement>) => {
     const scale = parseFloat(e.target.value)
-    this.setState({ scale })
+    setState({ ...state, scale })
   }
 
-  handleAllowZoomOut = (e: ChangeEvent<HTMLInputElement>) => {
-    this.setState({ allowZoomOut: e.target.checked })
+  const handleAllowZoomOut = (e: ChangeEvent<HTMLInputElement>) => {
+    setState({ ...state, allowZoomOut: e.target.checked })
   }
 
-  handleDisableCanvasRotation = (e: ChangeEvent<HTMLInputElement>) => {
-    this.setState({ disableCanvasRotation: e.target.checked })
+  const handleDisableCanvasRotation = (e: ChangeEvent<HTMLInputElement>) => {
+    setState({ ...state, disableCanvasRotation: e.target.checked })
   }
 
-  rotateScale = (e: ChangeEvent<HTMLInputElement>) => {
+  const rotateScale = (e: ChangeEvent<HTMLInputElement>) => {
     e.preventDefault()
-    this.setState({ rotate: parseFloat(e.target.value) })
+    setState({ ...state, rotate: parseFloat(e.target.value) })
   }
 
-  rotateLeft: MouseEventHandler<HTMLButtonElement> = (e) => {
+  const rotateLeft: MouseEventHandler<HTMLButtonElement> = (e) => {
     e.preventDefault()
-    this.setState({ rotate: (this.state.rotate - 90) % 360 })
+    setState({ ...state, rotate: (state.rotate - 90) % 360 })
   }
 
-  rotateRight: MouseEventHandler<HTMLButtonElement> = (e) => {
+  const rotateRight: MouseEventHandler<HTMLButtonElement> = (e) => {
     e.preventDefault()
-    this.setState({ rotate: (this.state.rotate + 90) % 360 })
+    setState({ ...state, rotate: (state.rotate + 90) % 360 })
   }
 
-  handleBorderRadius = (e: ChangeEvent<HTMLInputElement>) => {
-    this.setState({ borderRadius: parseInt(e.target.value) })
+  const handleBorderRadius = (e: ChangeEvent<HTMLInputElement>) => {
+    setState({ ...state, borderRadius: parseInt(e.target.value) })
   }
 
-  handleXPosition = (e: ChangeEvent<HTMLInputElement>) => {
-    this.setState({
-      position: { ...this.state.position, x: parseFloat(e.target.value) },
+  const handleXPosition = (e: ChangeEvent<HTMLInputElement>) => {
+    setState({
+      ...state,
+      position: { ...state.position, x: parseFloat(e.target.value) },
     })
   }
 
-  handleYPosition = (e: ChangeEvent<HTMLInputElement>) => {
-    this.setState({
-      position: { ...this.state.position, y: parseFloat(e.target.value) },
+  const handleYPosition = (e: ChangeEvent<HTMLInputElement>) => {
+    setState({
+      ...state,
+      position: { ...state.position, y: parseFloat(e.target.value) },
     })
   }
 
-  handleWidth = (e: ChangeEvent<HTMLInputElement>) => {
-    this.setState({ width: parseInt(e.target.value) })
+  const handleWidth = (e: ChangeEvent<HTMLInputElement>) => {
+    setState({ ...state, width: parseInt(e.target.value) })
   }
 
-  handleHeight = (e: ChangeEvent<HTMLInputElement>) => {
-    this.setState({ height: parseInt(e.target.value) })
+  const handleHeight = (e: ChangeEvent<HTMLInputElement>) => {
+    setState({ ...state, height: parseInt(e.target.value) })
   }
 
-  logCallback(e: any) {
+  const logCallback = (e: any) => {
     console.log('callback', e)
   }
 
-  handlePositionChange = (position: Position) => {
-    this.setState({ position })
+  const handlePositionChange = (position: Position) => {
+    setState({ ...state, position })
   }
 
-  setBackgroundColor = (e: ChangeEvent<HTMLInputElement>) => {
-    this.setState({ backgroundColor: e.target.value })
+  const setBackgroundColor = (e: ChangeEvent<HTMLInputElement>) => {
+    setState({ ...state, backgroundColor: e.target.value })
   }
 
-  setTransparent = (e: ChangeEvent<HTMLInputElement>) => {
+  const setTransparent = (e: ChangeEvent<HTMLInputElement>) => {
     const isTransparent = e.target.checked
     // set color to white initially
     const backgroundColor = isTransparent ? '#fff' : undefined
 
-    this.setState({ backgroundColor, isTransparent })
+    setState({ ...state, backgroundColor, isTransparent })
   }
 
-  handleShowGrid = (e: ChangeEvent<HTMLInputElement>) =>
-    this.setState({ showGrid: e.target.checked })
+  const handleShowGrid = (e: ChangeEvent<HTMLInputElement>) =>
+    setState({ ...state, showGrid: e.target.checked })
 
-  render() {
-    return (
-      <div>
-        <Dropzone
-          onDrop={([image]) => this.setState({ image })}
-          noClick
-          multiple={false}
-        >
-          {({ getRootProps, getInputProps }) => (
-            <div {...getRootProps()} className="preview">
-              <AvatarEditor
-                ref={this.editor}
-                scale={this.state.scale}
-                width={this.state.width}
-                height={this.state.height}
-                position={this.state.position}
-                showGrid={this.state.showGrid}
-                onPositionChange={this.handlePositionChange}
-                rotate={this.state.rotate}
-                borderRadius={
-                  this.state.width / (100 / this.state.borderRadius)
-                }
-                backgroundColor={this.state.backgroundColor}
-                onLoadFailure={this.logCallback.bind(this, 'onLoadFailed')}
-                onLoadSuccess={this.logCallback.bind(this, 'onLoadSuccess')}
-                onImageReady={this.logCallback.bind(this, 'onImageReady')}
-                image={this.state.image}
-                disableCanvasRotation={this.state.disableCanvasRotation}
-              />
-              <input
-                name="newImage"
-                type="file"
-                onChange={this.handleNewImage}
-                {...getInputProps()}
-              />
-            </div>
-          )}
-        </Dropzone>
-        <br />
-        <h3>Props</h3>
-        Zoom:{' '}
-        <input
-          name="scale"
-          type="range"
-          onChange={this.handleScale}
-          min={this.state.allowZoomOut ? '0.1' : '1'}
-          max="2"
-          step="0.01"
-          defaultValue="1"
-        />
-        <br />
-        {'Allow Scale < 1'}
-        <input
-          name="allowZoomOut"
-          type="checkbox"
-          onChange={this.handleAllowZoomOut}
-          checked={this.state.allowZoomOut}
-        />
-        <br />
-        Show grid:{' '}
-        <input
-          type="checkbox"
-          checked={this.state.showGrid}
-          onChange={this.handleShowGrid}
-        />
-        <br />
-        Border radius:
-        <input
-          name="scale"
-          type="range"
-          onChange={this.handleBorderRadius}
-          min="0"
-          max="50"
-          step="1"
-          defaultValue="0"
-        />
-        <br />
-        Avatar Width:
-        <input
-          name="width"
-          type="number"
-          onChange={this.handleWidth}
-          min="50"
-          max="400"
-          step="10"
-          value={this.state.width}
-        />
-        <br />
-        Avatar Height:
-        <input
-          name="height"
-          type="number"
-          onChange={this.handleHeight}
-          min="50"
-          max="400"
-          step="10"
-          value={this.state.height}
-        />
-        <br />
-        Rotate:
-        <button onClick={this.rotateLeft}>Left</button>
-        <button onClick={this.rotateRight}>Right</button>
-        <br />
-        Disable Canvas Rotation
-        <input
-          name="disableCanvasRotation"
-          type="checkbox"
-          onChange={this.handleDisableCanvasRotation}
-          checked={this.state.disableCanvasRotation}
-        />
-        <br />
-        Rotation:
-        <input
-          name="rotation"
-          type="range"
-          onChange={this.rotateScale}
-          min="0"
-          max="180"
-          step="1"
-          defaultValue="0"
-        />
-        <br />
-        Transparent image?
-        <input
-          type="checkbox"
-          onChange={this.setTransparent}
-          defaultChecked={this.state.isTransparent}
-        ></input>
-        <br />
-        {this.state.isTransparent && (
-          <div style={{ marginLeft: '1rem' }}>
-            Background color:
-            <input
-              name="backgroundColor"
-              type="color"
-              defaultValue={this.state.backgroundColor}
-              onChange={this.setBackgroundColor}
+  return (
+    <div>
+      <Dropzone
+        onDrop={([image]) => setState({ ...state, image })}
+        noClick
+        multiple={false}
+      >
+        {({ getRootProps, getInputProps }) => (
+          <div {...getRootProps()} className="preview">
+            <AvatarEditor
+              ref={editor}
+              scale={state.scale}
+              width={state.width}
+              height={state.height}
+              position={state.position}
+              showGrid={state.showGrid}
+              onPositionChange={handlePositionChange}
+              rotate={state.rotate}
+              borderRadius={state.width / (100 / state.borderRadius)}
+              backgroundColor={state.backgroundColor}
+              onLoadFailure={logCallback.bind(this, 'onLoadFailed')}
+              onLoadSuccess={logCallback.bind(this, 'onLoadSuccess')}
+              onImageReady={logCallback.bind(this, 'onImageReady')}
+              image={state.image}
+              disableCanvasRotation={state.disableCanvasRotation}
             />
-            <br />
+            <input
+              name="newImage"
+              type="file"
+              onChange={handleNewImage}
+              {...getInputProps()}
+            />
           </div>
         )}
-        <br />
-        <input type="button" onClick={this.handleSave} value="Preview" />
-        <br />
-        {this.state.preview && (
-          <>
-            <img
-              alt=""
-              src={this.state.preview.img}
-              style={{
-                borderRadius: `${
-                  (Math.min(
-                    this.state.preview.height,
-                    this.state.preview.width,
-                  ) +
-                    10) *
-                  (this.state.preview.borderRadius / 2 / 100)
-                }px`,
-              }}
-            />
-            <Preview
-              width={
-                this.state.preview.scale < 1
-                  ? this.state.preview.width
-                  : (this.state.preview.height * 478) / 270
-              }
-              height={this.state.preview.height}
-              image={AvatarImagePath}
-              rect={this.state.preview.rect}
-            />
-          </>
-        )}
-      </div>
-    )
-  }
+      </Dropzone>
+      <br />
+      <h3>Props</h3>
+      Zoom:{' '}
+      <input
+        name="scale"
+        type="range"
+        onChange={handleScale}
+        min={state.allowZoomOut ? '0.1' : '1'}
+        max="2"
+        step="0.01"
+        defaultValue="1"
+      />
+      <br />
+      {'Allow Scale < 1'}
+      <input
+        name="allowZoomOut"
+        type="checkbox"
+        onChange={handleAllowZoomOut}
+        checked={state.allowZoomOut}
+      />
+      <br />
+      Show grid:{' '}
+      <input
+        type="checkbox"
+        checked={state.showGrid}
+        onChange={handleShowGrid}
+      />
+      <br />
+      Border radius:
+      <input
+        name="scale"
+        type="range"
+        onChange={handleBorderRadius}
+        min="0"
+        max="50"
+        step="1"
+        defaultValue="0"
+      />
+      <br />
+      Avatar Width:
+      <input
+        name="width"
+        type="number"
+        onChange={handleWidth}
+        min="50"
+        max="400"
+        step="10"
+        value={state.width}
+      />
+      <br />
+      Avatar Height:
+      <input
+        name="height"
+        type="number"
+        onChange={handleHeight}
+        min="50"
+        max="400"
+        step="10"
+        value={state.height}
+      />
+      <br />
+      Rotate:
+      <button onClick={rotateLeft}>Left</button>
+      <button onClick={rotateRight}>Right</button>
+      <br />
+      Disable Canvas Rotation
+      <input
+        name="disableCanvasRotation"
+        type="checkbox"
+        onChange={handleDisableCanvasRotation}
+        checked={state.disableCanvasRotation}
+      />
+      <br />
+      Rotation:
+      <input
+        name="rotation"
+        type="range"
+        onChange={rotateScale}
+        min="0"
+        max="180"
+        step="1"
+        defaultValue="0"
+      />
+      <br />
+      Transparent image?
+      <input
+        type="checkbox"
+        onChange={setTransparent}
+        defaultChecked={state.isTransparent}
+      ></input>
+      <br />
+      {state.isTransparent && (
+        <div style={{ marginLeft: '1rem' }}>
+          Background color:
+          <input
+            name="backgroundColor"
+            type="color"
+            defaultValue={state.backgroundColor}
+            onChange={setBackgroundColor}
+          />
+          <br />
+        </div>
+      )}
+      <br />
+      <input type="button" onClick={handleSave} value="Preview" />
+      <br />
+      {state.preview && (
+        <>
+          <img
+            alt=""
+            src={state.preview.img}
+            style={{
+              borderRadius: `${
+                (Math.min(state.preview.height, state.preview.width) + 10) *
+                (state.preview.borderRadius / 2 / 100)
+              }px`,
+            }}
+          />
+          <Preview
+            width={
+              state.preview.scale < 1
+                ? state.preview.width
+                : (state.preview.height * 478) / 270
+            }
+            height={state.preview.height}
+            image={AvatarImagePath}
+            rect={state.preview.rect}
+          />
+        </>
+      )}
+    </div>
+  )
 }
+
+export default App

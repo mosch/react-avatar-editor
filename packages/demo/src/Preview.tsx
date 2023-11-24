@@ -7,24 +7,14 @@ type Props = {
   height: number
 }
 
-export default class Preview extends React.Component<Props> {
-  private canvas = React.createRef<HTMLCanvasElement>()
-  private image: HTMLImageElement | null = null
+const Preview = ({ rect, image, width, height }: Props) => {
+  const canvas = React.useRef<HTMLCanvasElement>(null)
+  const imageRef = React.useRef<HTMLImageElement | null>(null)
 
-  componentDidMount() {
-    this.redraw()
-  }
+  React.useEffect(() => {
+    const ctx = canvas.current?.getContext('2d')
 
-  componentDidUpdate() {
-    this.redraw()
-  }
-
-  handleImageLoad = () => {
-    const ctx = this.canvas.current?.getContext('2d')
-
-    if (!ctx || !this.image) return
-
-    const { rect, width, height } = this.props
+    if (!ctx || !imageRef.current) return
 
     ctx.clearRect(0, 0, width, height)
 
@@ -32,7 +22,7 @@ export default class Preview extends React.Component<Props> {
 
     if (rect && (rect.width > 1 || rect.height > 1)) {
       ctx.drawImage(
-        this.image,
+        imageRef.current,
         Math.round(-rect.x * (width / rect.width)),
         Math.round(-rect.y * (height / rect.height)),
         Math.round(width / rect.width),
@@ -43,7 +33,7 @@ export default class Preview extends React.Component<Props> {
         ctx.strokeRect(1, 1, Math.round(width) - 2, Math.round(height) - 2)
       }
     } else {
-      ctx.drawImage(this.image, 0, 0, width, height)
+      ctx.drawImage(imageRef.current, 0, 0, width, height)
 
       if (rect) {
         ctx.strokeRect(
@@ -54,28 +44,28 @@ export default class Preview extends React.Component<Props> {
         )
       }
     }
-  }
+  }, [rect, width, height])
 
-  redraw() {
-    const image = new Image()
-    image.src = this.props.image
-    image.onload = this.handleImageLoad
-    this.image = image
-  }
+  React.useEffect(() => {
+    const img = new Image()
+    img.src = image
+    img.onload = () => {
+      imageRef.current = img
+    }
+  }, [image])
 
-  render() {
-    const { width, height } = this.props
-    return (
-      <canvas
-        ref={this.canvas}
-        style={{
-          margin: '10px 24px 32px',
-          padding: 5,
-          border: '1px solid #CCC',
-        }}
-        width={width}
-        height={height}
-      />
-    )
-  }
+  return (
+    <canvas
+      ref={canvas}
+      style={{
+        margin: '10px 24px 32px',
+        padding: 5,
+        border: '1px solid #CCC',
+      }}
+      width={width}
+      height={height}
+    />
+  )
 }
+
+export default Preview
