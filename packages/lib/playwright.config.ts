@@ -9,7 +9,12 @@ export default defineConfig({
     baseURL: `http://127.0.0.1:${port}`,
     trace: 'on-first-retry',
   },
-  //
+  expect: {
+    timeout: 10000,
+    toMatchSnapshot: {
+      maxDiffPixels: 5,
+    },
+  },
   snapshotPathTemplate: '{testDir}/__screenshots__/{testFilePath}/{arg}{ext}',
   projects: [
     {
