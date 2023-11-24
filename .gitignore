@@ -3,7 +3,7 @@ logs
 *.log
 .eslintcache
 test-results
-screenshot-*.png
+screenshot-*.
 
 # Runtime data
 pids
