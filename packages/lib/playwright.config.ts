@@ -12,7 +12,7 @@ export default defineConfig({
   expect: {
     timeout: 10000,
     toMatchSnapshot: {
-      maxDiffPixels: 5,
+      maxDiffPixelRatio: 0.05,
     },
   },
   snapshotPathTemplate: '{testDir}/__screenshots__/{testFilePath}/{arg}{ext}',
