@@ -2,6 +2,7 @@ import React, {
   type TouchEventHandler,
   type CSSProperties,
   type MouseEventHandler,
+  type AllHTMLAttributes,
 } from 'react'
 
 import { loadImageURL } from './utils/loadImageURL'
@@ -126,6 +127,8 @@ export interface Props {
   disableBoundaryChecks?: boolean
   disableHiDPIScaling?: boolean
   disableCanvasRotation?: boolean
+  showGrid?: boolean
+  gridColor?: string
 }
 
 export interface Position {
@@ -688,54 +691,23 @@ class AvatarEditor extends React.Component<PropsWithDefaults, State> {
   }
 
   render() {
-    const {
-      scale,
-      rotate,
-      image,
-      border,
-      borderRadius,
-      width,
-      height,
-      position,
-      color,
-      backgroundColor,
-      style,
-      crossOrigin,
-      onLoadFailure,
-      onLoadSuccess,
-      onImageReady,
-      onImageChange,
-      onMouseUp,
-      onMouseMove,
-      onPositionChange,
-      disableBoundaryChecks,
-      disableHiDPIScaling,
-      disableCanvasRotation,
-      ...rest
-    } = this.props
-
     const dimensions = this.getDimensions()
 
-    const defaultStyle: CSSProperties = {
-      width: dimensions.canvas.width,
-      height: dimensions.canvas.height,
-      cursor: this.state.drag ? 'grabbing' : 'grab',
-      touchAction: 'none',
-    }
-
-    const attributes: JSX.IntrinsicElements['canvas'] = {
+    const attributes: AllHTMLAttributes<HTMLCanvasElement> = {
       width: dimensions.canvas.width * this.pixelRatio,
       height: dimensions.canvas.height * this.pixelRatio,
       onMouseDown: this.handleMouseDown,
       onTouchStart: this.handleTouchStart,
-      style: { ...defaultStyle, ...style },
+      style: {
+        width: dimensions.canvas.width,
+        height: dimensions.canvas.height,
+        cursor: this.state.drag ? 'grabbing' : 'grab',
+        touchAction: 'none',
+        ...this.props.style,
+      },
     }
 
-    return React.createElement('canvas', {
-      ...attributes,
-      ...rest,
-      ref: this.canvas,
-    })
+    return React.createElement('canvas', { ...attributes, ref: this.canvas })
   }
 }
 
