@@ -711,6 +711,8 @@ class AvatarEditor extends React.Component<PropsWithDefaults, State> {
       disableBoundaryChecks,
       disableHiDPIScaling,
       disableCanvasRotation,
+      showGrid,
+      gridColor,
       ...rest
     } = this.props
 
