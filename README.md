@@ -90,7 +90,7 @@ The resulting image will have the same resolution as the original image, for tha
 If you want the image sized in the dimensions of the canvas you can use `getImageScaledToCanvas`.
 
 ```javascript
-import React from 'react'
+import React, { useRef } from 'react'
 import AvatarEditor from 'react-avatar-editor'
 
 const MyEditor = () => {
