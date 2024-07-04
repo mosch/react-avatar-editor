@@ -29,7 +29,7 @@ npm i --save react-avatar-editor
 pnpm add react-avatar-editor
 ```
 
-## [Demo](https://react-avatar-editor.netlify.com/)
+## [Demo](https://react-avatar-editor.netlify.app/)
 
 ![](https://thumbs.gfycat.com/FlawedBlushingGermanwirehairedpointer-size_restricted.gif)
 
@@ -90,7 +90,7 @@ The resulting image will have the same resolution as the original image, for tha
 If you want the image sized in the dimensions of the canvas you can use `getImageScaledToCanvas`.
 
 ```javascript
-import React from 'react'
+import React, { useRef } from 'react'
 import AvatarEditor from 'react-avatar-editor'
 
 const MyEditor = () => {
@@ -169,7 +169,7 @@ _Note that:_ `getImage()` returns a canvas element and if you want to use it in 
 
 ```js
 const getImageUrl = async () => {
-  const dataUrl = editor.getImage().toDataURL()
+  const dataUrl = editor.current.getImage().toDataURL()
   const res = await fetch(dataUrl)
   const blob = await res.blob()
 
