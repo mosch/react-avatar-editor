@@ -56,6 +56,7 @@ const drawRoundedRect = (
       Math.PI * 0.5,
       Math.PI,
     )
+    context.closePath()
     context.translate(-x, -y)
   }
 }
