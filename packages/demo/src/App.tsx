@@ -31,6 +31,7 @@ type State = {
   isTransparent: boolean
   backgroundColor?: string
   showGrid: boolean
+  borderColor: string
 }
 
 const App = () => {
@@ -49,6 +50,7 @@ const App = () => {
     isTransparent: false,
     backgroundColor: undefined,
     showGrid: false,
+    borderColor: '#ffffff80', // Default border color (white with 50% opacity)
   })
 
   const handleNewImage = (e: ChangeEvent<HTMLInputElement>) => {
@@ -153,6 +155,10 @@ const App = () => {
   const handleShowGrid = (e: ChangeEvent<HTMLInputElement>) =>
     setState({ ...state, showGrid: e.target.checked })
 
+  const handleBorderColorChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setState({ ...state, borderColor: e.target.value })
+  }
+
   return (
     <div>
       <Dropzone
@@ -178,6 +184,7 @@ const App = () => {
               onImageReady={logCallback.bind(this, 'onImageReady')}
               image={state.image}
               disableCanvasRotation={state.disableCanvasRotation}
+              borderColor={hexToRgba(state.borderColor)}
             />
             <input
               name="newImage"
@@ -292,6 +299,26 @@ const App = () => {
         </div>
       )}
       <br />
+      Border Color:
+      <input
+        name="borderColor"
+        type="color"
+        value={state.borderColor.slice(0, 7)}
+        onChange={handleBorderColorChange}
+      />
+      Opacity:
+      <input
+        name="borderOpacity"
+        type="range"
+        min="0"
+        max="255"
+        value={parseInt(state.borderColor.slice(7, 9), 16)}
+        onChange={(e) => {
+          const opacity = parseInt(e.target.value).toString(16).padStart(2, '0')
+          setState({ ...state, borderColor: state.borderColor.slice(0, 7) + opacity })
+        }}
+      />
+      <br />
       <input type="button" onClick={handleSave} value="Preview" />
       <br />
       {state.preview && (
@@ -320,6 +347,15 @@ const App = () => {
       )}
     </div>
   )
+}
+
+// Helper function to convert hex color with alpha to RGBA array
+function hexToRgba(hex: string): [number, number, number, number] {
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  const a = hex.length === 9 ? parseInt(hex.slice(7, 9), 16) / 255 : 1
+  return [r, g, b, a]
 }
 
 export default App

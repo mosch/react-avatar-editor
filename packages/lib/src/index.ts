@@ -56,6 +56,7 @@ const drawRoundedRect = (
       Math.PI * 0.5,
       Math.PI,
     )
+    context.closePath()
     context.translate(-x, -y)
   }
 }
@@ -126,6 +127,7 @@ export interface Props {
   disableBoundaryChecks?: boolean
   disableHiDPIScaling?: boolean
   disableCanvasRotation?: boolean
+  borderColor?: [number, number, number, number?]
 }
 
 export interface Position {
@@ -592,6 +594,22 @@ class AvatarEditor extends React.Component<PropsWithDefaults, State> {
     context.rect(width, 0, -width, height) // outer rect, drawn "counterclockwise"
     context.fill('evenodd')
 
+    // Draw 1px border around the mask only if borderColor is provided
+    if (this.props.borderColor) {
+      context.strokeStyle = 'rgba(' + this.props.borderColor.slice(0, 4).join(',') + ')'
+      context.lineWidth = 1
+      context.beginPath()
+      drawRoundedRect(
+        context,
+        borderSizeX + 0.5,
+        borderSizeY + 0.5,
+        width - borderSizeX * 2 - 1,
+        height - borderSizeY * 2 - 1,
+        borderRadius,
+      )
+      context.stroke()
+    }
+
     if (this.props.showGrid) {
       drawGrid(
         context,
@@ -713,6 +731,7 @@ class AvatarEditor extends React.Component<PropsWithDefaults, State> {
       disableCanvasRotation,
       showGrid,
       gridColor,
+      borderColor,
       ...rest
     } = this.props
 
