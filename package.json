@@ -1,7 +1,7 @@
 {
   "name": "react-avatar-editor-mono",
   "engines": {
-    "pnpm": "8.x"
+    "pnpm": "8.x || 9.x"
   },
   "version": "1.0.0",
   "scripts": {
