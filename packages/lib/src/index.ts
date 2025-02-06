@@ -75,16 +75,12 @@ const drawGrid = (
   const thirdsY = height / 3
 
   // vertical bars
-  context.fillRect(x, y, 1, height)
   context.fillRect(thirdsX + x, y, 1, height)
   context.fillRect(thirdsX * 2 + x, y, 1, height)
-  context.fillRect(thirdsX * 3 + x, y, 1, height)
 
   // horizontal bars
-  context.fillRect(x, y, width, 1)
   context.fillRect(x, thirdsY + y, width, 1)
   context.fillRect(x, thirdsY * 2 + y, width, 1)
-  context.fillRect(x, thirdsY * 3 + y, width, 1)
 }
 
 const defaultEmptyImage = {
@@ -582,6 +578,30 @@ class AvatarEditor extends React.Component<PropsWithDefaults, State> {
       height / 2 - borderSizeY,
     )
 
+    if (this.props.showGrid) {
+      context.save();
+      drawGrid(
+        context,
+        borderSizeX,
+        borderSizeY,
+        width - borderSizeX * 2,
+        height - borderSizeY * 2,
+        this.props.gridColor,
+      )
+      context.globalCompositeOperation = "destination-in"
+      context.beginPath()
+      drawRoundedRect(
+        context,
+        borderSizeX,
+        borderSizeY,
+        width - borderSizeX * 2,
+        height - borderSizeY * 2,
+        borderRadius,
+      )
+      context.fill()
+      context.restore()
+    }
+
     context.beginPath()
     // inner rect, possibly rounded
     drawRoundedRect(
@@ -610,17 +630,6 @@ class AvatarEditor extends React.Component<PropsWithDefaults, State> {
         Math.max(borderRadius - borderWidth / 2, 0),
       )
       context.stroke()
-    }
-
-    if (this.props.showGrid) {
-      drawGrid(
-        context,
-        borderSizeX,
-        borderSizeY,
-        width - borderSizeX * 2,
-        height - borderSizeY * 2,
-        this.props.gridColor,
-      )
     }
     context.restore()
   }
