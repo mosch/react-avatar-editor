@@ -32,6 +32,7 @@ type State = {
   backgroundColor?: string
   showGrid: boolean
   borderColor: string
+  borderWidth: number
 }
 
 const App = () => {
@@ -51,6 +52,7 @@ const App = () => {
     backgroundColor: undefined,
     showGrid: false,
     borderColor: '#ffffff80', // Default border color (white with 50% opacity)
+    borderWidth: 1,
   })
 
   const handleNewImage = (e: ChangeEvent<HTMLInputElement>) => {
@@ -185,6 +187,7 @@ const App = () => {
               image={state.image}
               disableCanvasRotation={state.disableCanvasRotation}
               borderColor={hexToRgba(state.borderColor)}
+              borderWidth={state.borderWidth}
             />
             <input
               name="newImage"
@@ -306,7 +309,20 @@ const App = () => {
         value={state.borderColor.slice(0, 7)}
         onChange={handleBorderColorChange}
       />
-      Opacity:
+      <br />
+      Border Width:
+      <input
+        name="borderWidth"
+        type="range"
+        min="0"
+        max="10"
+        value={state.borderWidth}
+        onChange={(e) => {
+          setState({ ...state, borderWidth: parseFloat(e.target.value) })
+        }}
+      />
+      <br />
+      Border Opacity:
       <input
         name="borderOpacity"
         type="range"

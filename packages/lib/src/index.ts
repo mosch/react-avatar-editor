@@ -128,6 +128,7 @@ export interface Props {
   disableHiDPIScaling?: boolean
   disableCanvasRotation?: boolean
   borderColor?: [number, number, number, number?]
+  borderWidth?: number
 }
 
 export interface Position {
@@ -567,7 +568,9 @@ class AvatarEditor extends React.Component<PropsWithDefaults, State> {
     context.translate(0, 0)
     context.fillStyle = 'rgba(' + this.props.color.slice(0, 4).join(',') + ')'
 
-    let borderRadius = this.props.borderRadius
+    let borderRadius = this.props.borderRadius,
+      borderWidth = this.props.borderWidth,
+      borderColor = this.props.borderColor
     const dimensions = this.getDimensions()
     const [borderSizeX, borderSizeY] = this.getBorders(dimensions.border)
     const height = dimensions.canvas.height
@@ -594,18 +597,19 @@ class AvatarEditor extends React.Component<PropsWithDefaults, State> {
     context.rect(width, 0, -width, height) // outer rect, drawn "counterclockwise"
     context.fill('evenodd')
 
-    // Draw 1px border around the mask only if borderColor is provided
-    if (this.props.borderColor) {
-      context.strokeStyle = 'rgba(' + this.props.borderColor.slice(0, 4).join(',') + ')'
-      context.lineWidth = 1
+    // Draw border around the mask only if borderColor is provided
+    if (borderColor || borderWidth) {
+      context.strokeStyle = 'rgba(' + (borderColor || [1, 1, 1, 1]).slice(0, 4).join(',') + ')'
+      borderWidth = borderWidth || 1;
+      context.lineWidth = borderWidth
       context.beginPath()
       drawRoundedRect(
         context,
-        borderSizeX + 0.5,
-        borderSizeY + 0.5,
-        width - borderSizeX * 2 - 1,
-        height - borderSizeY * 2 - 1,
-        borderRadius,
+        borderSizeX + borderWidth / 2,
+        borderSizeY + borderWidth / 2,
+        width - borderSizeX * 2 - borderWidth,
+        height - borderSizeY * 2 - borderWidth,
+        Math.max(borderRadius - borderWidth / 2, 0),
       )
       context.stroke()
     }
