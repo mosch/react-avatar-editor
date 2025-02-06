@@ -64,10 +64,10 @@ importers:
   packages/lib:
     dependencies:
       react:
-        specifier: ^0.14.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
+        specifier: ^0.14.0 || ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
         version: 18.2.0
       react-dom:
-        specifier: ^0.14.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
+        specifier: ^0.14.0 || ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
         version: 18.2.0(react@18.2.0)
     devDependencies:
       '@playwright/test':
