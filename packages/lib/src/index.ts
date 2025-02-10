@@ -75,18 +75,12 @@ const drawGrid = (
   const thirdsY = height / 3
 
   // vertical bars
-  context.fillRect(x, y, 1, height)
   context.fillRect(thirdsX + x, y, 1, height)
   context.fillRect(thirdsX * 2 + x, y, 1, height)
-  context.fillRect(thirdsX * 3 + x, y, 1, height)
-  context.fillRect(thirdsX * 4 + x, y, 1, height)
 
   // horizontal bars
-  context.fillRect(x, y, width, 1)
   context.fillRect(x, thirdsY + y, width, 1)
   context.fillRect(x, thirdsY * 2 + y, width, 1)
-  context.fillRect(x, thirdsY * 3 + y, width, 1)
-  context.fillRect(x, thirdsY * 4 + y, width, 1)
 }
 
 const defaultEmptyImage = {
@@ -128,6 +122,7 @@ export interface Props {
   disableHiDPIScaling?: boolean
   disableCanvasRotation?: boolean
   borderColor?: [number, number, number, number?]
+  borderWidth?: number
 }
 
 export interface Position {
@@ -567,7 +562,9 @@ class AvatarEditor extends React.Component<PropsWithDefaults, State> {
     context.translate(0, 0)
     context.fillStyle = 'rgba(' + this.props.color.slice(0, 4).join(',') + ')'
 
-    let borderRadius = this.props.borderRadius
+    let borderRadius = this.props.borderRadius,
+      borderWidth = this.props.borderWidth,
+      borderColor = this.props.borderColor
     const dimensions = this.getDimensions()
     const [borderSizeX, borderSizeY] = this.getBorders(dimensions.border)
     const height = dimensions.canvas.height
@@ -580,6 +577,30 @@ class AvatarEditor extends React.Component<PropsWithDefaults, State> {
       width / 2 - borderSizeX,
       height / 2 - borderSizeY,
     )
+
+    if (this.props.showGrid) {
+      context.save();
+      drawGrid(
+        context,
+        borderSizeX,
+        borderSizeY,
+        width - borderSizeX * 2,
+        height - borderSizeY * 2,
+        this.props.gridColor,
+      )
+      context.globalCompositeOperation = "destination-in"
+      context.beginPath()
+      drawRoundedRect(
+        context,
+        borderSizeX,
+        borderSizeY,
+        width - borderSizeX * 2,
+        height - borderSizeY * 2,
+        borderRadius,
+      )
+      context.fill()
+      context.restore()
+    }
 
     context.beginPath()
     // inner rect, possibly rounded
@@ -594,31 +615,21 @@ class AvatarEditor extends React.Component<PropsWithDefaults, State> {
     context.rect(width, 0, -width, height) // outer rect, drawn "counterclockwise"
     context.fill('evenodd')
 
-    // Draw 1px border around the mask only if borderColor is provided
-    if (this.props.borderColor) {
-      context.strokeStyle = 'rgba(' + this.props.borderColor.slice(0, 4).join(',') + ')'
-      context.lineWidth = 1
+    // Draw border around the mask only if borderColor is provided
+    if (borderColor || borderWidth) {
+      context.strokeStyle = 'rgba(' + (borderColor || [1, 1, 1, 1]).slice(0, 4).join(',') + ')'
+      borderWidth = borderWidth || 1;
+      context.lineWidth = borderWidth
       context.beginPath()
       drawRoundedRect(
         context,
-        borderSizeX + 0.5,
-        borderSizeY + 0.5,
-        width - borderSizeX * 2 - 1,
-        height - borderSizeY * 2 - 1,
-        borderRadius,
+        borderSizeX + borderWidth / 2,
+        borderSizeY + borderWidth / 2,
+        width - borderSizeX * 2 - borderWidth,
+        height - borderSizeY * 2 - borderWidth,
+        Math.max(borderRadius - borderWidth / 2, 0),
       )
       context.stroke()
-    }
-
-    if (this.props.showGrid) {
-      drawGrid(
-        context,
-        borderSizeX,
-        borderSizeY,
-        width - borderSizeX * 2,
-        height - borderSizeY * 2,
-        this.props.gridColor,
-      )
     }
     context.restore()
   }
