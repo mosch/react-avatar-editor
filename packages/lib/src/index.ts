@@ -327,7 +327,13 @@ class AvatarEditor extends React.Component<PropsWithDefaults, State> {
 
     // draw the full-size image at the correct position,
     // the image gets truncated to the size of the canvas.
-    const context = this.getContext()
+    const context = canvas.getContext('2d')
+
+    if (!context) {
+      throw new Error(
+        'No context found, please report this to: https://github.com/mosch/react-avatar-editor/issues',
+      )
+    }
 
     context.translate(canvas.width / 2, canvas.height / 2)
     context.rotate((this.props.rotate * Math.PI) / 180)
