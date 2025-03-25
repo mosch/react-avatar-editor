@@ -479,10 +479,10 @@ class AvatarEditor extends React.Component<PropsWithDefaults, State> {
 
     if (canvasRatio > imageRatio) {
       newHeight = dimensions.height
-      newWidth = width * (newHeight / height)
+      newWidth = Math.round(width * (newHeight / height))
     } else {
       newWidth = dimensions.width
-      newHeight = height * (newWidth / width)
+      newHeight = Math.round(height * (newWidth / width))
     }
 
     return {
