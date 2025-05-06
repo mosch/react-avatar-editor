@@ -94,8 +94,6 @@ const defaultEmptyImage = {
   y: 0.5,
 }
 
-type BorderType = [number, number] | number
-
 interface ImageState {
   x: number
   y: number
@@ -109,7 +107,7 @@ export interface Props {
   height: number
   style?: CSSProperties
   image?: string | File
-  border?: BorderType
+  border?: number
   position?: Position
   scale?: number
   rotate?: number
@@ -128,6 +126,8 @@ export interface Props {
   disableHiDPIScaling?: boolean
   disableCanvasRotation?: boolean
   borderColor?: [number, number, number, number?]
+  showGrid?: boolean
+  gridColor?: string
 }
 
 export interface Position {
@@ -142,8 +142,8 @@ interface State {
   image: ImageState
 }
 
-type PropsWithDefaults = typeof AvatarEditor.defaultProps &
-  Omit<Props, keyof typeof AvatarEditor.defaultProps>
+type PropsWithDefaults = Omit<Props, keyof typeof AvatarEditor.defaultProps> &
+  Required<Pick<Props, keyof typeof AvatarEditor.defaultProps>>
 
 class AvatarEditor extends React.Component<PropsWithDefaults, State> {
   private canvas = React.createRef<HTMLCanvasElement>()
@@ -165,7 +165,7 @@ class AvatarEditor extends React.Component<PropsWithDefaults, State> {
     disableBoundaryChecks: false,
     disableHiDPIScaling: false,
     disableCanvasRotation: true,
-  }
+  } satisfies Props
 
   state: State = {
     drag: false,
