@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "motion": "^12.38.0",
     "react": "^19.2.4",
     "react-avatar-editor": "workspace:*",
     "react-dom": "^19.2.4",

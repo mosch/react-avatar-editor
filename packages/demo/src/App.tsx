@@ -1,4 +1,5 @@
 import { type ChangeEvent, type MouseEventHandler, useState } from 'react'
+import { useMotionValue, useSpring, useMotionValueEvent } from 'motion/react'
 import AvatarEditor, {
   type Position,
   useAvatarEditor,
@@ -62,6 +63,23 @@ const App = () => {
   const update = (patch: Partial<State>) =>
     setState((s) => ({ ...s, ...patch }))
 
+  // Animate rotation with a spring for smooth transitions
+  const rotateMotion = useMotionValue(0)
+  const rotateSpring = useSpring(rotateMotion, { stiffness: 200, damping: 25 })
+  const [animatedRotate, setAnimatedRotate] = useState(0)
+  const [isRotating, setIsRotating] = useState(false)
+
+  useMotionValueEvent(rotateSpring, 'change', (v) => setAnimatedRotate(v))
+  useMotionValueEvent(rotateSpring, 'animationStart', () => setIsRotating(true))
+  useMotionValueEvent(rotateSpring, 'animationComplete', () =>
+    setIsRotating(false),
+  )
+
+  // Sync spring target when state.rotate changes
+  if (rotateMotion.get() !== state.rotate) {
+    rotateMotion.set(state.rotate)
+  }
+
   const handleSave = () => {
     const img = editor.getImageScaledToCanvas()?.toDataURL()
     const rect = editor.getCroppingRect()
@@ -115,7 +133,7 @@ const App = () => {
               width={state.width}
               height={state.height}
               position={state.position}
-              rotate={state.rotate}
+              rotate={animatedRotate}
               borderRadius={state.width / (100 / state.borderRadius)}
               backgroundColor={state.backgroundColor}
               showGrid={state.showGrid}
@@ -168,7 +186,8 @@ const App = () => {
         {/* Rotation */}
         <div className="control-group">
           <div className="control-label">
-            Rotation <span className="value">{state.rotate}°</span>
+            Rotation{' '}
+            <span className="value">{Math.round(animatedRotate)}°</span>
           </div>
           <div className="inline-row">
             <input
@@ -340,7 +359,11 @@ const App = () => {
               <span className="toggle-track" />
               <span className="toggle-text">Lock canvas rotation</span>
             </label>
-            <button className="btn btn-primary" onClick={handleSave}>
+            <button
+              className="btn btn-primary"
+              onClick={handleSave}
+              disabled={isRotating}
+            >
               Export Preview
             </button>
           </div>
