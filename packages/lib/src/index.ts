@@ -405,22 +405,12 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
     touchAction: 'none',
     maxWidth: 'none',
     maxHeight: 'none',
+    transition: 'box-shadow 0.3s ease',
+    boxShadow: loading ? '0 0 0 2px rgba(255,255,255,0.35)' : 'none',
+    opacity: loading ? 0.7 : 1,
   }
 
-  if (loading) {
-    defaultStyle.boxShadow = '0 0 0 2px rgba(255,255,255,0.4)'
-    defaultStyle.animation = 'rae-pulse 1.2s ease-in-out infinite'
-  }
-
-  const styleEl = loading
-    ? React.createElement(
-        'style',
-        null,
-        '@keyframes rae-pulse{0%,100%{box-shadow:0 0 0 2px rgba(255,255,255,0.15)}50%{box-shadow:0 0 0 3px rgba(255,255,255,0.5)}}',
-      )
-    : null
-
-  const canvasEl = React.createElement('canvas', {
+  return React.createElement('canvas', {
     width: dimensions.canvas.width * pixelRatio,
     height: dimensions.canvas.height * pixelRatio,
     onMouseDown: handleMouseDown,
@@ -428,8 +418,6 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
     style: { ...defaultStyle, ...style },
     ref: canvas,
   })
-
-  return React.createElement(React.Fragment, null, styleEl, canvasEl)
 })
 
 AvatarEditor.displayName = 'AvatarEditor'
