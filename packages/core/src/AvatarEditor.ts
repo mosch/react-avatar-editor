@@ -168,10 +168,10 @@ export class AvatarEditorCore {
 
     if (canvasRatio > imageRatio) {
       newHeight = dimensions.height
-      newWidth = Math.round(imgWidth * (newHeight / imgHeight))
+      newWidth = imgWidth * (newHeight / imgHeight)
     } else {
       newWidth = dimensions.width
-      newHeight = Math.round(imgHeight * (newWidth / imgWidth))
+      newHeight = imgHeight * (newWidth / imgWidth)
     }
 
     return {
@@ -361,11 +361,11 @@ export class AvatarEditorCore {
     const canvasEl = document.createElement('canvas')
 
     if (this.isVertical()) {
-      canvasEl.width = cropRect.height
-      canvasEl.height = cropRect.width
+      canvasEl.width = Math.round(cropRect.height)
+      canvasEl.height = Math.round(cropRect.width)
     } else {
-      canvasEl.width = cropRect.width
-      canvasEl.height = cropRect.height
+      canvasEl.width = Math.round(cropRect.width)
+      canvasEl.height = Math.round(cropRect.height)
     }
 
     const context = canvasEl.getContext('2d')

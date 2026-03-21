@@ -501,6 +501,31 @@ describe('AvatarEditorCore', () => {
       expect(canvas.width).toBeGreaterThan(0)
       expect(canvas.height).toBeGreaterThan(0)
     })
+
+    it('should produce integer dimensions for square crop (fix #429)', () => {
+      // A non-square image (700x800) with a square crop area (320x320)
+      // should produce exactly square output, not off-by-one.
+      // Previously, Math.round in getInitialSize introduced rounding error
+      // that caused off-by-one pixel differences (e.g. 700x699 instead of 700x700).
+      const editor = new AvatarEditorCore(
+        defaultConfig({ width: 320, height: 320, border: 0, scale: 1 }),
+      )
+      // Simulate what loadImage does: compute initial size then set state
+      const initialSize = editor.getInitialSize(700, 800)
+      editor.setImageState({
+        x: 0.5,
+        y: 0.5,
+        ...initialSize,
+        resource: createFakeImage(700, 800),
+      })
+
+      const canvas = editor.getImage()
+      // Canvas dimensions must be integers
+      expect(canvas.width).toBe(Math.round(canvas.width))
+      expect(canvas.height).toBe(Math.round(canvas.height))
+      // For a square crop of any image, output must be perfectly square
+      expect(canvas.width).toBe(canvas.height)
+    })
   })
 
   // ─── getImageScaledToCanvas ───────────────────────────────────────────
