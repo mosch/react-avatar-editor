@@ -32,7 +32,7 @@ export interface Props extends AvatarEditorConfig {
   onMouseUp?: () => void
   onMouseMove?: (e: TouchEvent | MouseEvent) => void
   onPositionChange?: (position: Position) => void
-  onScaleChange?: (scale: number) => void
+  onRequestScaleChange?: (scale: number) => void
 }
 
 export type { Position, ImageState }
@@ -69,7 +69,7 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
     onMouseUp,
     onMouseMove,
     onPositionChange,
-    onScaleChange,
+    onRequestScaleChange,
     borderColor,
     style,
     keyboardStep = 1,
@@ -114,8 +114,8 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
   onMouseUpRef.current = onMouseUp
   const onMouseMoveRef = useRef(onMouseMove)
   onMouseMoveRef.current = onMouseMove
-  const onScaleChangeRef = useRef(onScaleChange)
-  onScaleChangeRef.current = onScaleChange
+  const onRequestScaleChangeRef = useRef(onRequestScaleChange)
+  onRequestScaleChangeRef.current = onRequestScaleChange
   const onPositionChangeRef = useRef(onPositionChange)
   onPositionChangeRef.current = onPositionChange
 
@@ -284,13 +284,13 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
         case '=': {
           e.preventDefault()
           const zoomStep = e.shiftKey ? 0.5 : 0.1
-          onScaleChangeRef.current?.(scale + zoomStep)
+          onRequestScaleChangeRef.current?.(scale + zoomStep)
           break
         }
         case '-': {
           e.preventDefault()
           const zoomStep = e.shiftKey ? 0.5 : 0.1
-          onScaleChangeRef.current?.(Math.max(0.1, scale - zoomStep))
+          onRequestScaleChangeRef.current?.(Math.max(0.1, scale - zoomStep))
           break
         }
         case 'Escape':

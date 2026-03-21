@@ -140,6 +140,7 @@ const App = () => {
               disableCanvasRotation={state.disableCanvasRotation}
               borderColor={hexToRgba(state.borderColor)}
               onPositionChange={(position: Position) => update({ position })}
+              onRequestScaleChange={(scale: number) => update({ scale })}
             />
             <input {...getInputProps()} />
             <span className="dropzone-hint">drop image here</span>

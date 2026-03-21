@@ -518,14 +518,14 @@ describe('AvatarEditor', () => {
       expect(canvas.getAttribute('role')).toBe('application')
     })
 
-    it('onScaleChange prop is accepted', () => {
-      const onScaleChange = vi.fn()
+    it('onRequestScaleChange prop is accepted', () => {
+      const onRequestScaleChange = vi.fn()
       const { container } = render(
         <AvatarEditor
           width={200}
           height={200}
           scale={1.5}
-          onScaleChange={onScaleChange}
+          onRequestScaleChange={onRequestScaleChange}
         />,
       )
       expect(container.querySelector('canvas')).toBeInTheDocument()
