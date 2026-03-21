@@ -280,7 +280,8 @@ describe('loadImageFile()', () => {
         // Override readAsDataURL to fire onload asynchronously
         this.readAsDataURL = vi.fn().mockImplementation(() => {
           setTimeout(() => {
-            (this as any).onload?.({
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            ;(this as any).onload?.({
               target: { result: 'data:image/png;base64,abc123' },
             })
           }, 0)
@@ -311,7 +312,8 @@ describe('loadImageFile()', () => {
       function (this: FileReader) {
         this.readAsDataURL = vi.fn().mockImplementation(() => {
           setTimeout(() => {
-            (this as any).onload?.({
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            ;(this as any).onload?.({
               target: { result: null },
             })
           }, 0)

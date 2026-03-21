@@ -748,7 +748,6 @@ describe('AvatarEditorCore', () => {
       const editor = new AvatarEditorCore(defaultConfig({ width: 200, height: 200, border: 0 }))
 
       // Create a proper class-based Image mock
-      let capturedOnload: (() => void) | null = null
       const mockImgInstance = {
         width: 400,
         height: 300,
@@ -762,13 +761,13 @@ describe('AvatarEditorCore', () => {
         function (this: HTMLImageElement) {
           Object.assign(this, mockImgInstance)
           // Use a getter/setter to capture onload and auto-trigger on src set
-          const self = this
           let _src = ''
           Object.defineProperty(this, 'src', {
             get: () => _src,
             set: (val: string) => {
               _src = val
-              setTimeout(() => (self as any).onload?.(), 0)
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              setTimeout(() => (this as any).onload?.(), 0)
             },
             configurable: true,
           })

@@ -11,7 +11,7 @@ export const isPassiveSupported = () => {
     const handler = () => {}
     window.addEventListener('test', handler, options)
     window.removeEventListener('test', handler, options)
-  } catch (err) {
+  } catch {
     passiveSupported = false
   }
   return passiveSupported

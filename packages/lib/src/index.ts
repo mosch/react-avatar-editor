@@ -157,7 +157,7 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
         setImageState(newImageState)
         onImageReady?.()
         onLoadSuccess?.(newImageState)
-      } catch (error) {
+      } catch {
         onLoadFailure?.()
       }
     },
@@ -280,7 +280,7 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
         document.removeEventListener('touchend', handleDocumentMouseUp, false)
       }
     }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [])
 
   // Effect to handle image changes
   useEffect(() => {
@@ -289,7 +289,7 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
     } else if (!image && imageState.x !== 0.5 && imageState.y !== 0.5) {
       clearImage()
     }
-  }, [image, width, height, backgroundColor]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [image, width, height, backgroundColor])
 
   // Effect to repaint canvas whenever relevant props/state change
   useEffect(() => {

@@ -29,8 +29,8 @@
   ],
   "devDependencies": {
     "jsdom": "^29.0.1",
-    "tsdown": "^0.16.7",
-    "typescript": "5.3.2",
+    "tsdown": "^0.21.4",
+    "typescript": "^5.9.3",
     "vitest": "^4.1.0"
   },
   "repository": {

@@ -110,20 +110,6 @@ const App = () => {
     setState({ ...state, borderRadius: parseInt(e.target.value) })
   }
 
-  const handleXPosition = (e: ChangeEvent<HTMLInputElement>) => {
-    setState({
-      ...state,
-      position: { ...state.position, x: parseFloat(e.target.value) },
-    })
-  }
-
-  const handleYPosition = (e: ChangeEvent<HTMLInputElement>) => {
-    setState({
-      ...state,
-      position: { ...state.position, y: parseFloat(e.target.value) },
-    })
-  }
-
   const handleWidth = (e: ChangeEvent<HTMLInputElement>) => {
     setState({ ...state, width: parseInt(e.target.value) })
   }
@@ -132,7 +118,7 @@ const App = () => {
     setState({ ...state, height: parseInt(e.target.value) })
   }
 
-  const logCallback = (e: any) => {
+  const logCallback = (e: unknown) => {
     console.log('callback', e)
   }
 
