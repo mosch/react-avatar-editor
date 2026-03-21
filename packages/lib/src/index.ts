@@ -23,6 +23,7 @@ export interface Props extends AvatarEditorConfig {
   style?: CSSProperties
   image?: string | File
   position?: Position
+  onLoadStart?: () => void
   onLoadFailure?: () => void
   onLoadSuccess?: (image: ImageState) => void
   onImageReady?: () => void
@@ -57,6 +58,7 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
     position,
     backgroundColor,
     crossOrigin,
+    onLoadStart,
     onLoadFailure,
     onLoadSuccess,
     onImageReady,
@@ -167,6 +169,7 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
 
   const loadImage = useCallback(
     async (file: File | string) => {
+      onLoadStart?.()
       try {
         const newImageState = await coreRef.current.loadImage(file)
         dragRef.current = false
@@ -178,7 +181,7 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
         onLoadFailure?.()
       }
     },
-    [onImageReady, onLoadSuccess, onLoadFailure],
+    [onLoadStart, onImageReady, onLoadSuccess, onLoadFailure],
   )
 
   const clearImage = useCallback(() => {

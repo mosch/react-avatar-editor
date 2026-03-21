@@ -386,6 +386,15 @@ describe('AvatarEditor', () => {
       expect(canvas).toBeInTheDocument()
     })
 
+    it('accepts onLoadStart callback prop', () => {
+      const onLoadStart = vi.fn()
+      const { container } = render(
+        <AvatarEditor width={200} height={200} onLoadStart={onLoadStart} />,
+      )
+      const canvas = container.querySelector('canvas')
+      expect(canvas).toBeInTheDocument()
+    })
+
     it('accepts onLoadFailure callback prop', () => {
       const onLoadFailure = vi.fn()
       const { container } = render(
