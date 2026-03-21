@@ -15,7 +15,8 @@ export default defineConfig({
       maxDiffPixelRatio: 0.05,
     },
   },
-  snapshotPathTemplate: '{testDir}/__screenshots__/{testFilePath}/{arg}{ext}',
+  snapshotPathTemplate:
+    '{testDir}/__screenshots__/{testFilePath}/{platform}/{arg}{ext}',
   projects: [
     {
       name: 'chromium',
