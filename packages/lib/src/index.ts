@@ -348,6 +348,52 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
     repaint()
   }, [repaint])
 
+  // Draw a spinner on the canvas while loading
+  useEffect(() => {
+    if (!loading) return
+    const canvasEl = canvas.current
+    if (!canvasEl) return
+    const ctx = canvasEl.getContext('2d')
+    if (!ctx) return
+
+    let frameId: number
+    const start = performance.now()
+    const pr = coreRef.current.getPixelRatio()
+    const cx = (canvasEl.width / pr / 2) * pr
+    const cy = (canvasEl.height / pr / 2) * pr
+    const radius = 16 * pr
+
+    const draw = (now: number) => {
+      const elapsed = (now - start) / 1000
+      const angle = elapsed * Math.PI * 3
+
+      ctx.save()
+      ctx.clearRect(0, 0, canvasEl.width, canvasEl.height)
+
+      // Draw a subtle arc spinner
+      ctx.lineWidth = 2.5 * pr
+      ctx.lineCap = 'round'
+
+      // Track
+      ctx.strokeStyle = 'rgba(255,255,255,0.1)'
+      ctx.beginPath()
+      ctx.arc(cx, cy, radius, 0, Math.PI * 2)
+      ctx.stroke()
+
+      // Spinning arc
+      ctx.strokeStyle = 'rgba(255,255,255,0.6)'
+      ctx.beginPath()
+      ctx.arc(cx, cy, radius, angle, angle + Math.PI * 1.2)
+      ctx.stroke()
+
+      ctx.restore()
+      frameId = requestAnimationFrame(draw)
+    }
+
+    frameId = requestAnimationFrame(draw)
+    return () => cancelAnimationFrame(frameId)
+  }, [loading])
+
   // Effect to trigger onImageChange callback
   const prevPropsRef = useRef({
     image,
@@ -405,9 +451,6 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
     touchAction: 'none',
     maxWidth: 'none',
     maxHeight: 'none',
-    transition: 'box-shadow 0.3s ease',
-    boxShadow: loading ? '0 0 0 2px rgba(255,255,255,0.35)' : 'none',
-    opacity: loading ? 0.7 : 1,
   }
 
   return React.createElement('canvas', {
