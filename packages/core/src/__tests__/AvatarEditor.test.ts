@@ -309,16 +309,18 @@ describe('AvatarEditorCore', () => {
       expect(rect.y).toBeGreaterThan(0)
     })
 
-    it('should not return NaN when image dimensions are not available (known bug #389)', () => {
-      // This tests that getCroppingRect does not crash or return NaN
-      // when no image is loaded (getXScale/getYScale will throw).
+    it('should return default rect when image dimensions are not available (fix #389)', () => {
       const editorNoImage = new AvatarEditorCore(
         defaultConfig({ width: 200, height: 200, scale: 1 }),
       )
-      // The default imageState has no width/height, so getXScale/getYScale throw.
-      // getCroppingRect calls getXScale/getYScale internally, so it will throw.
-      // This documents the current behaviour (which is the bug).
-      expect(() => editorNoImage.getCroppingRect()).toThrow('Image dimension is unknown.')
+      // The default imageState has no width/height. Previously this threw or
+      // returned NaN values (bug #389). Now it returns a sensible default.
+      const rect = editorNoImage.getCroppingRect()
+      expect(rect).toEqual({ x: 0, y: 0, width: 1, height: 1 })
+      expect(Number.isNaN(rect.x)).toBe(false)
+      expect(Number.isNaN(rect.y)).toBe(false)
+      expect(Number.isNaN(rect.width)).toBe(false)
+      expect(Number.isNaN(rect.height)).toBe(false)
     })
   })
 

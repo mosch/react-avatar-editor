@@ -118,6 +118,10 @@ export class AvatarEditorCore {
   }
 
   getCroppingRect(position?: Position): CroppingRect {
+    if (!this.imageState.width || !this.imageState.height) {
+      return { x: 0, y: 0, width: 1, height: 1 }
+    }
+
     const pos = position || {
       x: this.imageState.x,
       y: this.imageState.y,
