@@ -49,3 +49,9 @@ jobs:
 
       - name: Unit tests (lib)
         run: pnpm --filter react-avatar-editor test
+
+      - name: Install Playwright browsers
+        run: pnpm --filter react-avatar-editor exec playwright install --with-deps chromium
+
+      - name: Visual regression tests
+        run: pnpm --filter react-avatar-editor exec playwright test
