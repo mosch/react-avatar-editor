@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@react-avatar-editor/core": ["../core/dist/index.d.ts"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["src/__tests__/**", "node_modules", "dist"]
+}

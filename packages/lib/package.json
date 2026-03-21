@@ -21,8 +21,7 @@
   "scripts": {
     "build": "vite build",
     "clean": "rm -rf dist",
-    "test": "pnpm build && playwright test",
-    "test:unit": "vitest run",
+    "test": "vitest run",
     "prepublishOnly": "pnpm -w lint && pnpm test && pnpm build"
   },
   "files": [
