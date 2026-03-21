@@ -12,11 +12,10 @@ export default defineConfig({
   expect: {
     timeout: 10000,
     toMatchSnapshot: {
-      maxDiffPixelRatio: 0.05,
+      maxDiffPixelRatio: 0.15,
     },
   },
-  snapshotPathTemplate:
-    '{testDir}/__screenshots__/{testFilePath}/{platform}/{arg}{ext}',
+  snapshotPathTemplate: '{testDir}/__screenshots__/{testFilePath}/{arg}{ext}',
   projects: [
     {
       name: 'chromium',

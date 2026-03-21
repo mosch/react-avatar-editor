@@ -52,9 +52,5 @@ jobs:
       - name: Install Playwright browsers
         run: pnpm --filter react-avatar-editor exec playwright install --with-deps chromium
 
-      - name: Generate visual snapshots (if missing for this platform)
-        run: pnpm --filter react-avatar-editor exec playwright test --update-snapshots
-        continue-on-error: true
-
       - name: Visual regression tests
         run: pnpm --filter react-avatar-editor exec playwright test
