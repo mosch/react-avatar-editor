@@ -66,7 +66,6 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
     onPositionChange,
     borderColor,
     style,
-    ...rest
   } = props
 
   const canvas = useRef<HTMLCanvasElement>(null)
@@ -393,7 +392,6 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
 
   return React.createElement('canvas', {
     ...attributes,
-    ...rest,
     ref: canvas,
   })
 })
