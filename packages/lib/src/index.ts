@@ -90,10 +90,23 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
     })
   )
 
+  // Use refs for drag state to avoid stale closures in document-level listeners.
+  // These values are read/written in handlers registered once on mount.
+  const dragRef = useRef(false)
+  const mxRef = useRef<number | undefined>(undefined)
+  const myRef = useRef<number | undefined>(undefined)
+
+  // Keep state for `drag` to trigger re-renders for cursor style
   const [drag, setDrag] = useState(false)
-  const [mx, setMx] = useState<number | undefined>(undefined)
-  const [my, setMy] = useState<number | undefined>(undefined)
   const [imageState, setImageState] = useState<ImageState>(coreRef.current.getImageState())
+
+  // Store latest callback props in refs so document handlers always call current versions
+  const onMouseUpRef = useRef(onMouseUp)
+  onMouseUpRef.current = onMouseUp
+  const onMouseMoveRef = useRef(onMouseMove)
+  onMouseMoveRef.current = onMouseMove
+  const onPositionChangeRef = useRef(onPositionChange)
+  onPositionChangeRef.current = onPositionChange
 
   // Update core config when props change
   useEffect(() => {
@@ -139,6 +152,7 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
     async (file: File | string) => {
       try {
         const newImageState = await coreRef.current.loadImage(file)
+        dragRef.current = false
         setDrag(false)
         setImageState(newImageState)
         onImageReady?.()
@@ -168,59 +182,18 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
 
   const handleMouseDown: MouseEventHandler<HTMLCanvasElement> = useCallback((e) => {
     e.preventDefault()
+    dragRef.current = true
+    mxRef.current = undefined
+    myRef.current = undefined
     setDrag(true)
-    setMx(undefined)
-    setMy(undefined)
   }, [])
 
   const handleTouchStart: TouchEventHandler<HTMLCanvasElement> = useCallback(() => {
+    dragRef.current = true
+    mxRef.current = undefined
+    myRef.current = undefined
     setDrag(true)
-    setMx(undefined)
-    setMy(undefined)
   }, [])
-
-  const handleMouseUp = useCallback(() => {
-    if (drag) {
-      setDrag(false)
-      onMouseUp?.()
-    }
-  }, [drag, onMouseUp])
-
-  const handleMouseMove = useCallback(
-    (e: MouseEvent | TouchEvent) => {
-      if (!drag) {
-        return
-      }
-
-      e.preventDefault()
-
-      const mousePositionX =
-        'targetTouches' in e ? e.targetTouches[0].pageX : e.clientX
-      const mousePositionY =
-        'targetTouches' in e ? e.targetTouches[0].pageY : e.clientY
-
-      setMx(mousePositionX)
-      setMy(mousePositionY)
-
-      if (mx !== undefined && my !== undefined && imageState.width && imageState.height) {
-        const newPosition = coreRef.current.calculateDragPosition(
-          mousePositionX,
-          mousePositionY,
-          mx,
-          my
-        )
-
-        onPositionChange?.(newPosition)
-
-        const updatedImageState = { ...imageState, ...newPosition }
-        coreRef.current.setImageState(updatedImageState)
-        setImageState(updatedImageState)
-      }
-
-      onMouseMove?.(e)
-    },
-    [drag, mx, my, imageState, onPositionChange, onMouseMove]
-  )
 
   // Expose imperative methods via ref
   useImperativeHandle(
@@ -232,7 +205,8 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
     []
   )
 
-  // Mount effect - load image and setup event listeners
+  // Mount effect - setup document-level event listeners.
+  // Handlers read from refs (not closures) to always have current values.
   useEffect(() => {
     const context = getContext()
 
@@ -241,22 +215,69 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
     }
     coreRef.current.paint(context)
 
+    const handleDocumentMouseMove = (e: MouseEvent | TouchEvent) => {
+      if (!dragRef.current) {
+        return
+      }
+
+      e.preventDefault()
+
+      const mousePositionX =
+        'targetTouches' in e ? e.targetTouches[0].pageX : e.clientX
+      const mousePositionY =
+        'targetTouches' in e ? e.targetTouches[0].pageY : e.clientY
+
+      const prevMx = mxRef.current
+      const prevMy = myRef.current
+
+      mxRef.current = mousePositionX
+      myRef.current = mousePositionY
+
+      if (prevMx !== undefined && prevMy !== undefined) {
+        const currentImageState = coreRef.current.getImageState()
+        if (currentImageState.width && currentImageState.height) {
+          const newPosition = coreRef.current.calculateDragPosition(
+            mousePositionX,
+            mousePositionY,
+            prevMx,
+            prevMy,
+          )
+
+          onPositionChangeRef.current?.(newPosition)
+
+          const updatedImageState = { ...currentImageState, ...newPosition }
+          coreRef.current.setImageState(updatedImageState)
+          setImageState(updatedImageState)
+        }
+      }
+
+      onMouseMoveRef.current?.(e)
+    }
+
+    const handleDocumentMouseUp = () => {
+      if (dragRef.current) {
+        dragRef.current = false
+        setDrag(false)
+        onMouseUpRef.current?.()
+      }
+    }
+
     const options = isPassiveSupported() ? { passive: false } : false
-    document.addEventListener('mousemove', handleMouseMove, options)
-    document.addEventListener('mouseup', handleMouseUp, options)
+    document.addEventListener('mousemove', handleDocumentMouseMove, options)
+    document.addEventListener('mouseup', handleDocumentMouseUp, options)
 
     if (isTouchDevice) {
-      document.addEventListener('touchmove', handleMouseMove, options)
-      document.addEventListener('touchend', handleMouseUp, options)
+      document.addEventListener('touchmove', handleDocumentMouseMove, options)
+      document.addEventListener('touchend', handleDocumentMouseUp, options)
     }
 
     return () => {
-      document.removeEventListener('mousemove', handleMouseMove, false)
-      document.removeEventListener('mouseup', handleMouseUp, false)
+      document.removeEventListener('mousemove', handleDocumentMouseMove, false)
+      document.removeEventListener('mouseup', handleDocumentMouseUp, false)
 
       if (isTouchDevice) {
-        document.removeEventListener('touchmove', handleMouseMove, false)
-        document.removeEventListener('touchend', handleMouseUp, false)
+        document.removeEventListener('touchmove', handleDocumentMouseMove, false)
+        document.removeEventListener('touchend', handleDocumentMouseUp, false)
       }
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
@@ -283,8 +304,6 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
     position,
     scale,
     rotate,
-    mx,
-    my,
     imageX: imageState.x,
     imageY: imageState.y,
   })
@@ -297,8 +316,6 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
       prev.position !== position ||
       prev.scale !== scale ||
       prev.rotate !== rotate ||
-      prev.mx !== mx ||
-      prev.my !== my ||
       prev.imageX !== imageState.x ||
       prev.imageY !== imageState.y
     ) {
@@ -310,13 +327,11 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
         position,
         scale,
         rotate,
-        mx,
-        my,
         imageX: imageState.x,
         imageY: imageState.y,
       }
     }
-  }, [image, width, height, position, scale, rotate, mx, my, imageState.x, imageState.y, onImageChange])
+  }, [image, width, height, position, scale, rotate, imageState.x, imageState.y, onImageChange])
 
   const dimensions = coreRef.current.getDimensions()
   const pixelRatio = coreRef.current.getPixelRatio()
