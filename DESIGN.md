@@ -9,7 +9,7 @@ A collection of design contribution guidelines and resources for react-avatar-ed
 We're glad you're looking to help us improve the end user facing parts of this tiny little plugin.
 You might have seen it already in action in thousands of places where you upload and modify your profile image.
 
-You can find a quick demo of it in action: https://react-avatar-editor.netlify.app
+You can find a quick demo of it in action: https://react-avatar-editor.launchport.dev
 
 ## 🚢 How to contribute design
 
@@ -28,7 +28,7 @@ Our target audience is 100% React developers who are using this component. But t
 As mentioned above – we do not have any design related materials (Logo, Figma mocks, etc) yet. Feel free to add them to this document as things evolve.
 
 You can look at our demo here to get a clue of how it currently looks like:
-https://react-avatar-editor.netlify.app
+https://react-avatar-editor.launchport.dev
 
 ## 🎓 License
 
