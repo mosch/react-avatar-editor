@@ -16,7 +16,6 @@ import {
   type Position,
   type AvatarEditorConfig,
   isPassiveSupported,
-  isTouchDevice,
 } from '@react-avatar-editor/core'
 
 export interface Props extends AvatarEditorConfig {
@@ -270,7 +269,7 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
         return
       }
 
-      e.preventDefault()
+      if (e.cancelable) e.preventDefault()
 
       const mousePositionX =
         'targetTouches' in e ? e.targetTouches[0].pageX : e.clientX
@@ -315,24 +314,14 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
     const options = isPassiveSupported() ? { passive: false } : false
     document.addEventListener('mousemove', handleDocumentMouseMove, options)
     document.addEventListener('mouseup', handleDocumentMouseUp, options)
-
-    if (isTouchDevice) {
-      document.addEventListener('touchmove', handleDocumentMouseMove, options)
-      document.addEventListener('touchend', handleDocumentMouseUp, options)
-    }
+    document.addEventListener('touchmove', handleDocumentMouseMove, options)
+    document.addEventListener('touchend', handleDocumentMouseUp, options)
 
     return () => {
       document.removeEventListener('mousemove', handleDocumentMouseMove, false)
       document.removeEventListener('mouseup', handleDocumentMouseUp, false)
-
-      if (isTouchDevice) {
-        document.removeEventListener(
-          'touchmove',
-          handleDocumentMouseMove,
-          false,
-        )
-        document.removeEventListener('touchend', handleDocumentMouseUp, false)
-      }
+      document.removeEventListener('touchmove', handleDocumentMouseMove, false)
+      document.removeEventListener('touchend', handleDocumentMouseUp, false)
     }
   }, [])
 
