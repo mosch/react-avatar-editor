@@ -348,7 +348,7 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
     repaint()
   }, [repaint])
 
-  // Draw a spinner on the canvas while loading
+  // Pulsate the full canvas while loading
   useEffect(() => {
     if (!loading) return
     const canvasEl = canvas.current
@@ -358,35 +358,17 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
 
     let frameId: number
     const start = performance.now()
-    const pr = coreRef.current.getPixelRatio()
-    const cx = (canvasEl.width / pr / 2) * pr
-    const cy = (canvasEl.height / pr / 2) * pr
-    const radius = 16 * pr
 
     const draw = (now: number) => {
-      const elapsed = (now - start) / 1000
-      const angle = elapsed * Math.PI * 3
+      const t = (now - start) / 1000
+      const alpha = 0.03 + Math.sin(t * 2.5) * 0.02 + 0.02
 
       ctx.save()
       ctx.clearRect(0, 0, canvasEl.width, canvasEl.height)
-
-      // Draw a subtle arc spinner
-      ctx.lineWidth = 2.5 * pr
-      ctx.lineCap = 'round'
-
-      // Track
-      ctx.strokeStyle = 'rgba(255,255,255,0.1)'
-      ctx.beginPath()
-      ctx.arc(cx, cy, radius, 0, Math.PI * 2)
-      ctx.stroke()
-
-      // Spinning arc
-      ctx.strokeStyle = 'rgba(255,255,255,0.6)'
-      ctx.beginPath()
-      ctx.arc(cx, cy, radius, angle, angle + Math.PI * 1.2)
-      ctx.stroke()
-
+      ctx.fillStyle = `rgba(255,255,255,${alpha})`
+      ctx.fillRect(0, 0, canvasEl.width, canvasEl.height)
       ctx.restore()
+
       frameId = requestAnimationFrame(draw)
     }
 
