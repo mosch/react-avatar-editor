@@ -1,4 +1,6 @@
 // https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
+const noop = () => {}
+
 export const isPassiveSupported = () => {
   let passiveSupported = false
   try {
@@ -8,10 +10,9 @@ export const isPassiveSupported = () => {
       },
     })
 
-    const handler = () => {}
-    window.addEventListener('test', handler, options)
-    window.removeEventListener('test', handler, options)
-  } catch (err) {
+    window.addEventListener('test', noop, options)
+    window.removeEventListener('test', noop, options)
+  } catch {
     passiveSupported = false
   }
   return passiveSupported

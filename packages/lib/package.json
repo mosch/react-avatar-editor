@@ -4,38 +4,55 @@
   "description": "Avatar / profile picture component. Resize and crop your uploaded image using a intuitive user interface.",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
-  "types": "./dist/index.d.cts",
+  "types": "./dist/index.d.ts",
   "sideEffects": false,
   "exports": {
     ".": {
       "require": {
-        "types": "./dist/index.d.cts",
+        "types": "./dist/index.d.ts",
         "default": "./dist/index.cjs"
       },
       "import": {
-        "types": "./dist/index.d.mts",
+        "types": "./dist/index.d.ts",
         "default": "./dist/index.mjs"
       }
     }
   },
   "scripts": {
-    "build": "tsdown",
+    "build": "vite build",
     "clean": "rm -rf dist",
     "test": "pnpm build && playwright test",
+    "test:unit": "vitest run",
     "prepublishOnly": "pnpm -w lint && pnpm test && pnpm build"
   },
   "files": [
     "dist",
     "src"
   ],
+  "dependencies": {
+    "@react-avatar-editor/core": "workspace:*"
+  },
   "peerDependencies": {
     "react": "^0.14.0 || ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0",
     "react-dom": "^0.14.0 || ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
-    "@playwright/test": "^1.57.0",
-    "@types/react": "19.2.7",
-    "tsdown": "^0.16.7"
+    "@playwright/test": "^1.58.2",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/react": "^19.2.14",
+    "@vitest/coverage-v8": "^4.1.0",
+    "jsdom": "^29.0.1",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "vite": "^8.0.1",
+    "vite-plugin-dts": "^4.5.4",
+    "vitest": "^4.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mosch/react-avatar-editor.git",
+    "directory": "packages/lib"
   },
   "license": "MIT",
   "keywords": [

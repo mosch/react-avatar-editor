@@ -1,0 +1,51 @@
+{
+  "name": "@react-avatar-editor/core",
+  "version": "1.0.0",
+  "description": "Framework-agnostic core logic for avatar editing",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.cjs"
+      },
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.mjs"
+      }
+    }
+  },
+  "scripts": {
+    "build": "vite build",
+    "clean": "rm -rf dist",
+    "test": "vitest run"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "devDependencies": {
+    "@vitest/coverage-v8": "^4.1.0",
+    "jsdom": "^29.0.1",
+    "typescript": "^5.9.3",
+    "vite": "^8.0.1",
+    "vite-plugin-dts": "^4.5.4",
+    "vitest": "^4.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mosch/react-avatar-editor.git",
+    "directory": "packages/core"
+  },
+  "license": "MIT",
+  "keywords": [
+    "canvas",
+    "avatar",
+    "editor",
+    "image",
+    "core"
+  ]
+}
