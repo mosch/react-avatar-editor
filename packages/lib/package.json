@@ -48,6 +48,11 @@
     "vite": "^6.0.0",
     "vitest": "^4.1.0"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mosch/react-avatar-editor.git",
+    "directory": "packages/lib"
+  },
   "license": "MIT",
   "keywords": [
     "react-component",

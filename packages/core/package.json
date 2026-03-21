@@ -33,6 +33,11 @@
     "typescript": "5.3.2",
     "vitest": "^4.1.0"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mosch/react-avatar-editor.git",
+    "directory": "packages/core"
+  },
   "license": "MIT",
   "keywords": [
     "canvas",
