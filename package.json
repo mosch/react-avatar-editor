@@ -9,20 +9,15 @@
     "clean": "pnpm --filter 'react-avatar-editor*' clean",
     "demo:build": "pnpm build && pnpm --filter 'react-avatar-editor*' build",
     "demo:dev": "pnpm build && pnpm --filter react-avatar-editor-demo dev",
-    "lint": "eslint . --cache"
+    "lint": "oxlint .",
+    "fmt": "oxfmt --write .",
+    "fmt:check": "oxfmt --check ."
   },
   "devDependencies": {
     "@types/react": "^19.2.14",
-    "eslint": "^9.39.4",
-    "eslint-config-prettier": "^10.1.8",
-    "prettier": "^3.8.1",
-    "typescript": "^5.9.3",
-    "typescript-eslint": "^8.57.1"
+    "oxfmt": "0.41.0",
+    "oxlint": "^1.56.0",
+    "typescript": "^5.9.3"
   },
-  "license": "MIT",
-  "prettier": {
-    "singleQuote": true,
-    "trailingComma": "all",
-    "semi": false
-  }
+  "license": "MIT"
 }

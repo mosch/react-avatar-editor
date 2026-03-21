@@ -49,9 +49,9 @@ const Preview = ({ rect, image, width, height }: Props) => {
   React.useEffect(() => {
     const img = new Image()
     img.src = image
-    img.onload = () => {
+    img.addEventListener('load', () => {
       imageRef.current = img
-    }
+    })
   }, [image])
 
   return (

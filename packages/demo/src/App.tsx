@@ -34,6 +34,10 @@ type State = {
   borderColor: string
 }
 
+const logCallbackFn = (e: unknown) => {
+  console.log('callback', e)
+}
+
 const App = () => {
   const editor = useRef<AvatarEditor>(null)
   const [state, setState] = useState<State>({
@@ -118,9 +122,7 @@ const App = () => {
     setState({ ...state, height: parseInt(e.target.value) })
   }
 
-  const logCallback = (e: unknown) => {
-    console.log('callback', e)
-  }
+  const logCallback = logCallbackFn
 
   const handlePositionChange = (position: Position) => {
     setState({ ...state, position })
@@ -301,7 +303,10 @@ const App = () => {
         value={parseInt(state.borderColor.slice(7, 9), 16)}
         onChange={(e) => {
           const opacity = parseInt(e.target.value).toString(16).padStart(2, '0')
-          setState({ ...state, borderColor: state.borderColor.slice(0, 7) + opacity })
+          setState({
+            ...state,
+            borderColor: state.borderColor.slice(0, 7) + opacity,
+          })
         }}
       />
       <br />

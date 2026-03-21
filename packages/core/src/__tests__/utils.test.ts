@@ -142,8 +142,8 @@ describe('isTouchDevice', () => {
 // ─── loadImageURL ───────────────────────────────────────────────────────
 describe('loadImageURL()', () => {
   let mockImgInstance: {
-    onload: (() => void) | null
-    onerror: ((e: unknown) => void) | null
+    listeners: Record<string, ((...args: unknown[]) => void)[]>
+    addEventListener: (type: string, fn: (...args: unknown[]) => void) => void
     src: string
     crossOrigin: string | null
     width: number
@@ -152,22 +152,24 @@ describe('loadImageURL()', () => {
 
   beforeEach(() => {
     mockImgInstance = {
-      onload: null,
-      onerror: null,
+      listeners: {},
+      addEventListener(type: string, fn: (...args: unknown[]) => void) {
+        ;(this.listeners[type] ??= []).push(fn)
+      },
       src: '',
       crossOrigin: null,
       width: 100,
       height: 100,
     }
 
-    vi.spyOn(globalThis, 'Image').mockImplementation(
-      function (this: HTMLImageElement) {
-        Object.assign(this, mockImgInstance)
-        // Store a reference so tests can trigger onload/onerror
-        mockImgInstance = this as unknown as typeof mockImgInstance
-        return this
-      } as unknown as typeof Image,
-    )
+    vi.spyOn(globalThis, 'Image').mockImplementation(function (
+      this: HTMLImageElement,
+    ) {
+      Object.assign(this, mockImgInstance)
+      // Store a reference so tests can trigger events
+      mockImgInstance = this as unknown as typeof mockImgInstance
+      return this
+    } as unknown as typeof Image)
   })
 
   afterEach(() => {
@@ -177,8 +179,8 @@ describe('loadImageURL()', () => {
   it('should resolve with an image on successful load', async () => {
     const promise = loadImageURL('https://example.com/photo.jpg')
 
-    // Simulate the image loading
-    mockImgInstance.onload?.()
+    // Simulate the image loading via addEventListener('load', ...)
+    mockImgInstance.listeners['load']?.forEach((fn) => fn())
 
     const result = await promise
     expect(result).toBe(mockImgInstance)
@@ -188,14 +190,14 @@ describe('loadImageURL()', () => {
     const promise = loadImageURL('https://example.com/bad.jpg')
     const error = new Error('Load failed')
 
-    mockImgInstance.onerror?.(error)
+    mockImgInstance.listeners['error']?.forEach((fn) => fn(error))
 
     await expect(promise).rejects.toBe(error)
   })
 
   it('should set crossOrigin for non-data URLs when crossOrigin is provided', async () => {
     const promise = loadImageURL('https://example.com/photo.jpg', 'anonymous')
-    mockImgInstance.onload?.()
+    mockImgInstance.listeners['load']?.forEach((fn) => fn())
 
     await promise
     expect(mockImgInstance.crossOrigin).toBe('anonymous')
@@ -204,7 +206,7 @@ describe('loadImageURL()', () => {
   it('should not set crossOrigin for data URLs', async () => {
     const dataURL = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUg=='
     const promise = loadImageURL(dataURL, 'anonymous')
-    mockImgInstance.onload?.()
+    mockImgInstance.listeners['load']?.forEach((fn) => fn())
 
     await promise
     expect(mockImgInstance.crossOrigin).toBeNull()
@@ -212,7 +214,7 @@ describe('loadImageURL()', () => {
 
   it('should not set crossOrigin when crossOrigin param is undefined', async () => {
     const promise = loadImageURL('https://example.com/photo.jpg')
-    mockImgInstance.onload?.()
+    mockImgInstance.listeners['load']?.forEach((fn) => fn())
 
     await promise
     expect(mockImgInstance.crossOrigin).toBeNull()
@@ -221,7 +223,7 @@ describe('loadImageURL()', () => {
   it('should set the src on the image', async () => {
     const url = 'https://example.com/photo.jpg'
     const promise = loadImageURL(url)
-    mockImgInstance.onload?.()
+    mockImgInstance.listeners['load']?.forEach((fn) => fn())
 
     await promise
     expect(mockImgInstance.src).toBe(url)
@@ -231,8 +233,8 @@ describe('loadImageURL()', () => {
 // ─── loadImageFile ──────────────────────────────────────────────────────
 describe('loadImageFile()', () => {
   let mockImgInstance: {
-    onload: (() => void) | null
-    onerror: ((e: unknown) => void) | null
+    listeners: Record<string, ((...args: unknown[]) => void)[]>
+    addEventListener: (type: string, fn: (...args: unknown[]) => void) => void
     src: string
     crossOrigin: string | null
     width: number
@@ -241,21 +243,23 @@ describe('loadImageFile()', () => {
 
   beforeEach(() => {
     mockImgInstance = {
-      onload: null,
-      onerror: null,
+      listeners: {},
+      addEventListener(type: string, fn: (...args: unknown[]) => void) {
+        ;(this.listeners[type] ??= []).push(fn)
+      },
       src: '',
       crossOrigin: null,
       width: 100,
       height: 100,
     }
 
-    vi.spyOn(globalThis, 'Image').mockImplementation(
-      function (this: HTMLImageElement) {
-        Object.assign(this, mockImgInstance)
-        mockImgInstance = this as unknown as typeof mockImgInstance
-        return this
-      } as unknown as typeof Image,
-    )
+    vi.spyOn(globalThis, 'Image').mockImplementation(function (
+      this: HTMLImageElement,
+    ) {
+      Object.assign(this, mockImgInstance)
+      mockImgInstance = this as unknown as typeof mockImgInstance
+      return this
+    } as unknown as typeof Image)
   })
 
   afterEach(() => {
@@ -263,43 +267,40 @@ describe('loadImageFile()', () => {
   })
 
   it('should read a file and resolve with an image', async () => {
-    // Create a mock file
-    const file = new File(['fake-image-data'], 'test.png', { type: 'image/png' })
+    const file = new File(['fake-image-data'], 'test.png', {
+      type: 'image/png',
+    })
 
-    // Mock FileReader using a function constructor
-    const mockReaderInstance: Record<string, unknown> = {
-      onload: null,
-      onerror: null,
-      result: null,
-      readAsDataURL: vi.fn(),
-    }
-
-    vi.spyOn(globalThis, 'FileReader').mockImplementation(
-      function (this: FileReader) {
-        Object.assign(this, mockReaderInstance)
-        // Override readAsDataURL to fire onload asynchronously
-        this.readAsDataURL = vi.fn().mockImplementation(() => {
-          setTimeout(() => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            ;(this as any).onload?.({
-              target: { result: 'data:image/png;base64,abc123' },
-            })
-          }, 0)
-        })
-        // Store reference so we can inspect later
-        Object.assign(mockReaderInstance, { ref: this })
-        return this
-      } as unknown as typeof FileReader,
-    )
+    // Mock FileReader with addEventListener support
+    vi.spyOn(globalThis, 'FileReader').mockImplementation(function (
+      this: FileReader,
+    ) {
+      const listeners: Record<string, ((...args: unknown[]) => void)[]> = {}
+      this.addEventListener = (
+        type: string,
+        fn: (...args: unknown[]) => void,
+      ) => {
+        ;(listeners[type] ??= []).push(fn)
+      }
+      this.readAsDataURL = vi.fn().mockImplementation(() => {
+        setTimeout(() => {
+          listeners['load']?.forEach((fn) =>
+            fn({ target: { result: 'data:image/png;base64,abc123' } }),
+          )
+        }, 0)
+      })
+      return this
+    } as unknown as typeof FileReader)
 
     const promise = loadImageFile(file)
 
-    // After FileReader fires onload, loadImageURL is called which creates an Image.
-    // We need to wait for the Image's onload to be set, then trigger it.
+    // After FileReader fires load, loadImageURL is called which creates an Image.
+    // We need to wait for the Image's load listener to be set, then trigger it.
     await vi.waitFor(() => {
-      if (!mockImgInstance.onload) throw new Error('waiting for image onload to be set')
+      if (!mockImgInstance.listeners['load']?.length)
+        throw new Error('waiting for image load listener')
     })
-    mockImgInstance.onload?.()
+    mockImgInstance.listeners['load']?.forEach((fn) => fn())
 
     const result = await promise
     expect(result).toBe(mockImgInstance)
@@ -308,19 +309,23 @@ describe('loadImageFile()', () => {
   it('should reject when FileReader returns no data', async () => {
     const file = new File([''], 'empty.png', { type: 'image/png' })
 
-    vi.spyOn(globalThis, 'FileReader').mockImplementation(
-      function (this: FileReader) {
-        this.readAsDataURL = vi.fn().mockImplementation(() => {
-          setTimeout(() => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            ;(this as any).onload?.({
-              target: { result: null },
-            })
-          }, 0)
-        })
-        return this
-      } as unknown as typeof FileReader,
-    )
+    vi.spyOn(globalThis, 'FileReader').mockImplementation(function (
+      this: FileReader,
+    ) {
+      const listeners: Record<string, ((...args: unknown[]) => void)[]> = {}
+      this.addEventListener = (
+        type: string,
+        fn: (...args: unknown[]) => void,
+      ) => {
+        ;(listeners[type] ??= []).push(fn)
+      }
+      this.readAsDataURL = vi.fn().mockImplementation(() => {
+        setTimeout(() => {
+          listeners['load']?.forEach((fn) => fn({ target: { result: null } }))
+        }, 0)
+      })
+      return this
+    } as unknown as typeof FileReader)
 
     await expect(loadImageFile(file)).rejects.toThrow('No image data')
   })

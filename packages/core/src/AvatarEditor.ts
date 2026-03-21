@@ -11,6 +11,8 @@ import { loadImageURL } from './utils/loadImageURL'
 import { loadImageFile } from './utils/loadImageFile'
 import { isFileAPISupported } from './utils/isFileAPISupported'
 
+const toRadians = (degree: number) => degree * (Math.PI / 180)
+
 const defaultEmptyImage: ImageState = {
   x: 0.5,
   y: 0.5,
@@ -40,7 +42,9 @@ export class AvatarEditorCore {
     } as Required<AvatarEditorConfig>
 
     this.pixelRatio =
-      typeof window !== 'undefined' && window.devicePixelRatio && !this.config.disableHiDPIScaling
+      typeof window !== 'undefined' &&
+      window.devicePixelRatio &&
+      !this.config.disableHiDPIScaling
         ? window.devicePixelRatio
         : 1
   }
@@ -158,7 +162,10 @@ export class AvatarEditorCore {
     }
   }
 
-  getInitialSize(imgWidth: number, imgHeight: number): { width: number; height: number } {
+  getInitialSize(
+    imgWidth: number,
+    imgHeight: number,
+  ): { width: number; height: number } {
     let newHeight: number
     let newWidth: number
 
@@ -206,7 +213,10 @@ export class AvatarEditorCore {
     this.imageState = defaultEmptyImage
   }
 
-  calculatePosition(image = this.imageState, border?: number | [number, number]): {
+  calculatePosition(
+    image = this.imageState,
+    border?: number | [number, number],
+  ): {
     x: number
     y: number
     width: number
@@ -251,11 +261,7 @@ export class AvatarEditorCore {
 
     // clamp border radius between zero (perfect rectangle) and half the size without borders (perfect circle or "pill")
     borderRad = Math.max(borderRad, 0)
-    borderRad = Math.min(
-      borderRad,
-      w / 2 - borderSizeX,
-      h / 2 - borderSizeY,
-    )
+    borderRad = Math.min(borderRad, w / 2 - borderSizeX, h / 2 - borderSizeY)
 
     context.beginPath()
     // inner rect, possibly rounded
@@ -272,7 +278,8 @@ export class AvatarEditorCore {
 
     // Draw 1px border around the mask only if borderColor is provided
     if (this.config.borderColor) {
-      context.strokeStyle = 'rgba(' + this.config.borderColor.slice(0, 4).join(',') + ')'
+      context.strokeStyle =
+        'rgba(' + this.config.borderColor.slice(0, 4).join(',') + ')'
       context.lineWidth = 1
       context.beginPath()
       drawRoundedRect(
@@ -325,13 +332,7 @@ export class AvatarEditorCore {
     context.scale(scaleFactor, scaleFactor)
 
     context.globalCompositeOperation = 'destination-over'
-    context.drawImage(
-      image.resource,
-      pos.x,
-      pos.y,
-      pos.width,
-      pos.height,
-    )
+    context.drawImage(image.resource, pos.x, pos.y, pos.width, pos.height)
 
     if (this.config.backgroundColor) {
       context.fillStyle = this.config.backgroundColor
@@ -441,7 +442,6 @@ export class AvatarEditorCore {
     rot %= 360
     rot = rot < 0 ? rot + 360 : rot
 
-    const toRadians = (degree: number) => degree * (Math.PI / 180)
     const cos = Math.cos(toRadians(rot))
     const sin = Math.sin(toRadians(rot))
 

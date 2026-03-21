@@ -236,11 +236,7 @@ describe('AvatarEditor', () => {
 
     it('allows custom style to override default cursor', () => {
       const { container } = render(
-        <AvatarEditor
-          width={200}
-          height={200}
-          style={{ cursor: 'pointer' }}
-        />,
+        <AvatarEditor width={200} height={200} style={{ cursor: 'pointer' }} />,
       )
       const canvas = container.querySelector('canvas')!
       // Custom style overrides default because style = { ...defaultStyle, ...style }
@@ -272,11 +268,7 @@ describe('AvatarEditor', () => {
 
     it('does not pass disableBoundaryChecks as a DOM attribute', () => {
       const { container } = render(
-        <AvatarEditor
-          width={200}
-          height={200}
-          disableBoundaryChecks={true}
-        />,
+        <AvatarEditor width={200} height={200} disableBoundaryChecks={true} />,
       )
       const canvas = container.querySelector('canvas')!
       expect(canvas.getAttribute('disableBoundaryChecks')).toBeNull()
@@ -285,11 +277,7 @@ describe('AvatarEditor', () => {
 
     it('does not pass disableHiDPIScaling as a DOM attribute', () => {
       const { container } = render(
-        <AvatarEditor
-          width={200}
-          height={200}
-          disableHiDPIScaling={true}
-        />,
+        <AvatarEditor width={200} height={200} disableHiDPIScaling={true} />,
       )
       const canvas = container.querySelector('canvas')!
       expect(canvas.getAttribute('disableHiDPIScaling')).toBeNull()
@@ -298,11 +286,7 @@ describe('AvatarEditor', () => {
 
     it('does not pass disableCanvasRotation as a DOM attribute', () => {
       const { container } = render(
-        <AvatarEditor
-          width={200}
-          height={200}
-          disableCanvasRotation={false}
-        />,
+        <AvatarEditor width={200} height={200} disableCanvasRotation={false} />,
       )
       const canvas = container.querySelector('canvas')!
       expect(canvas.getAttribute('disableCanvasRotation')).toBeNull()
@@ -351,11 +335,7 @@ describe('AvatarEditor', () => {
   describe('position prop', () => {
     it('accepts position prop without error', () => {
       const { container } = render(
-        <AvatarEditor
-          width={200}
-          height={200}
-          position={{ x: 0.5, y: 0.5 }}
-        />,
+        <AvatarEditor width={200} height={200} position={{ x: 0.5, y: 0.5 }} />,
       )
       const canvas = container.querySelector('canvas')
       expect(canvas).toBeInTheDocument()
@@ -363,11 +343,7 @@ describe('AvatarEditor', () => {
 
     it('accepts a different position prop value', () => {
       const { container } = render(
-        <AvatarEditor
-          width={200}
-          height={200}
-          position={{ x: 0.3, y: 0.7 }}
-        />,
+        <AvatarEditor width={200} height={200} position={{ x: 0.3, y: 0.7 }} />,
       )
       const canvas = container.querySelector('canvas')
       expect(canvas).toBeInTheDocument()
@@ -389,9 +365,7 @@ describe('AvatarEditor', () => {
 
     it('does not call onMouseUp when not dragging', () => {
       const onMouseUp = vi.fn()
-      render(
-        <AvatarEditor width={200} height={200} onMouseUp={onMouseUp} />,
-      )
+      render(<AvatarEditor width={200} height={200} onMouseUp={onMouseUp} />)
 
       // Dispatch a native mouseup on document (no prior drag)
       document.dispatchEvent(new MouseEvent('mouseup'))
@@ -415,11 +389,7 @@ describe('AvatarEditor', () => {
     it('accepts onLoadFailure callback prop', () => {
       const onLoadFailure = vi.fn()
       const { container } = render(
-        <AvatarEditor
-          width={200}
-          height={200}
-          onLoadFailure={onLoadFailure}
-        />,
+        <AvatarEditor width={200} height={200} onLoadFailure={onLoadFailure} />,
       )
       const canvas = container.querySelector('canvas')
       expect(canvas).toBeInTheDocument()
@@ -428,11 +398,7 @@ describe('AvatarEditor', () => {
     it('accepts onImageChange callback prop', () => {
       const onImageChange = vi.fn()
       const { container } = render(
-        <AvatarEditor
-          width={200}
-          height={200}
-          onImageChange={onImageChange}
-        />,
+        <AvatarEditor width={200} height={200} onImageChange={onImageChange} />,
       )
       const canvas = container.querySelector('canvas')
       expect(canvas).toBeInTheDocument()

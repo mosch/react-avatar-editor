@@ -6,7 +6,10 @@ import type { ImageState, AvatarEditorConfig } from '../types'
  * Creates a minimal mock CanvasRenderingContext2D with all methods used by the
  * AvatarEditorCore class stubbed as vi.fn().
  */
-function createMockContext(canvasWidth = 300, canvasHeight = 300): CanvasRenderingContext2D {
+function createMockContext(
+  canvasWidth = 300,
+  canvasHeight = 300,
+): CanvasRenderingContext2D {
   const canvas = document.createElement('canvas')
   canvas.width = canvasWidth
   canvas.height = canvasHeight
@@ -40,15 +43,17 @@ function createMockContext(canvasWidth = 300, canvasHeight = 300): CanvasRenderi
  */
 function installCanvasContextMock() {
   const original = HTMLCanvasElement.prototype.getContext
-  vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockImplementation(function (
-    this: HTMLCanvasElement,
-    contextId: string,
-  ) {
-    if (contextId === '2d') {
-      return createMockContext(this.width, this.height) as unknown as CanvasRenderingContext2D
-    }
-    return original.call(this, contextId as '2d')
-  } as typeof HTMLCanvasElement.prototype.getContext)
+  vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockImplementation(
+    function (this: HTMLCanvasElement, contextId: string) {
+      if (contextId === '2d') {
+        return createMockContext(
+          this.width,
+          this.height,
+        ) as unknown as CanvasRenderingContext2D
+      }
+      return original.call(this, contextId as '2d')
+    } as typeof HTMLCanvasElement.prototype.getContext,
+  )
 }
 
 /**
@@ -64,7 +69,9 @@ function createFakeImage(width: number, height: number): HTMLImageElement {
 /**
  * Returns a default config suitable for most tests.
  */
-function defaultConfig(overrides: Partial<AvatarEditorConfig> = {}): AvatarEditorConfig {
+function defaultConfig(
+  overrides: Partial<AvatarEditorConfig> = {},
+): AvatarEditorConfig {
   return {
     width: 200,
     height: 200,
@@ -75,10 +82,7 @@ function defaultConfig(overrides: Partial<AvatarEditorConfig> = {}): AvatarEdito
 /**
  * Returns an ImageState with resource loaded (landscape image by default).
  */
-function loadedImageState(
-  imgWidth = 400,
-  imgHeight = 300,
-): ImageState {
+function loadedImageState(imgWidth = 400, imgHeight = 300): ImageState {
   return {
     x: 0.5,
     y: 0.5,
@@ -141,10 +145,12 @@ describe('AvatarEditorCore', () => {
   // ─── getDimensions ────────────────────────────────────────────────────
   describe('getDimensions()', () => {
     it('should compute canvas size including borders (non-rotated)', () => {
-      const editor = new AvatarEditorCore(defaultConfig({ width: 200, height: 150, border: 25 }))
+      const editor = new AvatarEditorCore(
+        defaultConfig({ width: 200, height: 150, border: 25 }),
+      )
       const dims = editor.getDimensions()
 
-      expect(dims.canvas.width).toBe(250)  // 200 + 25*2
+      expect(dims.canvas.width).toBe(250) // 200 + 25*2
       expect(dims.canvas.height).toBe(200) // 150 + 25*2
       expect(dims.width).toBe(200)
       expect(dims.height).toBe(150)
@@ -173,7 +179,7 @@ describe('AvatarEditorCore', () => {
       )
       const dims = editor.getDimensions()
 
-      expect(dims.canvas.width).toBe(220)  // 200 + 10*2
+      expect(dims.canvas.width).toBe(220) // 200 + 10*2
       expect(dims.canvas.height).toBe(240) // 200 + 20*2
     })
   })
@@ -181,22 +187,30 @@ describe('AvatarEditorCore', () => {
   // ─── isVertical ───────────────────────────────────────────────────────
   describe('isVertical()', () => {
     it('should return false for 0 degrees', () => {
-      const editor = new AvatarEditorCore(defaultConfig({ rotate: 0, disableCanvasRotation: false }))
+      const editor = new AvatarEditorCore(
+        defaultConfig({ rotate: 0, disableCanvasRotation: false }),
+      )
       expect(editor.isVertical()).toBe(false)
     })
 
     it('should return true for 90 degrees', () => {
-      const editor = new AvatarEditorCore(defaultConfig({ rotate: 90, disableCanvasRotation: false }))
+      const editor = new AvatarEditorCore(
+        defaultConfig({ rotate: 90, disableCanvasRotation: false }),
+      )
       expect(editor.isVertical()).toBe(true)
     })
 
     it('should return false for 180 degrees', () => {
-      const editor = new AvatarEditorCore(defaultConfig({ rotate: 180, disableCanvasRotation: false }))
+      const editor = new AvatarEditorCore(
+        defaultConfig({ rotate: 180, disableCanvasRotation: false }),
+      )
       expect(editor.isVertical()).toBe(false)
     })
 
     it('should return true for 270 degrees', () => {
-      const editor = new AvatarEditorCore(defaultConfig({ rotate: 270, disableCanvasRotation: false }))
+      const editor = new AvatarEditorCore(
+        defaultConfig({ rotate: 270, disableCanvasRotation: false }),
+      )
       expect(editor.isVertical()).toBe(true)
     })
 
@@ -211,9 +225,14 @@ describe('AvatarEditorCore', () => {
   // ─── getXScale / getYScale ────────────────────────────────────────────
   describe('getXScale() / getYScale()', () => {
     it('should return 1 for a square image on a square canvas', () => {
-      const editor = new AvatarEditorCore(defaultConfig({ width: 200, height: 200 }))
+      const editor = new AvatarEditorCore(
+        defaultConfig({ width: 200, height: 200 }),
+      )
       editor.setImageState({
-        x: 0.5, y: 0.5, width: 200, height: 200,
+        x: 0.5,
+        y: 0.5,
+        width: 200,
+        height: 200,
         resource: createFakeImage(200, 200),
       })
 
@@ -222,9 +241,14 @@ describe('AvatarEditorCore', () => {
     })
 
     it('should scale x for a landscape image on a square canvas', () => {
-      const editor = new AvatarEditorCore(defaultConfig({ width: 200, height: 200 }))
+      const editor = new AvatarEditorCore(
+        defaultConfig({ width: 200, height: 200 }),
+      )
       editor.setImageState({
-        x: 0.5, y: 0.5, width: 400, height: 200,
+        x: 0.5,
+        y: 0.5,
+        width: 400,
+        height: 200,
         resource: createFakeImage(400, 200),
       })
 
@@ -236,9 +260,14 @@ describe('AvatarEditorCore', () => {
     })
 
     it('should scale y for a portrait image on a square canvas', () => {
-      const editor = new AvatarEditorCore(defaultConfig({ width: 200, height: 200 }))
+      const editor = new AvatarEditorCore(
+        defaultConfig({ width: 200, height: 200 }),
+      )
       editor.setImageState({
-        x: 0.5, y: 0.5, width: 200, height: 400,
+        x: 0.5,
+        y: 0.5,
+        width: 200,
+        height: 400,
         resource: createFakeImage(200, 400),
       })
 
@@ -259,7 +288,9 @@ describe('AvatarEditorCore', () => {
     let editor: AvatarEditorCore
 
     beforeEach(() => {
-      editor = new AvatarEditorCore(defaultConfig({ width: 200, height: 200, scale: 1 }))
+      editor = new AvatarEditorCore(
+        defaultConfig({ width: 200, height: 200, scale: 1 }),
+      )
       editor.setImageState({
         x: 0.5,
         y: 0.5,
@@ -327,7 +358,9 @@ describe('AvatarEditorCore', () => {
   // ─── getInitialSize ───────────────────────────────────────────────────
   describe('getInitialSize()', () => {
     it('should compute size for a landscape image in a square canvas', () => {
-      const editor = new AvatarEditorCore(defaultConfig({ width: 200, height: 200, border: 0 }))
+      const editor = new AvatarEditorCore(
+        defaultConfig({ width: 200, height: 200, border: 0 }),
+      )
       const size = editor.getInitialSize(400, 200)
 
       // dimensions = { canvas: { width: 200, height: 200 }, width: 200, height: 200 }
@@ -339,7 +372,9 @@ describe('AvatarEditorCore', () => {
     })
 
     it('should compute size for a portrait image in a square canvas', () => {
-      const editor = new AvatarEditorCore(defaultConfig({ width: 200, height: 200, border: 0 }))
+      const editor = new AvatarEditorCore(
+        defaultConfig({ width: 200, height: 200, border: 0 }),
+      )
       const size = editor.getInitialSize(200, 400)
 
       // canvasRatio = 1, imageRatio = 2
@@ -350,7 +385,9 @@ describe('AvatarEditorCore', () => {
     })
 
     it('should compute size for a square image', () => {
-      const editor = new AvatarEditorCore(defaultConfig({ width: 200, height: 200, border: 0 }))
+      const editor = new AvatarEditorCore(
+        defaultConfig({ width: 200, height: 200, border: 0 }),
+      )
       const size = editor.getInitialSize(500, 500)
 
       // canvasRatio = 1, imageRatio = 1
@@ -360,7 +397,9 @@ describe('AvatarEditorCore', () => {
     })
 
     it('should account for borders in canvas dimensions', () => {
-      const editor = new AvatarEditorCore(defaultConfig({ width: 200, height: 200, border: 25 }))
+      const editor = new AvatarEditorCore(
+        defaultConfig({ width: 200, height: 200, border: 25 }),
+      )
       // getDimensions() returns:
       //   canvas: { width: 250, height: 250 }
       //   width: 200, height: 200
@@ -383,7 +422,9 @@ describe('AvatarEditorCore', () => {
     })
 
     it('should handle non-square canvas with landscape image', () => {
-      const editor = new AvatarEditorCore(defaultConfig({ width: 300, height: 200, border: 0 }))
+      const editor = new AvatarEditorCore(
+        defaultConfig({ width: 300, height: 200, border: 0 }),
+      )
       const size = editor.getInitialSize(600, 200)
 
       // canvasRatio = 200/300 = 0.667, imageRatio = 200/600 = 0.333
@@ -399,7 +440,9 @@ describe('AvatarEditorCore', () => {
     let editor: AvatarEditorCore
 
     beforeEach(() => {
-      editor = new AvatarEditorCore(defaultConfig({ width: 200, height: 200, rotate: 0 }))
+      editor = new AvatarEditorCore(
+        defaultConfig({ width: 200, height: 200, rotate: 0 }),
+      )
       editor.setImageState({
         x: 0.5,
         y: 0.5,
@@ -539,7 +582,9 @@ describe('AvatarEditorCore', () => {
     })
 
     it('should return a canvas element with correct dimensions', () => {
-      const editor = new AvatarEditorCore(defaultConfig({ width: 200, height: 200 }))
+      const editor = new AvatarEditorCore(
+        defaultConfig({ width: 200, height: 200 }),
+      )
       editor.setImageState(loadedImageState())
 
       const canvas = editor.getImageScaledToCanvas()
@@ -550,7 +595,12 @@ describe('AvatarEditorCore', () => {
 
     it('should swap dimensions when vertical', () => {
       const editor = new AvatarEditorCore(
-        defaultConfig({ width: 200, height: 150, rotate: 90, disableCanvasRotation: false }),
+        defaultConfig({
+          width: 200,
+          height: 150,
+          rotate: 90,
+          disableCanvasRotation: false,
+        }),
       )
       editor.setImageState(loadedImageState())
 
@@ -564,11 +614,15 @@ describe('AvatarEditorCore', () => {
   describe('calculatePosition()', () => {
     it('should throw when image has no dimensions', () => {
       const editor = new AvatarEditorCore(defaultConfig())
-      expect(() => editor.calculatePosition()).toThrow('Image dimension is unknown.')
+      expect(() => editor.calculatePosition()).toThrow(
+        'Image dimension is unknown.',
+      )
     })
 
     it('should return correct position values with loaded image', () => {
-      const editor = new AvatarEditorCore(defaultConfig({ width: 200, height: 200, border: 25 }))
+      const editor = new AvatarEditorCore(
+        defaultConfig({ width: 200, height: 200, border: 25 }),
+      )
       editor.setImageState({
         x: 0.5,
         y: 0.5,
@@ -587,7 +641,9 @@ describe('AvatarEditorCore', () => {
     })
 
     it('should account for scale', () => {
-      const editor = new AvatarEditorCore(defaultConfig({ width: 200, height: 200, scale: 2 }))
+      const editor = new AvatarEditorCore(
+        defaultConfig({ width: 200, height: 200, scale: 2 }),
+      )
       editor.setImageState({
         x: 0.5,
         y: 0.5,
@@ -602,7 +658,9 @@ describe('AvatarEditorCore', () => {
     })
 
     it('should accept a custom border override', () => {
-      const editor = new AvatarEditorCore(defaultConfig({ width: 200, height: 200, border: 25 }))
+      const editor = new AvatarEditorCore(
+        defaultConfig({ width: 200, height: 200, border: 25 }),
+      )
       editor.setImageState({
         x: 0.5,
         y: 0.5,
@@ -621,7 +679,9 @@ describe('AvatarEditorCore', () => {
   // ─── paint ────────────────────────────────────────────────────────────
   describe('paint()', () => {
     it('should call context methods for painting overlay', () => {
-      const editor = new AvatarEditorCore(defaultConfig({ width: 200, height: 200 }))
+      const editor = new AvatarEditorCore(
+        defaultConfig({ width: 200, height: 200 }),
+      )
       const ctx = createMockContext()
 
       editor.paint(ctx)
@@ -679,7 +739,9 @@ describe('AvatarEditorCore', () => {
   // ─── paintImage ───────────────────────────────────────────────────────
   describe('paintImage()', () => {
     it('should call drawImage with correct parameters', () => {
-      const editor = new AvatarEditorCore(defaultConfig({ width: 200, height: 200, border: 25 }))
+      const editor = new AvatarEditorCore(
+        defaultConfig({ width: 200, height: 200, border: 25 }),
+      )
       const imageState = loadedImageState()
       editor.setImageState(imageState)
 
@@ -704,7 +766,12 @@ describe('AvatarEditorCore', () => {
     it('should return early if no image resource', () => {
       const editor = new AvatarEditorCore(defaultConfig())
       const ctx = createMockContext()
-      const stateWithoutResource: ImageState = { x: 0.5, y: 0.5, width: 200, height: 200 }
+      const stateWithoutResource: ImageState = {
+        x: 0.5,
+        y: 0.5,
+        width: 200,
+        height: 200,
+      }
 
       editor.paintImage(ctx, stateWithoutResource, 25)
 
@@ -745,37 +812,34 @@ describe('AvatarEditorCore', () => {
     })
 
     it('should load an image from a URL string', async () => {
-      const editor = new AvatarEditorCore(defaultConfig({ width: 200, height: 200, border: 0 }))
-
-      // Create a proper class-based Image mock
-      const mockImgInstance = {
-        width: 400,
-        height: 300,
-        onload: null as (() => void) | null,
-        onerror: null as ((e: unknown) => void) | null,
-        src: '',
-        crossOrigin: null as string | null,
-      }
-
-      vi.spyOn(globalThis, 'Image').mockImplementation(
-        function (this: HTMLImageElement) {
-          Object.assign(this, mockImgInstance)
-          // Use a getter/setter to capture onload and auto-trigger on src set
-          let _src = ''
-          Object.defineProperty(this, 'src', {
-            get: () => _src,
-            set: (val: string) => {
-              _src = val
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              setTimeout(() => (this as any).onload?.(), 0)
-            },
-            configurable: true,
-          })
-          Object.defineProperty(this, 'width', { value: 400, writable: false })
-          Object.defineProperty(this, 'height', { value: 300, writable: false })
-          return this
-        } as unknown as typeof Image,
+      const editor = new AvatarEditorCore(
+        defaultConfig({ width: 200, height: 200, border: 0 }),
       )
+
+      vi.spyOn(globalThis, 'Image').mockImplementation(function (
+        this: HTMLImageElement,
+      ) {
+        const listeners: Record<string, ((...args: unknown[]) => void)[]> = {}
+        this.addEventListener = (
+          type: string,
+          fn: (...args: unknown[]) => void,
+        ) => {
+          ;(listeners[type] ??= []).push(fn)
+        }
+        // Auto-trigger load when src is set
+        let _src = ''
+        Object.defineProperty(this, 'src', {
+          get: () => _src,
+          set: (val: string) => {
+            _src = val
+            setTimeout(() => listeners['load']?.forEach((fn) => fn()), 0)
+          },
+          configurable: true,
+        })
+        Object.defineProperty(this, 'width', { value: 400, writable: false })
+        Object.defineProperty(this, 'height', { value: 300, writable: false })
+        return this
+      } as unknown as typeof Image)
 
       const imageState = await editor.loadImage('https://example.com/photo.jpg')
 
@@ -789,7 +853,9 @@ describe('AvatarEditorCore', () => {
     it('should throw for invalid source', async () => {
       const editor = new AvatarEditorCore(defaultConfig())
       // pass a number cast to any
-      await expect(editor.loadImage(42 as unknown as string)).rejects.toThrow('Invalid image source')
+      await expect(editor.loadImage(42 as unknown as string)).rejects.toThrow(
+        'Invalid image source',
+      )
     })
   })
 

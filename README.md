@@ -5,7 +5,7 @@
 [![Build Status](https://travis-ci.org/mosch/react-avatar-editor.svg?branch=master)](https://travis-ci.org/mosch/react-avatar-editor)
 [![Design](https://contribute.design/api/shield/mosch/react-avatar-editor)](https://contribute.design/mosch/react-avatar-editor)
 
-Avatar / profile picture cropping component (like on Facebook). 
+Avatar / profile picture cropping component (like on Facebook).
 Resize, crop and rotate your uploaded image using a simple and clean user interface.
 
 ## Features
@@ -15,7 +15,7 @@ Resize, crop and rotate your uploaded image using a simple and clean user interf
 - Resize
 - Crop
 - Rotate
-- Rounded or square image result 
+- Rounded or square image result
 
 ## Install
 
@@ -32,7 +32,6 @@ pnpm add react-avatar-editor
 ## [Demo](https://react-avatar-editor.netlify.app/)
 
 ![](https://thumbs.gfycat.com/FlawedBlushingGermanwirehairedpointer-size_restricted.gif)
-
 
 ## Usage
 

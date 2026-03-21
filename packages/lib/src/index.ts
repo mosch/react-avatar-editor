@@ -87,7 +87,7 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
       disableHiDPIScaling,
       disableCanvasRotation,
       crossOrigin,
-    })
+    }),
   )
 
   // Use refs for drag state to avoid stale closures in document-level listeners.
@@ -98,7 +98,9 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
 
   // Keep state for `drag` to trigger re-renders for cursor style
   const [drag, setDrag] = useState(false)
-  const [imageState, setImageState] = useState<ImageState>(coreRef.current.getImageState())
+  const [imageState, setImageState] = useState<ImageState>(
+    coreRef.current.getImageState(),
+  )
 
   // Store latest callback props in refs so document handlers always call current versions
   const onMouseUpRef = useRef(onMouseUp)
@@ -127,7 +129,23 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
       disableCanvasRotation,
       crossOrigin,
     })
-  }, [width, height, border, borderRadius, scale, rotate, color, backgroundColor, borderColor, showGrid, gridColor, disableBoundaryChecks, disableHiDPIScaling, disableCanvasRotation, crossOrigin])
+  }, [
+    width,
+    height,
+    border,
+    borderRadius,
+    scale,
+    rotate,
+    color,
+    backgroundColor,
+    borderColor,
+    showGrid,
+    gridColor,
+    disableBoundaryChecks,
+    disableHiDPIScaling,
+    disableCanvasRotation,
+    crossOrigin,
+  ])
 
   const getCanvas = useCallback((): HTMLCanvasElement => {
     if (!canvas.current) {
@@ -161,7 +179,7 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
         onLoadFailure?.()
       }
     },
-    [onImageReady, onLoadSuccess, onLoadFailure]
+    [onImageReady, onLoadSuccess, onLoadFailure],
   )
 
   const clearImage = useCallback(() => {
@@ -180,20 +198,24 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
     coreRef.current.paintImage(context, imageState, border)
   }, [getContext, getCanvas, imageState, border])
 
-  const handleMouseDown: MouseEventHandler<HTMLCanvasElement> = useCallback((e) => {
-    e.preventDefault()
-    dragRef.current = true
-    mxRef.current = undefined
-    myRef.current = undefined
-    setDrag(true)
-  }, [])
+  const handleMouseDown: MouseEventHandler<HTMLCanvasElement> = useCallback(
+    (e) => {
+      e.preventDefault()
+      dragRef.current = true
+      mxRef.current = undefined
+      myRef.current = undefined
+      setDrag(true)
+    },
+    [],
+  )
 
-  const handleTouchStart: TouchEventHandler<HTMLCanvasElement> = useCallback(() => {
-    dragRef.current = true
-    mxRef.current = undefined
-    myRef.current = undefined
-    setDrag(true)
-  }, [])
+  const handleTouchStart: TouchEventHandler<HTMLCanvasElement> =
+    useCallback(() => {
+      dragRef.current = true
+      mxRef.current = undefined
+      myRef.current = undefined
+      setDrag(true)
+    }, [])
 
   // Expose imperative methods via ref
   useImperativeHandle(
@@ -202,7 +224,7 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
       getImage: () => coreRef.current.getImage(),
       getImageScaledToCanvas: () => coreRef.current.getImageScaledToCanvas(),
     }),
-    []
+    [],
   )
 
   // Mount effect - setup document-level event listeners.
@@ -276,7 +298,11 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
       document.removeEventListener('mouseup', handleDocumentMouseUp, false)
 
       if (isTouchDevice) {
-        document.removeEventListener('touchmove', handleDocumentMouseMove, false)
+        document.removeEventListener(
+          'touchmove',
+          handleDocumentMouseMove,
+          false,
+        )
         document.removeEventListener('touchend', handleDocumentMouseUp, false)
       }
     }
@@ -331,7 +357,17 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
         imageY: imageState.y,
       }
     }
-  }, [image, width, height, position, scale, rotate, imageState.x, imageState.y, onImageChange])
+  }, [
+    image,
+    width,
+    height,
+    position,
+    scale,
+    rotate,
+    imageState.x,
+    imageState.y,
+    onImageChange,
+  ])
 
   const dimensions = coreRef.current.getDimensions()
   const pixelRatio = coreRef.current.getPixelRatio()
