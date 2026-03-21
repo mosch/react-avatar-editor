@@ -30,6 +30,15 @@ importers:
         specifier: 5.3.2
         version: 5.3.2
 
+  packages/core:
+    devDependencies:
+      tsdown:
+        specifier: ^0.16.7
+        version: 0.16.7(typescript@5.3.2)
+      typescript:
+        specifier: 5.3.2
+        version: 5.3.2
+
   packages/demo:
     dependencies:
       react:
@@ -63,6 +72,9 @@ importers:
 
   packages/lib:
     dependencies:
+      '@react-avatar-editor/core':
+        specifier: workspace:*
+        version: link:../core
       react:
         specifier: ^0.14.0 || ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
         version: 19.2.0

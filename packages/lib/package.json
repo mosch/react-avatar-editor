@@ -28,6 +28,9 @@
     "dist",
     "src"
   ],
+  "dependencies": {
+    "@react-avatar-editor/core": "workspace:*"
+  },
   "peerDependencies": {
     "react": "^0.14.0 || ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0",
     "react-dom": "^0.14.0 || ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"

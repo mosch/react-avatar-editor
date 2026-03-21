@@ -1,0 +1,41 @@
+{
+  "name": "@react-avatar-editor/core",
+  "version": "1.0.0",
+  "description": "Framework-agnostic core logic for avatar editing",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.cts",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      },
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      }
+    }
+  },
+  "scripts": {
+    "build": "tsdown",
+    "clean": "rm -rf dist"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "devDependencies": {
+    "tsdown": "^0.16.7",
+    "typescript": "5.3.2"
+  },
+  "license": "MIT",
+  "keywords": [
+    "canvas",
+    "avatar",
+    "editor",
+    "image",
+    "core"
+  ]
+}
