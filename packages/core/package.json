@@ -20,15 +20,18 @@
   },
   "scripts": {
     "build": "tsdown",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "test": "vitest run"
   },
   "files": [
     "dist",
     "src"
   ],
   "devDependencies": {
+    "jsdom": "^29.0.1",
     "tsdown": "^0.16.7",
-    "typescript": "5.3.2"
+    "typescript": "5.3.2",
+    "vitest": "^4.1.0"
   },
   "license": "MIT",
   "keywords": [
