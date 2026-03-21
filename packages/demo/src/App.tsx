@@ -1,10 +1,8 @@
-import {
-  type ChangeEvent,
-  type MouseEventHandler,
-  useRef,
-  useState,
-} from 'react'
-import AvatarEditor, { type Position } from 'react-avatar-editor'
+import { type ChangeEvent, type MouseEventHandler, useState } from 'react'
+import AvatarEditor, {
+  type Position,
+  useAvatarEditor,
+} from 'react-avatar-editor'
 import Dropzone from 'react-dropzone'
 import Preview from './Preview'
 
@@ -43,7 +41,7 @@ function hexToRgba(hex: string): [number, number, number, number] {
 }
 
 const App = () => {
-  const editor = useRef<AvatarEditor>(null)
+  const editor = useAvatarEditor()
   const [state, setState] = useState<State>({
     image: AvatarImagePath,
     allowZoomOut: false,
@@ -65,8 +63,8 @@ const App = () => {
     setState((s) => ({ ...s, ...patch }))
 
   const handleSave = () => {
-    const img = editor.current?.getImageScaledToCanvas().toDataURL()
-    const rect = editor.current?.getCroppingRect()
+    const img = editor.getImageScaledToCanvas()?.toDataURL()
+    const rect = editor.getCroppingRect()
     if (!img || !rect) return
     update({
       preview: {
@@ -111,7 +109,7 @@ const App = () => {
         {({ getRootProps, getInputProps }) => (
           <div {...getRootProps()} className="canvas-stage">
             <AvatarEditor
-              ref={editor}
+              ref={editor.ref}
               image={state.image}
               scale={state.scale}
               width={state.width}

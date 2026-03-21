@@ -1,7 +1,7 @@
 import React, { createRef } from 'react'
 import { render, fireEvent } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import AvatarEditor, { type AvatarEditorRef } from '../index'
+import AvatarEditor, { type AvatarEditorRef, useAvatarEditor } from '../index'
 
 describe('AvatarEditor', () => {
   let mockContext: Record<string, unknown>
@@ -420,6 +420,58 @@ describe('AvatarEditor', () => {
   describe('displayName', () => {
     it('has displayName set to "AvatarEditor"', () => {
       expect(AvatarEditor.displayName).toBe('AvatarEditor')
+    })
+  })
+
+  // -------------------------------------------------------
+  // 12. useAvatarEditor hook
+  // -------------------------------------------------------
+  describe('useAvatarEditor', () => {
+    function TestHarness() {
+      const editor = useAvatarEditor()
+      return (
+        <div>
+          <AvatarEditor ref={editor.ref} width={200} height={200} />
+          <button
+            data-testid="get-image"
+            onClick={() => {
+              const img = editor.getImage()
+              document.title = img ? 'got-image' : 'no-image'
+            }}
+          />
+          <button
+            data-testid="get-scaled"
+            onClick={() => {
+              const img = editor.getImageScaledToCanvas()
+              document.title = img ? 'got-scaled' : 'no-scaled'
+            }}
+          />
+          <button
+            data-testid="get-rect"
+            onClick={() => {
+              const rect = editor.getCroppingRect()
+              document.title = rect ? 'got-rect' : 'no-rect'
+            }}
+          />
+        </div>
+      )
+    }
+
+    it('provides ref that connects to the editor', () => {
+      const { container } = render(<TestHarness />)
+      expect(container.querySelector('canvas')).toBeInTheDocument()
+    })
+
+    it('getImage returns null before image is loaded', () => {
+      render(<TestHarness />)
+      fireEvent.click(document.querySelector('[data-testid="get-image"]')!)
+      expect(document.title).toBe('no-image')
+    })
+
+    it('getCroppingRect returns a rect', () => {
+      render(<TestHarness />)
+      fireEvent.click(document.querySelector('[data-testid="get-rect"]')!)
+      expect(document.title).toBe('got-rect')
     })
   })
 })

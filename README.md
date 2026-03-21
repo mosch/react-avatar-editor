@@ -2,149 +2,135 @@
 
 <a href="https://www.npmjs.com/package/react-avatar-editor"><img alt="npm version" src="https://badge.fury.io/js/react-avatar-editor.svg"></a>
 <a href="https://npmjs.org/package/react-avatar-editor"><img alt="Downloads" src="http://img.shields.io/npm/dm/react-avatar-editor.svg"></a>
-[![Build Status](https://travis-ci.org/mosch/react-avatar-editor.svg?branch=master)](https://travis-ci.org/mosch/react-avatar-editor)
-[![Design](https://contribute.design/api/shield/mosch/react-avatar-editor)](https://contribute.design/mosch/react-avatar-editor)
 
-Avatar / profile picture cropping component (like on Facebook).
+Avatar / profile picture cropping component for React.
 Resize, crop and rotate your uploaded image using a simple and clean user interface.
 
 ## Features
 
 - Fully typed, written in TypeScript
-- Provide your own input controls
-- Resize
-- Crop
-- Rotate
-- Rounded or square image result
+- Works with React 17, 18, and 19
+- Resize, crop, and rotate
+- Rounded or square crop area
+- Built-in loading indicator
+- `useAvatarEditor` hook for easy access to the editor API
+- Zero runtime dependencies
 
 ## Install
 
-Just use your favorite package manager to add `react-avatar-editor` to your project:
-
 ```sh
-yarn add react-avatar-editor
-
-npm i --save react-avatar-editor
-
-pnpm add react-avatar-editor
+npm i react-avatar-editor
 ```
-
-## [Demo](https://react-avatar-editor.netlify.app/)
-
-![](https://thumbs.gfycat.com/FlawedBlushingGermanwirehairedpointer-size_restricted.gif)
 
 ## Usage
 
-```javascript
-import React from 'react'
+### Basic
+
+```tsx
 import AvatarEditor from 'react-avatar-editor'
 
-const MyEditor = () => {
+function MyEditor() {
   return (
     <AvatarEditor
-      image="http://example.com/initialimage.jpg"
+      image="https://example.com/photo.jpg"
       width={250}
       height={250}
       border={50}
-      color={[255, 255, 255, 0.6]} // RGBA
+      color={[255, 255, 255, 0.6]}
       scale={1.2}
       rotate={0}
     />
   )
 }
-
-export default MyEditor
 ```
 
-### Props
+### With `useAvatarEditor` hook
 
-| Prop                   | Type             | Description                                                                                                                                                                                                                                                          |
-| ---------------------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| image                  | String\|File     | The URL of the image to use, or a File (e.g. from a file input).                                                                                                                                                                                                     |
-| width                  | Number           | The total width of the editor.                                                                                                                                                                                                                                       |
-| height                 | Number           | The total height of the editor.                                                                                                                                                                                                                                      |
-| border                 | Number\|Number[] | The cropping border. Image will be visible through the border, but cut off in the resulting image. Treated as horizontal and vertical borders when passed an array.                                                                                                  |
-| borderRadius           | Number           | The cropping area border radius.                                                                                                                                                                                                                                     |
-| color                  | Number[]         | The color of the cropping border, in the form: [red (0-255), green (0-255), blue (0-255), alpha (0.0-1.0)].                                                                                                                                                          |
-| borderColor            | Number[]         | The color of the 1px border around the mask, in the form: [red (0-255), green (0-255), blue (0-255), alpha (0.0-1.0)]. If not provided, no border will be drawn.                                                                                                     |
-| backgroundColor        | String           | The background color of the image if it's transparent.                                                                                                                                                                                                               |
-| style                  | Object           | Styles for the canvas element.                                                                                                                                                                                                                                       |
-| scale                  | Number           | The scale of the image. You can use this to add your own resizing slider.                                                                                                                                                                                            |
-| position               | Object           | The x and y co-ordinates (in the range 0 to 1) of the center of the cropping area of the image. Note that if you set this prop, you will need to keep it up to date via onPositionChange in order for panning to continue working.                                   |
-| rotate                 | Number           | The rotation degree of the image. You can use this to rotate image (e.g 90, 270 degrees).                                                                                                                                                                            |
-| crossOrigin            | String           | The value to use for the crossOrigin property of the image, if loaded from a non-data URL. Valid values are `"anonymous"` and `"use-credentials"`. See [this page](https://developer.mozilla.org/en-US/docs/Web/HTML/CORS_settings_attributes) for more information. |
-| className              | String\|String[] | className property passed to the canvas element                                                                                                                                                                                                                      |
-| onLoadFailure(event)   | function         | Invoked when an image (whether passed by props or dropped) load fails.                                                                                                                                                                                               |
-| onLoadSuccess(imgInfo) | function         | Invoked when an image (whether passed by props or dropped) load succeeds.                                                                                                                                                                                            |
-| onImageReady(event)    | function         | Invoked when the image is painted on the canvas the first time.                                                                                                                                                                                                      |
-| onMouseUp()            | function         | Invoked when the user releases their mouse button after interacting with the editor.                                                                                                                                                                                 |
-| onMouseMove(event)     | function         | Invoked when the user hold and moving the image.                                                                                                                                                                                                                     |
-| onImageChange()        | function         | Invoked when the user changed the image. Not invoked on the first render, and invoked multiple times during drag, etc.                                                                                                                                               |
-| onPositionChange()     | function         | Invoked when the user pans the editor to change the selected area of the image. Passed a position object in the form `{ x: 0.5, y: 0.5 }` where x and y are the relative x and y coordinates of the center of the selected area.                                     |
-| disableBoundaryChecks  | Boolean          | Set to `true` to allow the image to be moved outside the cropping boundary.                                                                                                                                                                                          |
-| disableHiDPIScaling    | Boolean          | Set to `true` to disable devicePixelRatio based canvas scaling. Can improve performance of very large canvases on mobile devices.                                                                                                                                    |
+The `useAvatarEditor` hook provides a clean API to access the editor's methods without managing refs manually. All methods return `null` if the editor isn't ready or no image is loaded.
 
-### Accessing the resulting image
+```tsx
+import AvatarEditor, { useAvatarEditor } from 'react-avatar-editor'
 
-The resulting image will have the same resolution as the original image, for that you can use `getImage`, regardless of the editor's size.
-If you want the image sized in the dimensions of the canvas you can use `getImageScaledToCanvas`.
+function MyEditor() {
+  const editor = useAvatarEditor()
 
-```javascript
-import React, { useRef } from 'react'
-import AvatarEditor from 'react-avatar-editor'
-
-const MyEditor = () => {
-  const editor = useRef(null);
-
-  render() {
-    return (
-      <div>
-        <AvatarEditor
-          ref={editor}
-          image="http://example.com/initialimage.jpg"
-          width={250}
-          height={250}
-          border={50}
-          scale={1.2}
-        />
-        <button onClick={() => {
-          if (this.editor) {
-            // This returns a HTMLCanvasElement, it can be made into a data URL or a blob,
-            // drawn on another canvas, or added to the DOM.
-            const canvas = editor.current.getImage()
-
-            // If you want the image resized to the canvas size (also a HTMLCanvasElement)
-            const canvasScaled = editor.current.getImageScaledToCanvas()
-          }
-        }}>Save</button>
-      </div>
-    )
+  const handleSave = () => {
+    const canvas = editor.getImageScaledToCanvas()
+    if (canvas) {
+      const dataUrl = canvas.toDataURL()
+      // upload dataUrl to your server
+    }
   }
-}
 
-export default MyEditor
+  return (
+    <div>
+      <AvatarEditor
+        ref={editor.ref}
+        image="https://example.com/photo.jpg"
+        width={250}
+        height={250}
+        border={50}
+        scale={1.2}
+      />
+      <button onClick={handleSave}>Save</button>
+    </div>
+  )
+}
 ```
 
-### Adding drag and drop
+#### Hook methods
 
-We recommend using [react-dropzone](https://github.com/react-dropzone/react-dropzone). It allows you to add
-drag and drop support to anything really easy. Here is an example how to use it with react-avatar-editor:
+| Method                     | Returns                     | Description                                             |
+| -------------------------- | --------------------------- | ------------------------------------------------------- |
+| `ref`                      | `RefObject`                 | Pass this to the `ref` prop of `AvatarEditor`.          |
+| `getImage()`               | `HTMLCanvasElement \| null` | The cropped image at the original resolution.           |
+| `getImageScaledToCanvas()` | `HTMLCanvasElement \| null` | The cropped image scaled to the editor dimensions.      |
+| `getCroppingRect()`        | `object \| null`            | The crop area as `{ x, y, width, height }` (0–1 range). |
 
-```javascript
-import React, { useState } from 'react'
+### With ref (alternative)
+
+If you prefer using refs directly:
+
+```tsx
+import { useRef } from 'react'
+import AvatarEditor, { type AvatarEditorRef } from 'react-avatar-editor'
+
+function MyEditor() {
+  const editor = useRef<AvatarEditorRef>(null)
+
+  return (
+    <div>
+      <AvatarEditor
+        ref={editor}
+        image="https://example.com/photo.jpg"
+        width={250}
+        height={250}
+      />
+      <button
+        onClick={() => {
+          const canvas = editor.current?.getImageScaledToCanvas()
+        }}
+      >
+        Save
+      </button>
+    </div>
+  )
+}
+```
+
+### With drag and drop
+
+Using [react-dropzone](https://github.com/react-dropzone/react-dropzone):
+
+```tsx
 import AvatarEditor from 'react-avatar-editor'
 import Dropzone from 'react-dropzone'
 
-const MyEditor = () => {
-  const [image, setImage] = useState('http://example.com/initialimage.jpg')
+function MyEditor() {
+  const [image, setImage] = useState('https://example.com/photo.jpg')
 
   return (
-    <Dropzone
-      onDrop={(dropped) => setImage(dropped[0])}
-      noClick
-      noKeyboard
-      style={{ width: '250px', height: '250px' }}
-    >
+    <Dropzone onDrop={([file]) => setImage(file)} noClick noKeyboard>
       {({ getRootProps, getInputProps }) => (
         <div {...getRootProps()}>
           <AvatarEditor width={250} height={250} image={image} />
@@ -156,42 +142,47 @@ const MyEditor = () => {
 }
 ```
 
-### Accessing the cropping rectangle
+## Props
 
-Sometimes you will need to get the cropping rectangle (the coordinates of the area of the image to keep),
-for example in case you intend to perform the actual cropping server-side.
-
-`getCroppingRect()` returns an object with four properties: `x`, `y`, `width` and `height`;
-all relative to the image size (that is, comprised between 0 and 1). It is a method of AvatarEditor elements,
-like `getImage()`.
-
-_Note that:_ `getImage()` returns a canvas element and if you want to use it in `src` attribute of `img`, convert it into a blob url.
-
-```js
-const getImageUrl = async () => {
-  const dataUrl = editor.current.getImage().toDataURL()
-  const res = await fetch(dataUrl)
-  const blob = await res.blob()
-
-  return window.URL.createObjectURL(blob)
-}
-
-// Usage
-const imageURL = await getImageUrl()
-
-<img src={imageURL} ... />
-```
+| Prop                    | Type                 | Default          | Description                                                                                   |
+| ----------------------- | -------------------- | ---------------- | --------------------------------------------------------------------------------------------- |
+| `image`                 | `string \| File`     |                  | The URL or File object of the image to edit.                                                  |
+| `width`                 | `number`             | `200`            | Width of the crop area in pixels.                                                             |
+| `height`                | `number`             | `200`            | Height of the crop area in pixels.                                                            |
+| `border`                | `number \| number[]` | `25`             | Border size around the crop area. Use an array `[horizontal, vertical]` for different values. |
+| `borderRadius`          | `number`             | `0`              | Border radius of the crop area. Set to `width / 2` for a circle.                              |
+| `color`                 | `number[]`           | `[0, 0, 0, 0.5]` | RGBA color of the crop mask overlay.                                                          |
+| `borderColor`           | `number[]`           |                  | RGBA color of the 1px border around the crop area. No border if omitted.                      |
+| `backgroundColor`       | `string`             |                  | Background color for transparent images (CSS color string).                                   |
+| `scale`                 | `number`             | `1`              | Zoom level. `1` = fit, `> 1` = zoom in, `< 1` = zoom out (requires `disableBoundaryChecks`).  |
+| `rotate`                | `number`             | `0`              | Rotation in degrees.                                                                          |
+| `position`              | `{ x, y }`           |                  | Center of the crop area (0–1 range). Set this + `onPositionChange` for controlled panning.    |
+| `style`                 | `CSSProperties`      |                  | Additional CSS styles for the canvas element.                                                 |
+| `crossOrigin`           | `string`             |                  | `crossOrigin` attribute for the image. Use `"anonymous"` for CORS images.                     |
+| `showGrid`              | `boolean`            | `false`          | Show a rule-of-thirds grid overlay.                                                           |
+| `gridColor`             | `string`             | `"#666"`         | Color of the grid lines.                                                                      |
+| `disableBoundaryChecks` | `boolean`            | `false`          | Allow the image to be moved outside the crop boundary.                                        |
+| `disableHiDPIScaling`   | `boolean`            | `false`          | Disable `devicePixelRatio` scaling. Can improve performance on mobile.                        |
+| `disableCanvasRotation` | `boolean`            | `true`           | When `false`, the canvas resizes to fit the rotated image.                                    |
+| `onLoadStart`           | `() => void`         |                  | Called when image loading begins.                                                             |
+| `onLoadSuccess`         | `(image) => void`    |                  | Called when the image loads successfully.                                                     |
+| `onLoadFailure`         | `() => void`         |                  | Called when the image fails to load.                                                          |
+| `onImageReady`          | `() => void`         |                  | Called when the image is first painted on the canvas.                                         |
+| `onImageChange`         | `() => void`         |                  | Called on every visual change (drag, scale, rotate, etc.).                                    |
+| `onMouseUp`             | `() => void`         |                  | Called when the user releases the mouse after dragging.                                       |
+| `onMouseMove`           | `(event) => void`    |                  | Called on every mouse/touch move while dragging.                                              |
+| `onPositionChange`      | `(position) => void` |                  | Called when the crop position changes. Receives `{ x, y }`.                                   |
 
 ## Contributing
 
-For development you can use following build tools:
-
-- `npm run build`: Builds the _minified_ dist file: `dist/index.js`
-- `npm run watch`: Watches for file changes and builds _unminified_ into: `dist/index.js`
-- `npm run demo:build`: Builds the demo based on the dist file `dist/index.js`
-- `npm run demo:watch`: Run webpack-dev-server. Check demo website [localhost:8080](http://localhost:8080)
+```sh
+pnpm install          # install dependencies
+pnpm build            # build the library
+pnpm lint             # run oxlint
+pnpm fmt              # format with oxfmt
+pnpm demo:dev         # run demo at localhost:3000
+```
 
 ### Kudos
 
-Kudos and thanks to [dan-lee](https://github.com/dan-lee) for the work & many contributions to this project!
-Also [oyeanuj](https://github.com/oyeanuj), [mtlewis](https://github.com/mtlewis) and [hu9o](https://github.com/hu9o) and all other awesome people contributing to this in any way.
+Thanks to [dan-lee](https://github.com/dan-lee) for many contributions to this project, and to all other contributors.

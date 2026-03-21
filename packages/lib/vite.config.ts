@@ -20,6 +20,9 @@ export default defineConfig({
     sourcemap: true,
     rollupOptions: {
       external: ['react', 'react-dom'],
+      output: {
+        exports: 'named',
+      },
     },
   },
   resolve: {

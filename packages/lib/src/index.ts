@@ -38,6 +38,7 @@ export type { Position, ImageState }
 export interface AvatarEditorRef {
   getImage: () => HTMLCanvasElement
   getImageScaledToCanvas: () => HTMLCanvasElement
+  getCroppingRect: () => { x: number; y: number; width: number; height: number }
 }
 
 const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
@@ -249,6 +250,7 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
     () => ({
       getImage: () => coreRef.current.getImage(),
       getImageScaledToCanvas: () => coreRef.current.getImageScaledToCanvas(),
+      getCroppingRect: () => coreRef.current.getCroppingRect(),
     }),
     [],
   )
@@ -446,5 +448,35 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
 })
 
 AvatarEditor.displayName = 'AvatarEditor'
+
+export function useAvatarEditor() {
+  const ref = useRef<AvatarEditorRef>(null)
+
+  return {
+    ref,
+    getImage: (): HTMLCanvasElement | null => {
+      try {
+        return ref.current?.getImage() ?? null
+      } catch {
+        return null
+      }
+    },
+    getImageScaledToCanvas: (): HTMLCanvasElement | null => {
+      try {
+        return ref.current?.getImageScaledToCanvas() ?? null
+      } catch {
+        return null
+      }
+    },
+    getCroppingRect: (): {
+      x: number
+      y: number
+      width: number
+      height: number
+    } | null => {
+      return ref.current?.getCroppingRect() ?? null
+    },
+  }
+}
 
 export default AvatarEditor
