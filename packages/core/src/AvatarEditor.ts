@@ -400,6 +400,7 @@ export class AvatarEditorCore {
 
   getImageScaledToCanvas(): HTMLCanvasElement {
     const dimensions = this.getDimensions()
+    const image = this.imageState
     const canvasEl = document.createElement('canvas')
 
     if (this.isVertical()) {
@@ -410,8 +411,32 @@ export class AvatarEditorCore {
       canvasEl.height = dimensions.height
     }
 
-    // don't paint a border here, as it is the resulting image
-    this.paintImage(canvasEl.getContext('2d')!, this.imageState, 0, 1)
+    if (!image.resource) return canvasEl
+
+    const context = canvasEl.getContext('2d')
+    if (!context) return canvasEl
+
+    const pos = this.calculatePosition(image, 0)
+
+    context.save()
+    context.translate(canvasEl.width / 2, canvasEl.height / 2)
+    context.rotate((this.config.rotate * Math.PI) / 180)
+    context.translate(-(canvasEl.width / 2), -(canvasEl.height / 2))
+
+    if (this.isVertical()) {
+      context.translate(
+        (canvasEl.width - canvasEl.height) / 2,
+        (canvasEl.height - canvasEl.width) / 2,
+      )
+    }
+
+    if (this.config.backgroundColor) {
+      context.fillStyle = this.config.backgroundColor
+      context.fillRect(0, 0, canvasEl.width, canvasEl.height)
+    }
+
+    context.drawImage(image.resource, pos.x, pos.y, pos.width, pos.height)
+    context.restore()
 
     return canvasEl
   }
