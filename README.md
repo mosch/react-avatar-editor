@@ -142,6 +142,41 @@ function MyEditor() {
 }
 ```
 
+### Animated rotation
+
+The `rotate` prop can be animated using any animation library. Here's an example with [motion](https://motion.dev):
+
+```tsx
+import { useState } from 'react'
+import { useMotionValue, useSpring, useMotionValueEvent } from 'motion/react'
+import AvatarEditor from 'react-avatar-editor'
+
+function MyEditor() {
+  const [rotate, setRotate] = useState(0)
+  const [animatedRotate, setAnimatedRotate] = useState(0)
+
+  const rotateMotion = useMotionValue(0)
+  const rotateSpring = useSpring(rotateMotion, { stiffness: 200, damping: 25 })
+
+  useMotionValueEvent(rotateSpring, 'change', (v) => setAnimatedRotate(v))
+
+  if (rotateMotion.get() !== rotate) {
+    rotateMotion.set(rotate)
+  }
+
+  return (
+    <>
+      <AvatarEditor
+        image="https://example.com/photo.jpg"
+        rotate={animatedRotate}
+      />
+      <button onClick={() => setRotate((r) => r - 90)}>↺</button>
+      <button onClick={() => setRotate((r) => r + 90)}>↻</button>
+    </>
+  )
+}
+```
+
 ## Props
 
 | Prop                    | Type                 | Default          | Description                                                                                   |
