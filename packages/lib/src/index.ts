@@ -195,7 +195,27 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
     context.clearRect(0, 0, canvasEl.width, canvasEl.height)
     coreRef.current.paint(context)
     coreRef.current.paintImage(context, imageState, border)
-  }, [getContext, getCanvas, imageState, border])
+    // eslint-disable-next-line -- all visual props must trigger repaint
+  }, [
+    getContext,
+    getCanvas,
+    imageState,
+    border,
+    width,
+    height,
+    borderRadius,
+    scale,
+    rotate,
+    color,
+    backgroundColor,
+    borderColor,
+    showGrid,
+    gridColor,
+    disableBoundaryChecks,
+    disableHiDPIScaling,
+    disableCanvasRotation,
+    crossOrigin,
+  ])
 
   const handleMouseDown: MouseEventHandler<HTMLCanvasElement> = useCallback(
     (e) => {
