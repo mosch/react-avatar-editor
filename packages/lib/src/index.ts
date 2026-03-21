@@ -97,8 +97,9 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
   const mxRef = useRef<number | undefined>(undefined)
   const myRef = useRef<number | undefined>(undefined)
 
-  // Keep state for `drag` to trigger re-renders for cursor style
+  // Keep state for `drag` and `loading` to trigger re-renders
   const [drag, setDrag] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [imageState, setImageState] = useState<ImageState>(
     coreRef.current.getImageState(),
   )
@@ -169,6 +170,7 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
 
   const loadImage = useCallback(
     async (file: File | string) => {
+      setLoading(true)
       onLoadStart?.()
       try {
         const newImageState = await coreRef.current.loadImage(file)
@@ -179,6 +181,8 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
         onLoadSuccess?.(newImageState)
       } catch {
         onLoadFailure?.()
+      } finally {
+        setLoading(false)
       }
     },
     [onLoadStart, onImageReady, onLoadSuccess, onLoadFailure],
@@ -399,24 +403,33 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
     height: dimensions.canvas.height,
     cursor: drag ? 'grabbing' : 'grab',
     touchAction: 'none',
-    // Prevent CSS resets (common in Next.js/Tailwind) from shrinking the
-    // canvas when devicePixelRatio > 1 (e.g. Windows display scaling > 100%)
     maxWidth: 'none',
     maxHeight: 'none',
   }
 
-  const attributes: JSX.IntrinsicElements['canvas'] = {
+  if (loading) {
+    defaultStyle.boxShadow = '0 0 0 2px rgba(255,255,255,0.4)'
+    defaultStyle.animation = 'rae-pulse 1.2s ease-in-out infinite'
+  }
+
+  const styleEl = loading
+    ? React.createElement(
+        'style',
+        null,
+        '@keyframes rae-pulse{0%,100%{box-shadow:0 0 0 2px rgba(255,255,255,0.15)}50%{box-shadow:0 0 0 3px rgba(255,255,255,0.5)}}',
+      )
+    : null
+
+  const canvasEl = React.createElement('canvas', {
     width: dimensions.canvas.width * pixelRatio,
     height: dimensions.canvas.height * pixelRatio,
     onMouseDown: handleMouseDown,
     onTouchStart: handleTouchStart,
     style: { ...defaultStyle, ...style },
-  }
-
-  return React.createElement('canvas', {
-    ...attributes,
     ref: canvas,
   })
+
+  return React.createElement(React.Fragment, null, styleEl, canvasEl)
 })
 
 AvatarEditor.displayName = 'AvatarEditor'
