@@ -48,4 +48,4 @@ jobs:
         run: pnpm --filter @react-avatar-editor/core test
 
       - name: Unit tests (lib)
-        run: pnpm --filter react-avatar-editor test:unit
+        run: pnpm --filter react-avatar-editor test
