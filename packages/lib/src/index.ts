@@ -2,6 +2,7 @@ import React, {
   type TouchEventHandler,
   type CSSProperties,
   type MouseEventHandler,
+  type KeyboardEventHandler,
   useState,
   useRef,
   useEffect,
@@ -22,6 +23,7 @@ export interface Props extends AvatarEditorConfig {
   style?: CSSProperties
   image?: string | File
   position?: Position
+  keyboardStep?: number
   onLoadStart?: () => void
   onLoadFailure?: () => void
   onLoadSuccess?: (image: ImageState) => void
@@ -30,6 +32,7 @@ export interface Props extends AvatarEditorConfig {
   onMouseUp?: () => void
   onMouseMove?: (e: TouchEvent | MouseEvent) => void
   onPositionChange?: (position: Position) => void
+  onScaleChange?: (scale: number) => void
 }
 
 export type { Position, ImageState }
@@ -66,8 +69,10 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
     onMouseUp,
     onMouseMove,
     onPositionChange,
+    onScaleChange,
     borderColor,
     style,
+    keyboardStep = 1,
   } = props
 
   const canvas = useRef<HTMLCanvasElement>(null)
@@ -109,6 +114,8 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
   onMouseUpRef.current = onMouseUp
   const onMouseMoveRef = useRef(onMouseMove)
   onMouseMoveRef.current = onMouseMove
+  const onScaleChangeRef = useRef(onScaleChange)
+  onScaleChangeRef.current = onScaleChange
   const onPositionChangeRef = useRef(onPositionChange)
   onPositionChangeRef.current = onPositionChange
 
@@ -231,6 +238,7 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
       mxRef.current = undefined
       myRef.current = undefined
       setDrag(true)
+      canvas.current?.focus()
     },
     [],
   )
@@ -242,6 +250,56 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
       myRef.current = undefined
       setDrag(true)
     }, [])
+
+  const handleKeyDown: KeyboardEventHandler<HTMLCanvasElement> = useCallback(
+    (e) => {
+      const currentImageState = coreRef.current.getImageState()
+      if (!currentImageState.width || !currentImageState.height) return
+
+      const step = e.shiftKey ? keyboardStep * 10 : keyboardStep
+
+      switch (e.key) {
+        case 'ArrowUp':
+        case 'ArrowDown':
+        case 'ArrowLeft':
+        case 'ArrowRight': {
+          e.preventDefault()
+          const deltaX =
+            e.key === 'ArrowLeft' ? step : e.key === 'ArrowRight' ? -step : 0
+          const deltaY =
+            e.key === 'ArrowUp' ? step : e.key === 'ArrowDown' ? -step : 0
+          const newPosition = coreRef.current.calculateDragPosition(
+            0,
+            0,
+            deltaX,
+            deltaY,
+          )
+          onPositionChangeRef.current?.(newPosition)
+          const updatedImageState = { ...currentImageState, ...newPosition }
+          coreRef.current.setImageState(updatedImageState)
+          setImageState(updatedImageState)
+          break
+        }
+        case '+':
+        case '=': {
+          e.preventDefault()
+          const zoomStep = e.shiftKey ? 0.5 : 0.1
+          onScaleChangeRef.current?.(scale + zoomStep)
+          break
+        }
+        case '-': {
+          e.preventDefault()
+          const zoomStep = e.shiftKey ? 0.5 : 0.1
+          onScaleChangeRef.current?.(Math.max(0.1, scale - zoomStep))
+          break
+        }
+        case 'Escape':
+          canvas.current?.blur()
+          break
+      }
+    },
+    [keyboardStep, scale],
+  )
 
   // Expose imperative methods via ref
   useImperativeHandle(
@@ -431,6 +489,11 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
     height: dimensions.canvas.height * pixelRatio,
     onMouseDown: handleMouseDown,
     onTouchStart: handleTouchStart,
+    onKeyDown: handleKeyDown,
+    tabIndex: 0,
+    role: 'application',
+    'aria-roledescription': 'image editor',
+    'aria-label': 'Image editor. Use arrow keys to reposition the image.',
     style: { ...defaultStyle, ...style },
     ref: canvas,
   })

@@ -87,3 +87,28 @@ test('exported image has no color overlay', async ({ page }) => {
   await expect(previewImg).toBeVisible()
   expect(await previewImg.screenshot()).toMatchSnapshot()
 })
+
+test('canvas is keyboard accessible', async ({ page }) => {
+  await page.goto('/')
+  await page.waitForSelector('canvas')
+  await page.waitForTimeout(500)
+
+  const canvas = page.locator('canvas')
+
+  // Verify ARIA attributes
+  await expect(canvas).toHaveAttribute('role', 'application')
+  await expect(canvas).toHaveAttribute('tabindex', '0')
+  await expect(canvas).toHaveAttribute('aria-roledescription', 'image editor')
+
+  // Focus canvas and use arrow keys to pan
+  await canvas.focus()
+  await page.keyboard.press('ArrowRight')
+  await page.keyboard.press('ArrowRight')
+  await page.keyboard.press('ArrowRight')
+  await page.keyboard.press('ArrowDown')
+  await page.keyboard.press('ArrowDown')
+  await page.waitForTimeout(200)
+
+  // Image should have moved — screenshot will differ from default
+  expect(await canvas.screenshot()).toMatchSnapshot()
+})

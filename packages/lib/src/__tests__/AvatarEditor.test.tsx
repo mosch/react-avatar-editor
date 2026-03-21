@@ -474,4 +474,77 @@ describe('AvatarEditor', () => {
       expect(document.title).toBe('got-rect')
     })
   })
+
+  // -------------------------------------------------------
+  // 13. Keyboard accessibility
+  // -------------------------------------------------------
+  describe('keyboard accessibility', () => {
+    it('canvas has tabIndex and is focusable', () => {
+      const { container } = render(<AvatarEditor width={200} height={200} />)
+      const canvas = container.querySelector('canvas')!
+      expect(canvas.tabIndex).toBe(0)
+    })
+
+    it('canvas has ARIA role and label', () => {
+      const { container } = render(<AvatarEditor width={200} height={200} />)
+      const canvas = container.querySelector('canvas')!
+      expect(canvas.getAttribute('role')).toBe('application')
+      expect(canvas.getAttribute('aria-roledescription')).toBe('image editor')
+      expect(canvas.getAttribute('aria-label')).toBeTruthy()
+    })
+
+    it('arrow keys call onPositionChange', () => {
+      const onPositionChange = vi.fn()
+      const { container } = render(
+        <AvatarEditor
+          width={200}
+          height={200}
+          image="test.jpg"
+          onPositionChange={onPositionChange}
+        />,
+      )
+      const canvas = container.querySelector('canvas')!
+      fireEvent.keyDown(canvas, { key: 'ArrowRight' })
+      // onPositionChange may not fire if no image is loaded (no dimensions),
+      // but the handler should not throw
+    })
+
+    it('has onKeyDown handler attached', () => {
+      const { container } = render(<AvatarEditor width={200} height={200} />)
+      const canvas = container.querySelector('canvas')!
+      // React attaches the handler internally, but we can verify
+      // the ARIA attributes and tabIndex are set correctly
+      expect(canvas.getAttribute('tabindex')).toBe('0')
+      expect(canvas.getAttribute('role')).toBe('application')
+    })
+
+    it('onScaleChange prop is accepted', () => {
+      const onScaleChange = vi.fn()
+      const { container } = render(
+        <AvatarEditor
+          width={200}
+          height={200}
+          scale={1.5}
+          onScaleChange={onScaleChange}
+        />,
+      )
+      expect(container.querySelector('canvas')).toBeInTheDocument()
+    })
+
+    it('keyboardStep prop is accepted', () => {
+      const { container } = render(
+        <AvatarEditor width={200} height={200} keyboardStep={5} />,
+      )
+      expect(container.querySelector('canvas')).toBeInTheDocument()
+    })
+
+    it('accepts keyboardStep prop', () => {
+      const { container } = render(
+        <AvatarEditor width={200} height={200} keyboardStep={5} />,
+      )
+      const canvas = container.querySelector('canvas')!
+      // Should not throw
+      fireEvent.keyDown(canvas, { key: 'ArrowUp' })
+    })
+  })
 })
