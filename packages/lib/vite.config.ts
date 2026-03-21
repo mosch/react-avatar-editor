@@ -12,7 +12,7 @@ export default defineConfig({
     },
     sourcemap: true,
     rollupOptions: {
-      external: ['react', 'react-dom', '@react-avatar-editor/core'],
+      external: ['react', 'react-dom'],
     },
   },
   resolve: {

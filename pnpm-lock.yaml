@@ -74,10 +74,6 @@ importers:
         version: 8.0.1
 
   packages/lib:
-    dependencies:
-      '@react-avatar-editor/core':
-        specifier: workspace:*
-        version: link:../core
     devDependencies:
       '@playwright/test':
         specifier: ^1.58.2
