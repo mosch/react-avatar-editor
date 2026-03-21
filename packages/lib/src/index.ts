@@ -341,6 +341,10 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
     height: dimensions.canvas.height,
     cursor: drag ? 'grabbing' : 'grab',
     touchAction: 'none',
+    // Prevent CSS resets (common in Next.js/Tailwind) from shrinking the
+    // canvas when devicePixelRatio > 1 (e.g. Windows display scaling > 100%)
+    maxWidth: 'none',
+    maxHeight: 'none',
   }
 
   const attributes: JSX.IntrinsicElements['canvas'] = {
