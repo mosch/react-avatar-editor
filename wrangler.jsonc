@@ -2,6 +2,6 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "pages": {
     "build_command": "pnpm demo:build",
-    "build_output_dir": "packages/demo/dist"
-  }
+    "build_output_dir": "packages/demo/dist",
+  },
 }
