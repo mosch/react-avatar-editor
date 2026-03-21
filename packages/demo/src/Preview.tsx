@@ -13,12 +13,11 @@ const Preview = ({ rect, image, width, height }: Props) => {
 
   React.useEffect(() => {
     const ctx = canvas.current?.getContext('2d')
-
     if (!ctx || !imageRef.current) return
 
     ctx.clearRect(0, 0, width, height)
-
-    ctx.strokeStyle = 'red'
+    ctx.strokeStyle = 'rgba(224, 108, 64, 0.8)'
+    ctx.lineWidth = 1.5
 
     if (rect && (rect.width > 1 || rect.height > 1)) {
       ctx.drawImage(
@@ -28,13 +27,9 @@ const Preview = ({ rect, image, width, height }: Props) => {
         Math.round(width / rect.width),
         Math.round(height / rect.height),
       )
-
-      if (rect) {
-        ctx.strokeRect(1, 1, Math.round(width) - 2, Math.round(height) - 2)
-      }
+      ctx.strokeRect(1, 1, Math.round(width) - 2, Math.round(height) - 2)
     } else {
       ctx.drawImage(imageRef.current, 0, 0, width, height)
-
       if (rect) {
         ctx.strokeRect(
           Math.round(rect.x * width) + 0.5,
@@ -58,9 +53,8 @@ const Preview = ({ rect, image, width, height }: Props) => {
     <canvas
       ref={canvas}
       style={{
-        margin: '10px 24px 32px',
-        padding: 5,
-        border: '1px solid #CCC',
+        borderRadius: '6px',
+        border: '1px solid var(--border)',
       }}
       width={width}
       height={height}
