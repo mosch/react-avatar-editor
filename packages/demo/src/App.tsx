@@ -379,10 +379,7 @@ const App = () => {
               alt="Cropped preview"
               src={state.preview.img}
               style={{
-                borderRadius: `${
-                  (Math.min(state.preview.height, state.preview.width) + 10) *
-                  (state.preview.borderRadius / 2 / 100)
-                }px`,
+                borderRadius: `${state.preview.borderRadius}%`,
               }}
             />
             <Preview
