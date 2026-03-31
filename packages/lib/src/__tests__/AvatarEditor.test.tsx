@@ -558,7 +558,11 @@ describe('AvatarEditor', () => {
       touches: Array<{ pageX: number; pageY: number }>,
       opts: EventInit = {},
     ) {
-      const event = new Event(type, { bubbles: true, cancelable: true, ...opts })
+      const event = new Event(type, {
+        bubbles: true,
+        cancelable: true,
+        ...opts,
+      })
       Object.defineProperty(event, 'touches', { value: touches })
       if (type === 'touchmove') {
         Object.defineProperty(event, 'targetTouches', { value: touches })
@@ -689,7 +693,9 @@ describe('AvatarEditor', () => {
       )
       const canvas = container.querySelector('canvas')!
 
-      canvas.dispatchEvent(new WheelEvent('wheel', { deltaY: -100, bubbles: true }))
+      canvas.dispatchEvent(
+        new WheelEvent('wheel', { deltaY: -100, bubbles: true }),
+      )
 
       expect(onRequestScaleChange).not.toHaveBeenCalled()
     })
@@ -707,7 +713,9 @@ describe('AvatarEditor', () => {
       )
       const canvas = container.querySelector('canvas')!
 
-      canvas.dispatchEvent(new WheelEvent('wheel', { deltaY: -100, bubbles: true }))
+      canvas.dispatchEvent(
+        new WheelEvent('wheel', { deltaY: -100, bubbles: true }),
+      )
 
       expect(onRequestScaleChange).toHaveBeenCalled()
       const newScale = onRequestScaleChange.mock.calls[0][0]
@@ -727,7 +735,9 @@ describe('AvatarEditor', () => {
       )
       const canvas = container.querySelector('canvas')!
 
-      canvas.dispatchEvent(new WheelEvent('wheel', { deltaY: 100, bubbles: true }))
+      canvas.dispatchEvent(
+        new WheelEvent('wheel', { deltaY: 100, bubbles: true }),
+      )
 
       expect(onRequestScaleChange).toHaveBeenCalled()
       const newScale = onRequestScaleChange.mock.calls[0][0]
@@ -747,7 +757,9 @@ describe('AvatarEditor', () => {
       )
       const canvas = container.querySelector('canvas')!
 
-      canvas.dispatchEvent(new WheelEvent('wheel', { deltaY: 99999, bubbles: true }))
+      canvas.dispatchEvent(
+        new WheelEvent('wheel', { deltaY: 99999, bubbles: true }),
+      )
 
       expect(onRequestScaleChange).toHaveBeenCalled()
       const newScale = onRequestScaleChange.mock.calls[0][0]

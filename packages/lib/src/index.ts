@@ -254,27 +254,26 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
     [],
   )
 
-  const handleTouchStart: TouchEventHandler<HTMLCanvasElement> =
-    useCallback(
-      (e) => {
-        if (e.touches.length === 2) {
-          // Start pinch-to-zoom
-          pinchRef.current = true
-          dragRef.current = false
-          setDrag(false)
-          const dx = e.touches[0].pageX - e.touches[1].pageX
-          const dy = e.touches[0].pageY - e.touches[1].pageY
-          pinchStartDistRef.current = Math.sqrt(dx * dx + dy * dy)
-          pinchStartScaleRef.current = scale
-        } else {
-          dragRef.current = true
-          mxRef.current = undefined
-          myRef.current = undefined
-          setDrag(true)
-        }
-      },
-      [scale],
-    )
+  const handleTouchStart: TouchEventHandler<HTMLCanvasElement> = useCallback(
+    (e) => {
+      if (e.touches.length === 2) {
+        // Start pinch-to-zoom
+        pinchRef.current = true
+        dragRef.current = false
+        setDrag(false)
+        const dx = e.touches[0].pageX - e.touches[1].pageX
+        const dy = e.touches[0].pageY - e.touches[1].pageY
+        pinchStartDistRef.current = Math.sqrt(dx * dx + dy * dy)
+        pinchStartScaleRef.current = scale
+      } else {
+        dragRef.current = true
+        mxRef.current = undefined
+        myRef.current = undefined
+        setDrag(true)
+      }
+    },
+    [scale],
+  )
 
   const handleKeyDown: KeyboardEventHandler<HTMLCanvasElement> = useCallback(
     (e) => {
@@ -421,7 +420,8 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
     }
 
     const handleWheel = (e: WheelEvent) => {
-      if (!enableWheelZoomRef.current || !onRequestScaleChangeRef.current) return
+      if (!enableWheelZoomRef.current || !onRequestScaleChangeRef.current)
+        return
       e.preventDefault()
 
       // ctrlKey is set for trackpad pinch gestures; use finer sensitivity
