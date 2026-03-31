@@ -88,6 +88,111 @@ test('exported image has no color overlay', async ({ page }) => {
   expect(await previewImg.screenshot()).toMatchSnapshot()
 })
 
+test('canvas zooms in on wheel scroll up', async ({ page }) => {
+  await page.goto('/')
+  await page.waitForSelector('canvas')
+  await page.waitForTimeout(500)
+
+  const canvas = page.locator('canvas')
+
+  // Wheel scroll up (negative deltaY) should zoom in
+  await canvas.dispatchEvent('wheel', {
+    deltaY: -500,
+    clientX: 150,
+    clientY: 150,
+  })
+  await page.waitForTimeout(200)
+  expect(await canvas.screenshot()).toMatchSnapshot()
+})
+
+test('canvas zooms out on wheel scroll down', async ({ page }) => {
+  await page.goto('/')
+  await page.waitForSelector('canvas')
+  await page.waitForTimeout(500)
+
+  const canvas = page.locator('canvas')
+
+  // First zoom in, then zoom out past the initial level
+  await canvas.dispatchEvent('wheel', {
+    deltaY: -500,
+    clientX: 150,
+    clientY: 150,
+  })
+  await page.waitForTimeout(100)
+  await canvas.dispatchEvent('wheel', {
+    deltaY: 1000,
+    clientX: 150,
+    clientY: 150,
+  })
+  await page.waitForTimeout(200)
+  expect(await canvas.screenshot()).toMatchSnapshot()
+})
+
+test('canvas zooms on trackpad pinch gesture (ctrlKey+wheel)', async ({
+  page,
+}) => {
+  await page.goto('/')
+  await page.waitForSelector('canvas')
+  await page.waitForTimeout(500)
+
+  const canvas = page.locator('canvas')
+
+  // Trackpad pinch fires as wheel events with ctrlKey: true
+  await canvas.dispatchEvent('wheel', {
+    deltaY: -50,
+    ctrlKey: true,
+    clientX: 150,
+    clientY: 150,
+  })
+  await page.waitForTimeout(200)
+  expect(await canvas.screenshot()).toMatchSnapshot()
+})
+
+test('canvas zooms via touch pinch gesture', async ({ page }) => {
+  await page.goto('/')
+  await page.waitForSelector('canvas')
+  await page.waitForTimeout(500)
+
+  const canvas = page.locator('canvas')
+  const box = await canvas.boundingBox()
+  if (!box) throw new Error('canvas not found')
+
+  const cx = box.x + box.width / 2
+  const cy = box.y + box.height / 2
+
+  // Simulate two-finger pinch spread using CDP Touch events
+  const client = await page.context().newCDPSession(page)
+
+  // Touch down with two fingers close together
+  await client.send('Input.dispatchTouchEvent', {
+    type: 'touchStart',
+    touchPoints: [
+      { x: cx - 20, y: cy },
+      { x: cx + 20, y: cy },
+    ],
+  })
+
+  // Spread fingers apart (zoom in)
+  for (let i = 1; i <= 5; i++) {
+    await client.send('Input.dispatchTouchEvent', {
+      type: 'touchMove',
+      touchPoints: [
+        { x: cx - 20 - i * 15, y: cy },
+        { x: cx + 20 + i * 15, y: cy },
+      ],
+    })
+  }
+
+  // Release
+  await client.send('Input.dispatchTouchEvent', {
+    type: 'touchEnd',
+    touchPoints: [],
+  })
+
+  await page.waitForTimeout(200)
+  expect(await canvas.screenshot()).toMatchSnapshot()
+})
+
 test('canvas is keyboard accessible', async ({ page }) => {
   await page.goto('/')
   await page.waitForSelector('canvas')
