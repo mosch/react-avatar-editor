@@ -102,6 +102,11 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
   const mxRef = useRef<number | undefined>(undefined)
   const myRef = useRef<number | undefined>(undefined)
 
+  // Pinch-to-zoom state
+  const pinchRef = useRef(false)
+  const pinchStartDistRef = useRef<number>(0)
+  const pinchStartScaleRef = useRef<number>(1)
+
   // Keep state for `drag` and `loading` to trigger re-renders
   const [drag, setDrag] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -109,7 +114,9 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
     coreRef.current.getImageState(),
   )
 
-  // Store latest callback props in refs so document handlers always call current versions
+  // Store latest prop values in refs so document handlers always have current versions
+  const scaleRef = useRef(scale)
+  scaleRef.current = scale
   const onMouseUpRef = useRef(onMouseUp)
   onMouseUpRef.current = onMouseUp
   const onMouseMoveRef = useRef(onMouseMove)
@@ -244,12 +251,26 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
   )
 
   const handleTouchStart: TouchEventHandler<HTMLCanvasElement> =
-    useCallback(() => {
-      dragRef.current = true
-      mxRef.current = undefined
-      myRef.current = undefined
-      setDrag(true)
-    }, [])
+    useCallback(
+      (e) => {
+        if (e.touches.length === 2) {
+          // Start pinch-to-zoom
+          pinchRef.current = true
+          dragRef.current = false
+          setDrag(false)
+          const dx = e.touches[0].pageX - e.touches[1].pageX
+          const dy = e.touches[0].pageY - e.touches[1].pageY
+          pinchStartDistRef.current = Math.sqrt(dx * dx + dy * dy)
+          pinchStartScaleRef.current = scale
+        } else {
+          dragRef.current = true
+          mxRef.current = undefined
+          myRef.current = undefined
+          setDrag(true)
+        }
+      },
+      [scale],
+    )
 
   const handleKeyDown: KeyboardEventHandler<HTMLCanvasElement> = useCallback(
     (e) => {
@@ -323,6 +344,29 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
     coreRef.current.paint(context)
 
     const handleDocumentMouseMove = (e: MouseEvent | TouchEvent) => {
+      // Handle pinch-to-zoom (2 finger touch)
+      if ('touches' in e && e.touches.length === 2) {
+        if (e.cancelable) e.preventDefault()
+        const dx = e.touches[0].pageX - e.touches[1].pageX
+        const dy = e.touches[0].pageY - e.touches[1].pageY
+        const dist = Math.sqrt(dx * dx + dy * dy)
+
+        if (!pinchRef.current) {
+          // Start pinch (e.g. second finger added mid-drag)
+          pinchRef.current = true
+          dragRef.current = false
+          setDrag(false)
+          pinchStartDistRef.current = dist
+          pinchStartScaleRef.current = scaleRef.current
+          return
+        }
+
+        const ratio = dist / pinchStartDistRef.current
+        const newScale = Math.max(0.1, pinchStartScaleRef.current * ratio)
+        onRequestScaleChangeRef.current?.(newScale)
+        return
+      }
+
       if (!dragRef.current) {
         return
       }
@@ -362,6 +406,9 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
     }
 
     const handleDocumentMouseUp = () => {
+      if (pinchRef.current) {
+        pinchRef.current = false
+      }
       if (dragRef.current) {
         dragRef.current = false
         setDrag(false)
@@ -369,17 +416,31 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
       }
     }
 
+    const handleWheel = (e: WheelEvent) => {
+      if (!onRequestScaleChangeRef.current) return
+      e.preventDefault()
+
+      // ctrlKey is set for trackpad pinch gestures; use finer sensitivity
+      const sensitivity = e.ctrlKey ? 0.01 : 0.002
+      const delta = -e.deltaY * sensitivity
+      const currentScale = scaleRef.current
+      onRequestScaleChangeRef.current(Math.max(0.1, currentScale + delta))
+    }
+
+    const canvasEl = canvas.current
     const options = isPassiveSupported() ? { passive: false } : false
     document.addEventListener('mousemove', handleDocumentMouseMove, options)
     document.addEventListener('mouseup', handleDocumentMouseUp, options)
     document.addEventListener('touchmove', handleDocumentMouseMove, options)
     document.addEventListener('touchend', handleDocumentMouseUp, options)
+    canvasEl?.addEventListener('wheel', handleWheel, { passive: false })
 
     return () => {
       document.removeEventListener('mousemove', handleDocumentMouseMove, false)
       document.removeEventListener('mouseup', handleDocumentMouseUp, false)
       document.removeEventListener('touchmove', handleDocumentMouseMove, false)
       document.removeEventListener('touchend', handleDocumentMouseUp, false)
+      canvasEl?.removeEventListener('wheel', handleWheel)
     }
   }, [])
 
