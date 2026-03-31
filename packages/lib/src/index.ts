@@ -33,6 +33,7 @@ export interface Props extends AvatarEditorConfig {
   onMouseMove?: (e: TouchEvent | MouseEvent) => void
   onPositionChange?: (position: Position) => void
   onRequestScaleChange?: (scale: number) => void
+  enableWheelZoom?: boolean
 }
 
 export type { Position, ImageState }
@@ -70,6 +71,7 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
     onMouseMove,
     onPositionChange,
     onRequestScaleChange,
+    enableWheelZoom = false,
     borderColor,
     style,
     keyboardStep = 1,
@@ -117,6 +119,8 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
   // Store latest prop values in refs so document handlers always have current versions
   const scaleRef = useRef(scale)
   scaleRef.current = scale
+  const enableWheelZoomRef = useRef(enableWheelZoom)
+  enableWheelZoomRef.current = enableWheelZoom
   const onMouseUpRef = useRef(onMouseUp)
   onMouseUpRef.current = onMouseUp
   const onMouseMoveRef = useRef(onMouseMove)
@@ -417,7 +421,7 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
     }
 
     const handleWheel = (e: WheelEvent) => {
-      if (!onRequestScaleChangeRef.current) return
+      if (!enableWheelZoomRef.current || !onRequestScaleChangeRef.current) return
       e.preventDefault()
 
       // ctrlKey is set for trackpad pinch gestures; use finer sensitivity

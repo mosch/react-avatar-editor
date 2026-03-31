@@ -547,4 +547,218 @@ describe('AvatarEditor', () => {
       fireEvent.keyDown(canvas, { key: 'ArrowUp' })
     })
   })
+
+  // -------------------------------------------------------
+  // 14. Pinch-to-zoom
+  // -------------------------------------------------------
+  describe('pinch-to-zoom', () => {
+    // Helper to create a TouchEvent with custom touches (jsdom lacks Touch constructor)
+    function makeTouchEvent(
+      type: string,
+      touches: Array<{ pageX: number; pageY: number }>,
+      opts: EventInit = {},
+    ) {
+      const event = new Event(type, { bubbles: true, cancelable: true, ...opts })
+      Object.defineProperty(event, 'touches', { value: touches })
+      if (type === 'touchmove') {
+        Object.defineProperty(event, 'targetTouches', { value: touches })
+      }
+      return event
+    }
+
+    it('calls onRequestScaleChange when pinching with two fingers', () => {
+      const onRequestScaleChange = vi.fn()
+      const { container } = render(
+        <AvatarEditor
+          width={200}
+          height={200}
+          scale={1}
+          onRequestScaleChange={onRequestScaleChange}
+        />,
+      )
+      const canvas = container.querySelector('canvas')!
+
+      // Start two-finger touch
+      fireEvent.touchStart(canvas, {
+        touches: [
+          { pageX: 100, pageY: 100 },
+          { pageX: 200, pageY: 100 },
+        ],
+      })
+
+      // Move fingers apart (zoom in) - initial distance 100, new distance 200
+      document.dispatchEvent(
+        makeTouchEvent('touchmove', [
+          { pageX: 50, pageY: 100 },
+          { pageX: 250, pageY: 100 },
+        ]),
+      )
+
+      expect(onRequestScaleChange).toHaveBeenCalled()
+      const newScale = onRequestScaleChange.mock.calls[0][0]
+      expect(newScale).toBeGreaterThan(1)
+    })
+
+    it('starts pinch when second finger is added during drag', () => {
+      const onRequestScaleChange = vi.fn()
+      const { container } = render(
+        <AvatarEditor
+          width={200}
+          height={200}
+          scale={1}
+          onRequestScaleChange={onRequestScaleChange}
+        />,
+      )
+      const canvas = container.querySelector('canvas')!
+
+      // Start single-finger drag
+      fireEvent.touchStart(canvas, {
+        touches: [{ pageX: 100, pageY: 100 }],
+      })
+
+      // Second finger appears during touchmove - should initialize pinch
+      document.dispatchEvent(
+        makeTouchEvent('touchmove', [
+          { pageX: 100, pageY: 100 },
+          { pageX: 200, pageY: 100 },
+        ]),
+      )
+
+      // Now move fingers apart - should trigger scale change
+      document.dispatchEvent(
+        makeTouchEvent('touchmove', [
+          { pageX: 50, pageY: 100 },
+          { pageX: 250, pageY: 100 },
+        ]),
+      )
+
+      expect(onRequestScaleChange).toHaveBeenCalled()
+    })
+
+    it('resets pinch state on touchend', () => {
+      const onRequestScaleChange = vi.fn()
+      const { container } = render(
+        <AvatarEditor
+          width={200}
+          height={200}
+          scale={1}
+          onRequestScaleChange={onRequestScaleChange}
+        />,
+      )
+      const canvas = container.querySelector('canvas')!
+
+      // Start pinch
+      fireEvent.touchStart(canvas, {
+        touches: [
+          { pageX: 100, pageY: 100 },
+          { pageX: 200, pageY: 100 },
+        ],
+      })
+
+      // End touch
+      document.dispatchEvent(new Event('touchend', { bubbles: true }))
+
+      onRequestScaleChange.mockClear()
+
+      // Single-touch drag should not trigger scale change
+      fireEvent.touchStart(canvas, {
+        touches: [{ pageX: 100, pageY: 100 }],
+      })
+
+      document.dispatchEvent(
+        makeTouchEvent('touchmove', [{ pageX: 110, pageY: 100 }]),
+      )
+
+      expect(onRequestScaleChange).not.toHaveBeenCalled()
+    })
+  })
+
+  // -------------------------------------------------------
+  // 15. Wheel zoom
+  // -------------------------------------------------------
+  describe('wheel zoom', () => {
+    it('does not call onRequestScaleChange on wheel by default', () => {
+      const onRequestScaleChange = vi.fn()
+      const { container } = render(
+        <AvatarEditor
+          width={200}
+          height={200}
+          scale={1}
+          onRequestScaleChange={onRequestScaleChange}
+        />,
+      )
+      const canvas = container.querySelector('canvas')!
+
+      canvas.dispatchEvent(new WheelEvent('wheel', { deltaY: -100, bubbles: true }))
+
+      expect(onRequestScaleChange).not.toHaveBeenCalled()
+    })
+
+    it('calls onRequestScaleChange on wheel when enableWheelZoom is true', () => {
+      const onRequestScaleChange = vi.fn()
+      const { container } = render(
+        <AvatarEditor
+          width={200}
+          height={200}
+          scale={1}
+          onRequestScaleChange={onRequestScaleChange}
+          enableWheelZoom
+        />,
+      )
+      const canvas = container.querySelector('canvas')!
+
+      canvas.dispatchEvent(new WheelEvent('wheel', { deltaY: -100, bubbles: true }))
+
+      expect(onRequestScaleChange).toHaveBeenCalled()
+      const newScale = onRequestScaleChange.mock.calls[0][0]
+      expect(newScale).toBeGreaterThan(1)
+    })
+
+    it('zooms out on positive deltaY', () => {
+      const onRequestScaleChange = vi.fn()
+      const { container } = render(
+        <AvatarEditor
+          width={200}
+          height={200}
+          scale={1.5}
+          onRequestScaleChange={onRequestScaleChange}
+          enableWheelZoom
+        />,
+      )
+      const canvas = container.querySelector('canvas')!
+
+      canvas.dispatchEvent(new WheelEvent('wheel', { deltaY: 100, bubbles: true }))
+
+      expect(onRequestScaleChange).toHaveBeenCalled()
+      const newScale = onRequestScaleChange.mock.calls[0][0]
+      expect(newScale).toBeLessThan(1.5)
+    })
+
+    it('does not zoom below 0.1', () => {
+      const onRequestScaleChange = vi.fn()
+      const { container } = render(
+        <AvatarEditor
+          width={200}
+          height={200}
+          scale={0.1}
+          onRequestScaleChange={onRequestScaleChange}
+          enableWheelZoom
+        />,
+      )
+      const canvas = container.querySelector('canvas')!
+
+      canvas.dispatchEvent(new WheelEvent('wheel', { deltaY: 99999, bubbles: true }))
+
+      expect(onRequestScaleChange).toHaveBeenCalled()
+      const newScale = onRequestScaleChange.mock.calls[0][0]
+      expect(newScale).toBeGreaterThanOrEqual(0.1)
+    })
+
+    it('accepts enableWheelZoom prop without error', () => {
+      const { container } = render(
+        <AvatarEditor width={200} height={200} enableWheelZoom />,
+      )
+      expect(container.querySelector('canvas')).toBeInTheDocument()
+    })
+  })
 })
