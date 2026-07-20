@@ -29,6 +29,7 @@ export class AvatarEditorCore {
       borderRadius: 0,
       scale: 1,
       rotate: 0,
+      position: undefined,
       color: [0, 0, 0, 0.5],
       backgroundColor: '',
       borderColor: undefined,
@@ -201,8 +202,8 @@ export class AvatarEditorCore {
     const imageState: ImageState = {
       ...this.getInitialSize(image.width, image.height),
       resource: image,
-      x: 0.5,
-      y: 0.5,
+      x: this.config.position?.x ?? 0.5,
+      y: this.config.position?.y ?? 0.5,
     }
 
     this.imageState = imageState

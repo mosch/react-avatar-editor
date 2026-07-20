@@ -18,6 +18,7 @@ export interface AvatarEditorConfig {
   borderRadius?: number
   scale?: number
   rotate?: number
+  position?: Position
   color?: [number, number, number, number?]
   backgroundColor?: string
   borderColor?: [number, number, number, number?]
