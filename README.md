@@ -207,7 +207,8 @@ function MyEditor() {
 | `onMouseUp`             | `() => void`         |                  | Called when the user releases the mouse after dragging.                                       |
 | `onMouseMove`           | `(event) => void`    |                  | Called on every mouse/touch move while dragging.                                              |
 | `onPositionChange`      | `(position) => void` |                  | Called when the crop position changes. Receives `{ x, y }`.                                   |
-| `onRequestScaleChange`  | `(scale) => void`    |                  | Called when the user presses +/- keys to zoom. Receives the requested new scale value.        |
+| `onRequestScaleChange`  | `(scale) => void`    |                  | Called when the user zooms via +/- keys, pinch, or wheel. Receives the requested new scale.   |
+| `enableWheelZoom`       | `boolean`            | `false`          | Zoom with the mouse wheel / trackpad. Requires `onRequestScaleChange`.                        |
 | `keyboardStep`          | `number`             | `1`              | Pixels to move per arrow key press. Shift multiplies by 10.                                   |
 
 ## Contributing

@@ -1,5 +1,19 @@
 # Changelog
 
+## 15.2.0 (2026-09-30)
+
+### Features
+
+- **Keyboard accessibility** ([#376](https://github.com/mosch/react-avatar-editor/issues/376), [#438](https://github.com/mosch/react-avatar-editor/issues/438)) — the canvas is now focusable (`tabIndex=0`, `role="application"`, ARIA labels). Arrow keys pan the image (`keyboardStep` px, ×10 with Shift), `+`/`-` zoom (0.1 step, 0.5 with Shift), Escape blurs the canvas. The canvas focuses on mousedown so keys work right after clicking.
+- **Pinch-to-zoom** — two-finger pinch on touch devices zooms the image.
+- **Wheel zoom** — opt-in mouse wheel / trackpad zoom via the new `enableWheelZoom` prop (default `false`).
+- **`onRequestScaleChange` callback** — called with the requested scale for keyboard, pinch and wheel zoom. `scale` stays controlled, so update it in your state to apply the zoom.
+- **`keyboardStep` prop** — pixels moved per arrow key press (default `1`).
+
+### Chores
+
+- Dependency bumps for security advisories.
+
 ## 15.1.0 (2026-03-21)
 
 ### Features
