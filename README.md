@@ -118,6 +118,31 @@ function MyEditor() {
 }
 ```
 
+### Saving as JPEG (smaller files)
+
+`canvas.toDataURL()` and `canvas.toBlob()` produce a PNG by default. PNG is lossless, so a cropped photo can end up several times larger than the JPEG you uploaded. Pass a type and quality to get a JPEG instead:
+
+```tsx
+const canvas = editor.getImageScaledToCanvas()
+canvas?.toBlob(
+  (blob) => {
+    if (!blob) return
+    const formData = new FormData()
+    formData.append('avatar', blob, 'avatar.jpg')
+    fetch('/api/avatar', { method: 'POST', body: formData })
+  },
+  'image/jpeg',
+  0.9, // quality, 0–1
+)
+```
+
+Also pick the right method for your use case:
+
+- `getImageScaledToCanvas()` returns the crop at the editor's `width` × `height`. This is usually what you want for avatars.
+- `getImage()` returns the crop at the **original image resolution**. With a large camera photo that can be thousands of pixels wide, so the file will be large even as a JPEG.
+
+JPEG has no transparency, so transparent areas (for example in an uploaded PNG) turn black. Set `backgroundColor` to fill them with a color, or keep PNG.
+
 ### Responsive size
 
 `width` and `height` also accept a percentage of the parent element. The editor measures its parent and follows it when it resizes. A percentage sets the size of the whole canvas, and the crop area is that minus `border` on each side.
