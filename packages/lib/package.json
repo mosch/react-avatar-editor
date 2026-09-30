@@ -19,7 +19,7 @@
     }
   },
   "scripts": {
-    "build": "vite build",
+    "build": "pnpm --filter @react-avatar-editor/core build && vite build",
     "clean": "rm -rf dist",
     "test": "vitest run",
     "prepublishOnly": "pnpm -w lint && pnpm test && pnpm build"
