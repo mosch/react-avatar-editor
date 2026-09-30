@@ -1,6 +1,16 @@
 # Changelog
 
-## Unreleased
+## 16.0.0 (2026-09-30)
+
+### Breaking changes
+
+The public API is unchanged, but several behaviors differ from v15. Check these if you upgrade:
+
+- **`position` is applied again.** v15 ignored it. If you pass `position`, the image now starts there, and changing the prop moves the crop. If you pass a fixed value without updating it from `onPositionChange`, remove it or keep it in state.
+- **Rotated images are clamped differently.** At angles other than 0°/180°, the crop can no longer be dragged past the image edge. If the image is not zoomed in enough to fill the rotated crop, it is centered. Exported crops of rotated images can differ from v15.
+- **Load callbacks fire once per image.** `onLoadStart`, `onLoadSuccess` and `onImageReady` fired twice on mount, and again whenever `width`, `height` or `backgroundColor` changed. They now fire only when `image` changes.
+- **Resizing keeps position and zoom.** Changing `width` or `height` used to reload the image and reset its position. The loaded image is now resized in place.
+- **TypeScript:** `Props['width']` and `Props['height']` are now `number | \`${number}%\``. Code that reads them as `number` needs to handle the string case.
 
 ### Features
 
