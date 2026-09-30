@@ -460,6 +460,19 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
     }
   }, [image, width, height, backgroundColor])
 
+  // Effect to apply a controlled position prop to the loaded image
+  const positionX = position?.x
+  const positionY = position?.y
+  useEffect(() => {
+    if (positionX === undefined || positionY === undefined) return
+    const current = coreRef.current.getImageState()
+    if (!current.resource) return
+    if (current.x === positionX && current.y === positionY) return
+    const next = { ...current, x: positionX, y: positionY }
+    coreRef.current.setImageState(next)
+    setImageState(next)
+  }, [positionX, positionY])
+
   // Effect to repaint canvas whenever relevant props/state change
   useEffect(() => {
     repaint()

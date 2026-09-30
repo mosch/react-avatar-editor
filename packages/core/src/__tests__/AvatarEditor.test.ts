@@ -850,6 +850,37 @@ describe('AvatarEditorCore', () => {
       expect(imageState.height).toBeDefined()
     })
 
+    it('should start at the configured position', async () => {
+      const editor = new AvatarEditorCore(
+        defaultConfig({ border: 0, position: { x: 0.2, y: 0.8 } }),
+      )
+
+      vi.spyOn(globalThis, 'Image').mockImplementation(function (
+        this: HTMLImageElement,
+      ) {
+        const listeners: Record<string, ((...args: unknown[]) => void)[]> = {}
+        this.addEventListener = (
+          type: string,
+          fn: (...args: unknown[]) => void,
+        ) => {
+          ;(listeners[type] ??= []).push(fn)
+        }
+        Object.defineProperty(this, 'src', {
+          set: () =>
+            setTimeout(() => listeners['load']?.forEach((fn) => fn()), 0),
+          configurable: true,
+        })
+        Object.defineProperty(this, 'width', { value: 400, writable: false })
+        Object.defineProperty(this, 'height', { value: 300, writable: false })
+        return this
+      } as unknown as typeof Image)
+
+      const imageState = await editor.loadImage('https://example.com/photo.jpg')
+
+      expect(imageState.x).toBe(0.2)
+      expect(imageState.y).toBe(0.8)
+    })
+
     it('should throw for invalid source', async () => {
       const editor = new AvatarEditorCore(defaultConfig())
       // pass a number cast to any
