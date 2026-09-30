@@ -1,7 +1,24 @@
 import React, { createRef } from 'react'
-import { render, fireEvent, waitFor } from '@testing-library/react'
+import { render, fireEvent, waitFor, act } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import AvatarEditor, { type AvatarEditorRef, useAvatarEditor } from '../index'
+
+// Makes every Image a 400x300 landscape image that loads as soon as src is set
+const mockImageLoad = () =>
+  vi.spyOn(globalThis, 'Image').mockImplementation(function (
+    this: HTMLImageElement,
+  ) {
+    const listeners: Record<string, (() => void)[]> = {}
+    this.addEventListener = (type: string, fn: () => void) => {
+      ;(listeners[type] ??= []).push(fn)
+    }
+    Object.defineProperty(this, 'src', {
+      set: () => setTimeout(() => listeners['load']?.forEach((fn) => fn()), 0),
+    })
+    Object.defineProperty(this, 'width', { value: 400 })
+    Object.defineProperty(this, 'height', { value: 300 })
+    return this
+  } as unknown as typeof Image)
 
 const cropCenter = (ref: React.RefObject<AvatarEditorRef | null>) => {
   const rect = ref.current!.getCroppingRect()
@@ -356,22 +373,7 @@ describe('AvatarEditor', () => {
 
     describe('with a loaded image', () => {
       beforeEach(() => {
-        // 400x300 landscape image that loads as soon as src is set
-        vi.spyOn(globalThis, 'Image').mockImplementation(function (
-          this: HTMLImageElement,
-        ) {
-          const listeners: Record<string, (() => void)[]> = {}
-          this.addEventListener = (type: string, fn: () => void) => {
-            ;(listeners[type] ??= []).push(fn)
-          }
-          Object.defineProperty(this, 'src', {
-            set: () =>
-              setTimeout(() => listeners['load']?.forEach((fn) => fn()), 0),
-          })
-          Object.defineProperty(this, 'width', { value: 400 })
-          Object.defineProperty(this, 'height', { value: 300 })
-          return this
-        } as unknown as typeof Image)
+        mockImageLoad()
       })
 
       afterEach(() => {
@@ -611,6 +613,115 @@ describe('AvatarEditor', () => {
       const canvas = container.querySelector('canvas')!
       // Should not throw
       fireEvent.keyDown(canvas, { key: 'ArrowUp' })
+    })
+  })
+  // -------------------------------------------------------
+  // Responsive width / height (#399)
+  // -------------------------------------------------------
+  describe('percentage width and height', () => {
+    let parentWidth: number
+    let resizeCallback: (() => void) | undefined
+
+    beforeEach(() => {
+      parentWidth = 500
+      resizeCallback = undefined
+      vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockImplementation(
+        () => parentWidth,
+      )
+      vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(
+        300,
+      )
+      vi.stubGlobal(
+        'ResizeObserver',
+        class {
+          constructor(cb: () => void) {
+            resizeCallback = cb
+          }
+          observe() {}
+          disconnect() {}
+        },
+      )
+    })
+
+    afterEach(() => {
+      vi.restoreAllMocks()
+      vi.unstubAllGlobals()
+    })
+
+    it('fills the given share of the parent, border included', () => {
+      const { container } = render(
+        <div>
+          <AvatarEditor width="100%" height="50%" border={25} />
+        </div>,
+      )
+      const canvas = container.querySelector('canvas')!
+      expect(canvas.style.width).toBe('500px')
+      expect(canvas.style.height).toBe('150px')
+      expect(canvas.style.display).toBe('block')
+    })
+
+    it('exports the crop area without the border', () => {
+      const ref = createRef<AvatarEditorRef>()
+      render(
+        <div>
+          <AvatarEditor ref={ref} width="100%" height={200} border={25} />
+        </div>,
+      )
+      const exported = ref.current!.getImageScaledToCanvas()
+      expect(exported.width).toBe(450)
+      expect(exported.height).toBe(200)
+    })
+
+    it('follows the parent when it resizes', () => {
+      const { container } = render(
+        <div>
+          <AvatarEditor width="100%" height={200} border={0} />
+        </div>,
+      )
+      const canvas = container.querySelector('canvas')!
+      expect(canvas.style.width).toBe('500px')
+
+      parentWidth = 320
+      act(() => resizeCallback?.())
+      expect(canvas.style.width).toBe('320px')
+      expect(canvas.getAttribute('width')).toBe('320')
+    })
+
+    it('keeps numeric sizes unchanged and inline', () => {
+      const { container } = render(
+        <div>
+          <AvatarEditor width={200} height={200} border={25} />
+        </div>,
+      )
+      const canvas = container.querySelector('canvas')!
+      expect(canvas.style.width).toBe('250px')
+      expect(canvas.style.display).toBe('')
+    })
+
+    it('does not reload the image when the size changes', async () => {
+      const imageSpy = mockImageLoad()
+      const onLoadSuccess = vi.fn()
+      const { container } = render(
+        <div>
+          <AvatarEditor
+            image="https://example.com/photo.jpg"
+            width="100%"
+            height={200}
+            border={0}
+            position={{ x: 0.4, y: 0.5 }}
+            onLoadSuccess={onLoadSuccess}
+          />
+        </div>,
+      )
+      await waitFor(() => expect(onLoadSuccess).toHaveBeenCalled())
+      const loads = imageSpy.mock.calls.length
+
+      parentWidth = 300
+      act(() => resizeCallback?.())
+
+      expect(container.querySelector('canvas')!.style.width).toBe('300px')
+      expect(imageSpy.mock.calls.length).toBe(loads)
+      expect(onLoadSuccess).toHaveBeenCalledTimes(1)
     })
   })
 })
