@@ -13,6 +13,13 @@ import { isFileAPISupported } from './utils/isFileAPISupported'
 
 const toRadians = (degree: number) => degree * (Math.PI / 180)
 
+// Snap floating point noise like Math.sin(Math.PI) to exact zero
+const roundTiny = (value: number) => (Math.abs(value) < 1e-10 ? 0 : value)
+
+// Clamp to [min, max], or center when the range is empty (nothing fits)
+const clampOrCenter = (value: number, min: number, max: number) =>
+  min > max ? (min + max) / 2 : Math.max(min, Math.min(value, max))
+
 const defaultEmptyImage: ImageState = {
   x: 0.5,
   y: 0.5,
@@ -154,12 +161,26 @@ export class AvatarEditorCore {
       xMax = 1
       yMin = -croppingRect.height
       yMax = 1
+    } else {
+      // When rotated, the visible area is the cropping rect turned around its
+      // center. Keep its bounding box inside the image so no empty corners show.
+      const angle = toRadians(this.config.rotate - (this.isVertical() ? 90 : 0))
+      const cos = Math.abs(roundTiny(Math.cos(angle)))
+      const sin = Math.abs(roundTiny(Math.sin(angle)))
+      const imageAspect = this.imageState.width / this.imageState.height
+      const boundsWidth = rectWidth * cos + (rectHeight * sin) / imageAspect
+      const boundsHeight = rectWidth * sin * imageAspect + rectHeight * cos
+
+      xMin = (boundsWidth - rectWidth) / 2
+      xMax = 1 - (boundsWidth + rectWidth) / 2
+      yMin = (boundsHeight - rectHeight) / 2
+      yMax = 1 - (boundsHeight + rectHeight) / 2
     }
 
     return {
       ...croppingRect,
-      x: Math.max(xMin, Math.min(croppingRect.x, xMax)),
-      y: Math.max(yMin, Math.min(croppingRect.y, yMax)),
+      x: clampOrCenter(croppingRect.x, xMin, xMax),
+      y: clampOrCenter(croppingRect.y, yMin, yMax),
     }
   }
 

@@ -67,6 +67,47 @@ function createFakeImage(width: number, height: number): HTMLImageElement {
 }
 
 /**
+ * Returns the corners of a cropping rect rotated around its center, in image pixels.
+ */
+function rotatedCorners(
+  rect: { x: number; y: number; width: number; height: number },
+  rotate: number,
+  imgWidth: number,
+  imgHeight: number,
+) {
+  const cx = (rect.x + rect.width / 2) * imgWidth
+  const cy = (rect.y + rect.height / 2) * imgHeight
+  const hw = (rect.width * imgWidth) / 2
+  const hh = (rect.height * imgHeight) / 2
+  const a = (rotate * Math.PI) / 180
+  return [
+    [-hw, -hh],
+    [hw, -hh],
+    [hw, hh],
+    [-hw, hh],
+  ].map(([dx, dy]) => [
+    cx + dx * Math.cos(a) - dy * Math.sin(a),
+    cy + dx * Math.sin(a) + dy * Math.cos(a),
+  ])
+}
+
+/**
+ * Asserts that all corners lie inside the image.
+ */
+function expectInsideImage(
+  corners: number[][],
+  imgWidth: number,
+  imgHeight: number,
+) {
+  for (const [x, y] of corners) {
+    expect(x).toBeGreaterThanOrEqual(-1e-9)
+    expect(x).toBeLessThanOrEqual(imgWidth + 1e-9)
+    expect(y).toBeGreaterThanOrEqual(-1e-9)
+    expect(y).toBeLessThanOrEqual(imgHeight + 1e-9)
+  }
+}
+
+/**
  * Returns a default config suitable for most tests.
  */
 function defaultConfig(
@@ -338,6 +379,62 @@ describe('AvatarEditorCore', () => {
       // position should be allowed beyond the normal clamp
       expect(rect.x).toBeGreaterThan(0)
       expect(rect.y).toBeGreaterThan(0)
+    })
+
+    describe('with rotation (fix #377)', () => {
+      it.each([15, 45, -30, 100, 200])(
+        'keeps the %d° rotated crop inside the image at every position',
+        (rotate) => {
+          editor.updateConfig({ scale: 2, rotate })
+          for (const x of [-1, 0, 0.3, 0.5, 0.8, 2]) {
+            for (const y of [-1, 0, 0.5, 2]) {
+              const rect = editor.getCroppingRect({ x, y })
+              expectInsideImage(
+                rotatedCorners(rect, rotate, 200, 200),
+                200,
+                200,
+              )
+            }
+          }
+        },
+      )
+
+      it('keeps a non-square crop inside a landscape image at 90°', () => {
+        const wide = new AvatarEditorCore(
+          defaultConfig({ width: 200, height: 100, scale: 2, rotate: 90 }),
+        )
+        wide.setImageState({
+          x: 0.5,
+          y: 0.5,
+          width: 400,
+          height: 200,
+          resource: createFakeImage(400, 200),
+        })
+        for (const x of [-1, 0.5, 2]) {
+          for (const y of [-1, 0.5, 2]) {
+            const rect = wide.getCroppingRect({ x, y })
+            expectInsideImage(rotatedCorners(rect, 90, 400, 200), 400, 200)
+          }
+        }
+      })
+
+      it('centers the crop when the rotated area cannot fit', () => {
+        editor.updateConfig({ scale: 1.2, rotate: 45 })
+        const rect = editor.getCroppingRect({ x: 0.9, y: 0.1 })
+        expect(rect.x + rect.width / 2).toBeCloseTo(0.5)
+        expect(rect.y + rect.height / 2).toBeCloseTo(0.5)
+      })
+
+      it('does not change clamping when the canvas rotates along (90°)', () => {
+        editor.updateConfig({
+          scale: 2,
+          rotate: 90,
+          disableCanvasRotation: false,
+        })
+        const rect = editor.getCroppingRect({ x: 0, y: 2 })
+        expect(rect.x).toBeCloseTo(0)
+        expect(rect.y).toBeCloseTo(0.5)
+      })
     })
 
     it('should return default rect when image dimensions are not available (fix #389)', () => {
