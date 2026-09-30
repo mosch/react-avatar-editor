@@ -5,7 +5,7 @@
   "scripts": {
     "build": "pnpm --filter react-avatar-editor build",
     "clean": "pnpm --filter 'react-avatar-editor*' clean",
-    "demo:build": "pnpm build && pnpm --filter 'react-avatar-editor*' build",
+    "demo:build": "pnpm build && pnpm --filter react-avatar-editor-demo build",
     "demo:dev": "pnpm build && pnpm --filter react-avatar-editor-demo dev",
     "lint": "oxlint .",
     "fmt": "oxfmt --write .",
