@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Bug Fixes
+
+- **`position` prop is respected again** ([#436](https://github.com/mosch/react-avatar-editor/issues/436), [#437](https://github.com/mosch/react-avatar-editor/pull/437)) — since v15 the prop was ignored and images always started centered. It now sets the initial position, and changing it moves the crop area, as in v14.
+
 ## 15.2.0 (2026-09-30)
 
 ### Features
