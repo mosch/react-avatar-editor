@@ -2,9 +2,16 @@
 
 ## Unreleased
 
+### Features
+
+- **Responsive size** ([#399](https://github.com/mosch/react-avatar-editor/issues/399)) — `width` and `height` accept a percentage of the parent element (e.g. `width="100%"`), and the editor follows the parent when it resizes.
+
 ### Bug Fixes
 
 - **`position` prop is respected again** ([#436](https://github.com/mosch/react-avatar-editor/issues/436), [#437](https://github.com/mosch/react-avatar-editor/pull/437)) — since v15 the prop was ignored and images always started centered. It now sets the initial position, and changing it moves the crop area, as in v14.
+- **Rotated images no longer show empty corners** ([#377](https://github.com/mosch/react-avatar-editor/issues/377)) — the drag boundary now accounts for `rotate`, so the crop area stays filled at any angle. If the image is not zoomed in enough to fill the rotated crop, it is centered.
+- **Changing `width` or `height` no longer reloads the image** — the loaded image is resized in place and keeps its position.
+- **The image is loaded once on mount** — it was loaded twice, so `onLoadStart` and `onLoadSuccess` fired twice.
 
 ## 15.2.0 (2026-09-30)
 
