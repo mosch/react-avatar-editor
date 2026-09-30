@@ -1,7 +1,12 @@
 import React, { createRef } from 'react'
-import { render, fireEvent } from '@testing-library/react'
+import { render, fireEvent, waitFor } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import AvatarEditor, { type AvatarEditorRef, useAvatarEditor } from '../index'
+
+const cropCenter = (ref: React.RefObject<AvatarEditorRef | null>) => {
+  const rect = ref.current!.getCroppingRect()
+  return { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 }
+}
 
 describe('AvatarEditor', () => {
   let mockContext: Record<string, unknown>
@@ -347,6 +352,67 @@ describe('AvatarEditor', () => {
       )
       const canvas = container.querySelector('canvas')
       expect(canvas).toBeInTheDocument()
+    })
+
+    describe('with a loaded image', () => {
+      beforeEach(() => {
+        // 400x300 landscape image that loads as soon as src is set
+        vi.spyOn(globalThis, 'Image').mockImplementation(function (
+          this: HTMLImageElement,
+        ) {
+          const listeners: Record<string, (() => void)[]> = {}
+          this.addEventListener = (type: string, fn: () => void) => {
+            ;(listeners[type] ??= []).push(fn)
+          }
+          Object.defineProperty(this, 'src', {
+            set: () =>
+              setTimeout(() => listeners['load']?.forEach((fn) => fn()), 0),
+          })
+          Object.defineProperty(this, 'width', { value: 400 })
+          Object.defineProperty(this, 'height', { value: 300 })
+          return this
+        } as unknown as typeof Image)
+      })
+
+      afterEach(() => {
+        vi.mocked(globalThis.Image).mockRestore()
+      })
+
+      it('starts at the given position', async () => {
+        const ref = createRef<AvatarEditorRef>()
+        const onLoadSuccess = vi.fn()
+        render(
+          <AvatarEditor
+            ref={ref}
+            image="https://example.com/photo.jpg"
+            width={200}
+            height={200}
+            position={{ x: 0.4, y: 0.5 }}
+            onLoadSuccess={onLoadSuccess}
+          />,
+        )
+        await waitFor(() => expect(onLoadSuccess).toHaveBeenCalled())
+        expect(cropCenter(ref).x).toBeCloseTo(0.4)
+      })
+
+      it('follows position prop changes after load', async () => {
+        const ref = createRef<AvatarEditorRef>()
+        const onLoadSuccess = vi.fn()
+        const props = {
+          ref,
+          image: 'https://example.com/photo.jpg',
+          width: 200,
+          height: 200,
+          onLoadSuccess,
+        }
+        const { rerender } = render(
+          <AvatarEditor {...props} position={{ x: 0.4, y: 0.5 }} />,
+        )
+        await waitFor(() => expect(onLoadSuccess).toHaveBeenCalled())
+
+        rerender(<AvatarEditor {...props} position={{ x: 0.6, y: 0.5 }} />)
+        expect(cropCenter(ref).x).toBeCloseTo(0.6)
+      })
     })
   })
 
