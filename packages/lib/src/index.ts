@@ -6,6 +6,7 @@ import React, {
   useState,
   useRef,
   useEffect,
+  useLayoutEffect,
   useCallback,
   useImperativeHandle,
   forwardRef,
@@ -19,7 +20,12 @@ import {
   isPassiveSupported,
 } from '@react-avatar-editor/core'
 
-export interface Props extends AvatarEditorConfig {
+/** Pixels, or a percentage of the parent element's content box. */
+export type Size = number | `${number}%`
+
+export interface Props extends Omit<AvatarEditorConfig, 'width' | 'height'> {
+  width?: Size
+  height?: Size
   style?: CSSProperties
   image?: string | File
   position?: Position
@@ -38,6 +44,53 @@ export interface Props extends AvatarEditorConfig {
 
 export type { Position, ImageState }
 
+const useIsomorphicLayoutEffect =
+  typeof window !== 'undefined' ? useLayoutEffect : useEffect
+
+// Measures the content box of the element's parent while `enabled` is set
+function useParentSize(
+  ref: React.RefObject<HTMLElement | null>,
+  enabled: boolean,
+) {
+  const [size, setSize] = useState({ width: 0, height: 0 })
+
+  useIsomorphicLayoutEffect(() => {
+    const parent = ref.current?.parentElement
+    if (!enabled || !parent) return
+
+    const update = () => {
+      const style = getComputedStyle(parent)
+      const width =
+        parent.clientWidth -
+        (parseFloat(style.paddingLeft) || 0) -
+        (parseFloat(style.paddingRight) || 0)
+      const height =
+        parent.clientHeight -
+        (parseFloat(style.paddingTop) || 0) -
+        (parseFloat(style.paddingBottom) || 0)
+      setSize((prev) =>
+        prev.width === width && prev.height === height
+          ? prev
+          : { width, height },
+      )
+    }
+
+    update()
+    if (typeof ResizeObserver === 'undefined') return
+    const observer = new ResizeObserver(update)
+    observer.observe(parent)
+    return () => observer.disconnect()
+  }, [enabled])
+
+  return size
+}
+
+// A percentage size is the whole canvas, so the border is subtracted from it
+const resolveSize = (size: Size, available: number, border: number) =>
+  typeof size === 'number'
+    ? size
+    : Math.max(0, Math.floor((available * parseFloat(size)) / 100) - border * 2)
+
 export interface AvatarEditorRef {
   getImage: () => HTMLCanvasElement
   getImageScaledToCanvas: () => HTMLCanvasElement
@@ -50,8 +103,8 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
     rotate = 0,
     border = 25,
     borderRadius = 0,
-    width = 200,
-    height = 200,
+    width: widthProp = 200,
+    height: heightProp = 200,
     color = [0, 0, 0, 0.5],
     showGrid = false,
     gridColor = '#666',
@@ -78,6 +131,14 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
   } = props
 
   const canvas = useRef<HTMLCanvasElement>(null)
+
+  const isResponsive =
+    typeof widthProp === 'string' || typeof heightProp === 'string'
+  const parentSize = useParentSize(canvas, isResponsive)
+  const [borderX, borderY] = Array.isArray(border) ? border : [border, border]
+  const width = resolveSize(widthProp, parentSize.width, borderX)
+  const height = resolveSize(heightProp, parentSize.height, borderY)
+
   const coreRef = useRef<AvatarEditorCore>(
     new AvatarEditorCore({
       width,
@@ -131,27 +192,9 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
   const onPositionChangeRef = useRef(onPositionChange)
   onPositionChangeRef.current = onPositionChange
 
-  // Update core config when props change
-  useEffect(() => {
-    coreRef.current.updateConfig({
-      width,
-      height,
-      border,
-      borderRadius,
-      scale,
-      position,
-      rotate,
-      color,
-      backgroundColor,
-      borderColor,
-      showGrid,
-      gridColor,
-      disableBoundaryChecks,
-      disableHiDPIScaling,
-      disableCanvasRotation,
-      crossOrigin,
-    })
-  }, [
+  // Keep the core config in sync with props. This runs during render so the
+  // canvas dimensions read below are never one render behind.
+  coreRef.current.updateConfig({
     width,
     height,
     border,
@@ -168,7 +211,7 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
     disableHiDPIScaling,
     disableCanvasRotation,
     crossOrigin,
-  ])
+  })
 
   const getCanvas = useCallback((): HTMLCanvasElement => {
     if (!canvas.current) {
@@ -344,9 +387,6 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
   useEffect(() => {
     const context = getContext()
 
-    if (image) {
-      loadImage(image)
-    }
     coreRef.current.paint(context)
 
     const handleDocumentMouseMove = (e: MouseEvent | TouchEvent) => {
@@ -458,7 +498,21 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
     } else if (!image && imageState.x !== 0.5 && imageState.y !== 0.5) {
       clearImage()
     }
-  }, [image, width, height, backgroundColor])
+  }, [image])
+
+  // Effect to fit an already loaded image to a new crop size without reloading
+  useEffect(() => {
+    const current = coreRef.current.getImageState()
+    if (!current.resource) return
+    const size = coreRef.current.getInitialSize(
+      current.resource.width,
+      current.resource.height,
+    )
+    if (size.width === current.width && size.height === current.height) return
+    const next = { ...current, ...size }
+    coreRef.current.setImageState(next)
+    setImageState(next)
+  }, [width, height])
 
   // Effect to apply a controlled position prop to the loaded image
   const positionX = position?.x
@@ -563,6 +617,9 @@ const AvatarEditor = forwardRef<AvatarEditorRef, Props>((props, ref) => {
     touchAction: 'none',
     maxWidth: 'none',
     maxHeight: 'none',
+    // An inline canvas leaves a gap below it, which would grow the parent
+    // (and so the canvas) on every measurement
+    ...(isResponsive && { display: 'block' }),
   }
 
   return React.createElement('canvas', {

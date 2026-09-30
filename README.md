@@ -118,6 +118,18 @@ function MyEditor() {
 }
 ```
 
+### Responsive size
+
+`width` and `height` also accept a percentage of the parent element. The editor measures its parent and follows it when it resizes. A percentage sets the size of the whole canvas, and the crop area is that minus `border` on each side.
+
+```tsx
+<div style={{ width: '100%', maxWidth: 600 }}>
+  <AvatarEditor image={image} width="100%" height={300} border={20} />
+</div>
+```
+
+The canvas becomes `display: block` in this mode. A percentage `height` needs a parent with a fixed height, as in CSS. Resizing keeps the image, position and zoom. The crop area just changes size.
+
 ### With drag and drop
 
 Using [react-dropzone](https://github.com/react-dropzone/react-dropzone):
@@ -179,37 +191,37 @@ function MyEditor() {
 
 ## Props
 
-| Prop                    | Type                 | Default          | Description                                                                                   |
-| ----------------------- | -------------------- | ---------------- | --------------------------------------------------------------------------------------------- |
-| `image`                 | `string \| File`     |                  | The URL or File object of the image to edit.                                                  |
-| `width`                 | `number`             | `200`            | Width of the crop area in pixels.                                                             |
-| `height`                | `number`             | `200`            | Height of the crop area in pixels.                                                            |
-| `border`                | `number \| number[]` | `25`             | Border size around the crop area. Use an array `[horizontal, vertical]` for different values. |
-| `borderRadius`          | `number`             | `0`              | Border radius of the crop area. Set to `width / 2` for a circle.                              |
-| `color`                 | `number[]`           | `[0, 0, 0, 0.5]` | RGBA color of the crop mask overlay.                                                          |
-| `borderColor`           | `number[]`           |                  | RGBA color of the 1px border around the crop area. No border if omitted.                      |
-| `backgroundColor`       | `string`             |                  | Background color for transparent images (CSS color string).                                   |
-| `scale`                 | `number`             | `1`              | Zoom level. `1` = fit, `> 1` = zoom in, `< 1` = zoom out (requires `disableBoundaryChecks`).  |
-| `rotate`                | `number`             | `0`              | Rotation in degrees.                                                                          |
-| `position`              | `{ x, y }`           |                  | Center of the crop area (0–1 range). Set this + `onPositionChange` for controlled panning.    |
-| `style`                 | `CSSProperties`      |                  | Additional CSS styles for the canvas element.                                                 |
-| `crossOrigin`           | `string`             |                  | `crossOrigin` attribute for the image. Use `"anonymous"` for CORS images.                     |
-| `showGrid`              | `boolean`            | `false`          | Show a rule-of-thirds grid overlay.                                                           |
-| `gridColor`             | `string`             | `"#666"`         | Color of the grid lines.                                                                      |
-| `disableBoundaryChecks` | `boolean`            | `false`          | Allow the image to be moved outside the crop boundary.                                        |
-| `disableHiDPIScaling`   | `boolean`            | `false`          | Disable `devicePixelRatio` scaling. Can improve performance on mobile.                        |
-| `disableCanvasRotation` | `boolean`            | `true`           | When `false`, the canvas resizes to fit the rotated image.                                    |
-| `onLoadStart`           | `() => void`         |                  | Called when image loading begins.                                                             |
-| `onLoadSuccess`         | `(image) => void`    |                  | Called when the image loads successfully.                                                     |
-| `onLoadFailure`         | `() => void`         |                  | Called when the image fails to load.                                                          |
-| `onImageReady`          | `() => void`         |                  | Called when the image is first painted on the canvas.                                         |
-| `onImageChange`         | `() => void`         |                  | Called on every visual change (drag, scale, rotate, etc.).                                    |
-| `onMouseUp`             | `() => void`         |                  | Called when the user releases the mouse after dragging.                                       |
-| `onMouseMove`           | `(event) => void`    |                  | Called on every mouse/touch move while dragging.                                              |
-| `onPositionChange`      | `(position) => void` |                  | Called when the crop position changes. Receives `{ x, y }`.                                   |
-| `onRequestScaleChange`  | `(scale) => void`    |                  | Called when the user zooms via +/- keys, pinch, or wheel. Receives the requested new scale.   |
-| `enableWheelZoom`       | `boolean`            | `false`          | Zoom with the mouse wheel / trackpad. Requires `onRequestScaleChange`.                        |
-| `keyboardStep`          | `number`             | `1`              | Pixels to move per arrow key press. Shift multiplies by 10.                                   |
+| Prop                    | Type                 | Default          | Description                                                                                                |
+| ----------------------- | -------------------- | ---------------- | ---------------------------------------------------------------------------------------------------------- |
+| `image`                 | `string \| File`     |                  | The URL or File object of the image to edit.                                                               |
+| `width`                 | `number \| string`   | `200`            | Width of the crop area in pixels, or a percentage like `"100%"` (see [Responsive size](#responsive-size)). |
+| `height`                | `number \| string`   | `200`            | Height of the crop area in pixels, or a percentage like `"50%"`.                                           |
+| `border`                | `number \| number[]` | `25`             | Border size around the crop area. Use an array `[horizontal, vertical]` for different values.              |
+| `borderRadius`          | `number`             | `0`              | Border radius of the crop area. Set to `width / 2` for a circle.                                           |
+| `color`                 | `number[]`           | `[0, 0, 0, 0.5]` | RGBA color of the crop mask overlay.                                                                       |
+| `borderColor`           | `number[]`           |                  | RGBA color of the 1px border around the crop area. No border if omitted.                                   |
+| `backgroundColor`       | `string`             |                  | Background color for transparent images (CSS color string).                                                |
+| `scale`                 | `number`             | `1`              | Zoom level. `1` = fit, `> 1` = zoom in, `< 1` = zoom out (requires `disableBoundaryChecks`).               |
+| `rotate`                | `number`             | `0`              | Rotation in degrees.                                                                                       |
+| `position`              | `{ x, y }`           |                  | Center of the crop area (0–1 range). Set this + `onPositionChange` for controlled panning.                 |
+| `style`                 | `CSSProperties`      |                  | Additional CSS styles for the canvas element.                                                              |
+| `crossOrigin`           | `string`             |                  | `crossOrigin` attribute for the image. Use `"anonymous"` for CORS images.                                  |
+| `showGrid`              | `boolean`            | `false`          | Show a rule-of-thirds grid overlay.                                                                        |
+| `gridColor`             | `string`             | `"#666"`         | Color of the grid lines.                                                                                   |
+| `disableBoundaryChecks` | `boolean`            | `false`          | Allow the image to be moved outside the crop boundary.                                                     |
+| `disableHiDPIScaling`   | `boolean`            | `false`          | Disable `devicePixelRatio` scaling. Can improve performance on mobile.                                     |
+| `disableCanvasRotation` | `boolean`            | `true`           | When `false`, the canvas resizes to fit the rotated image.                                                 |
+| `onLoadStart`           | `() => void`         |                  | Called when image loading begins.                                                                          |
+| `onLoadSuccess`         | `(image) => void`    |                  | Called when the image loads successfully.                                                                  |
+| `onLoadFailure`         | `() => void`         |                  | Called when the image fails to load.                                                                       |
+| `onImageReady`          | `() => void`         |                  | Called when the image is first painted on the canvas.                                                      |
+| `onImageChange`         | `() => void`         |                  | Called on every visual change (drag, scale, rotate, etc.).                                                 |
+| `onMouseUp`             | `() => void`         |                  | Called when the user releases the mouse after dragging.                                                    |
+| `onMouseMove`           | `(event) => void`    |                  | Called on every mouse/touch move while dragging.                                                           |
+| `onPositionChange`      | `(position) => void` |                  | Called when the crop position changes. Receives `{ x, y }`.                                                |
+| `onRequestScaleChange`  | `(scale) => void`    |                  | Called when the user zooms via +/- keys, pinch, or wheel. Receives the requested new scale.                |
+| `enableWheelZoom`       | `boolean`            | `false`          | Zoom with the mouse wheel / trackpad. Requires `onRequestScaleChange`.                                     |
+| `keyboardStep`          | `number`             | `1`              | Pixels to move per arrow key press. Shift multiplies by 10.                                                |
 
 ## Contributing
 
