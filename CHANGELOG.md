@@ -1,6 +1,6 @@
 # Changelog
 
-## 16.0.0 (2026-09-30)
+## 16.0.0 (2026-10-01)
 
 ### Breaking changes
 
@@ -22,6 +22,15 @@ The public API is unchanged, but several behaviors differ from v15. Check these 
 - **Rotated images no longer show empty corners** ([#377](https://github.com/mosch/react-avatar-editor/issues/377)) — the drag boundary now accounts for `rotate`, so the crop area stays filled at any angle. If the image is not zoomed in enough to fill the rotated crop, it is centered.
 - **Changing `width` or `height` no longer reloads the image** — the loaded image is resized in place and keeps its position.
 - **The image is loaded once on mount** — it was loaded twice, so `onLoadStart` and `onLoadSuccess` fired twice.
+
+### Docs
+
+- **Saving as JPEG** ([#388](https://github.com/mosch/react-avatar-editor/issues/388)) — new README section on exporting smaller files with `toBlob(cb, 'image/jpeg', quality)`, and on `getImageScaledToCanvas()` vs `getImage()`.
+
+### Chores
+
+- The lib build now builds `@react-avatar-editor/core` first, so type generation no longer logs errors during publish.
+- Removed a redundant `.npmrc` that made npm warn about an unknown config.
 
 ## 15.2.0 (2026-09-30)
 
@@ -62,9 +71,6 @@ The public API is unchanged, but several behaviors differ from v15. Check these 
 
 ### Features
 
-- **`useAvatarEditor` hook** — new ergonomic API for accessing editor methods.
-- **`onLoadStart` callback** — fires when image loading begins.
-- **Loading indicator** — pulsating canvas fill during image load.
 - **`showGrid` / `gridColor` props** — rule-of-thirds grid overlay (existed in source but was non-functional in v13/v14 npm releases).
 - **`borderColor` prop** — draw a 1px border around the crop mask.
 
@@ -82,5 +88,5 @@ The public API is unchanged, but several behaviors differ from v15. Check these 
 
 - Migrated from ESLint + Prettier to oxlint + oxfmt.
 - Migrated from tsdown to Vite for library builds.
-- 123 unit tests (84 core + 39 component) + 8 Playwright visual regression tests.
+- 119 unit tests (84 core + 35 component) + a Playwright visual regression test.
 - TypeScript 5.9, Vite 8, React 19 (dev).
